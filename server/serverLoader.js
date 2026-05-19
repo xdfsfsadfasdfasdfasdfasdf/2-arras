@@ -1,0 +1,29 @@
+const { workerData, parentPort } = require("worker_threads");
+
+// Load required game components
+let GLOBAL = require("./loaders/loader.js");
+// Create the game server
+new (require("./game.js").gameServer)(
+    workerData.host,
+    workerData.port,
+    workerData.gamemode,
+    workerData.region,
+    workerData.webProperties,
+    workerData.properties,
+    workerData.isFeatured,
+    parentPort,
+    GLOBAL
+);
+
+// Handle commands sent from the main thread (dev terminal)
+parentPort.on("message", (data) => {
+    const [cmd, ...args] = data;
+    if (!global.gameManager) return;
+    if (cmd === "closeArena") {
+        if (args[0]) global.gameManager._forcedVariation = args[0];
+        global.gameManager.closeArena();
+    } else if (cmd === "stopArena") {
+        if (args[0]) global.gameManager._forcedVariation = args[0];
+        global.gameManager.stopArena();
+    } else if (cmd === "broadcast") global.gameManager.socketManager.broadcast(args[0]);
+});
