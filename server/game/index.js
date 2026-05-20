@@ -252,9 +252,9 @@ class gameHandler {
             instance.updateAABB(instance.activation.active);
             // Check collisions.
             logs.collide.set();
-            for (const other of grid.query(instance.minX, instance.minY, instance.maxX, instance.maxY).values()) {
+            grid.query(instance.minX, instance.minY, instance.maxX, instance.maxY, (other) => {
                 this.collide(instance, other);
-            }
+            });
             if (instance.isInGrid) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
             logs.collide.mark();
             if ((instance.touchingSizeWall === false || instance.collisionArray.length === 0) && instance.originalSize) {
@@ -313,14 +313,12 @@ class gameHandler {
             totalFoods = 1 + Math.floor(Math.random() * Config.food_group_cap);
         }
 
-        // Helper for cleanup interval
+        // Remove from tracking array the moment the entity dies — no polling interval needed.
         const setupCleanup = (arr, o) => {
-            const loop = setInterval(() => {
-                if (o.isDead()) {
-                    util.remove(arr, arr.indexOf(o));
-                    clearInterval(loop);
-                }
-            }, 1500);
+            o.once('dead', () => {
+                const idx = arr.indexOf(o);
+                if (idx !== -1) arr.splice(idx, 1);
+            });
         };
 
         // Nest food/enemy spawn
@@ -529,11 +527,14 @@ class gameHandler {
         let maintainloop = setInterval(() => {
             if (!this.active) return clearInterval(maintainloop);
             global.gameManager.gameSpeedCheckHandler.update();
-            global.gameManager.gamemodeManager.request("loop");
-            this.maintainloop();
+            if (this.checkUsers()) {
+                global.gameManager.gamemodeManager.request("loop");
+                this.maintainloop();
+            }
         }, 1000);
         let otherloop = setInterval(() => {
             if (!this.active) return clearInterval(otherloop);
+            if (!this.checkUsers()) return;
             this.quickMaintainLoop();
             global.gameManager.socketManager.chatLoop();
         }, 200)

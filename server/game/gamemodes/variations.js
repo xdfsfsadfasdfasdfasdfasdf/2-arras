@@ -48,13 +48,13 @@ module.exports = {
         { name: 'Siege Fortress', modes: ['siege_fortress'], overrides: {} },
     ],
 
-    // Old Siege (merged)  →  all siege variants including Old Siege
+    // Old Siege (merged)  →  all siege variants including Old Siege, no shapes
     'old_siege': [
-        { name: 'Old Siege',      modes: ['old_siege'],      overrides: {} },
-        { name: 'Siege Classic',  modes: ['siege_classic'],  overrides: {} },
-        { name: 'Siege Citadel',  modes: ['siege_citadel'],  overrides: {} },
-        { name: 'Siege Blitz',    modes: ['siege_blitz'],    overrides: {} },
-        { name: 'Siege Fortress', modes: ['siege_fortress'], overrides: {} },
+        { name: 'Old Siege',      modes: ['old_siege'],      overrides: { enable_food: false } },
+        { name: 'Siege Classic',  modes: ['siege_classic'],  overrides: { enable_food: false } },
+        { name: 'Siege Citadel',  modes: ['siege_citadel'],  overrides: { enable_food: false } },
+        { name: 'Siege Blitz',    modes: ['siege_blitz'],    overrides: { enable_food: false } },
+        { name: 'Siege Fortress', modes: ['siege_fortress'], overrides: { enable_food: false } },
     ],
 
     // Old Dreadnoughts  →  Growth / Overgrowth / Old Dreadnoughts, each with FFA / 2TDM / 4TDM arena

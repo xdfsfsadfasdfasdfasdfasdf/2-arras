@@ -8,7 +8,7 @@ module.exports = {
     port: process.env.PORT || 3000, // Which port to run the web server on.
 
     // Server
-    visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
+    visible_list_interval: 500, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     startup_logs: true, // Enable startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
 
@@ -50,7 +50,7 @@ module.exports = {
             featured: false,
             unlisted: false,
             private: false,
-            properties: { bot_cap: 0 }
+            properties: { bot_cap: 0, enable_food: false }
         },
         {
             share_client_server: false,
@@ -120,7 +120,7 @@ module.exports = {
     tier_multiplier: 15, // Level difference between each tier.
 
     // Bots
-    bot_cap: 24, // Maximum number of bots that can be on the server. Set to 0 to disable bots.
+    bot_cap: 0, // Maximum number of bots that can be on the server. Set to 0 to disable bots.
     bot_xp_gain: 60, // How much XP bots get until they reach level_cap.
     bot_start_level: 45, // How much XP bots will receive when first created.
     bot_skill_upgrade_chances: [1, 1, 3, 4, 4, 4, 4, 2, 1, 1], // The chances of a bot upgrading a specific skill when skill upgrades are available.
