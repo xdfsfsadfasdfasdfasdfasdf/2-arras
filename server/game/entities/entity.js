@@ -101,6 +101,13 @@ class Entity extends EventEmitter {
         this.maxX = 0;
         this.maxY = 0;
         this.collidingBond = false;
+        // Pre-allocated camera state — avoids per-tick heap allocation in camera()
+        this._cameraInfo = Object.create(null);
+        this._cameraGuns = [];
+        this._cameraTurrets = [];
+        this._tapCache = null;
+        this._tapTurSize = -1;
+        this._tapPrpSize = -1;
         // Optimized AABB calculation and update
         this.updateAABB = (active) => {
             this.antiNaN.update();
@@ -713,73 +720,73 @@ class Entity extends EventEmitter {
     }
 
     camera() {
-        // Get bound data
-        const turretsAndProps = Array.from(this.turrets.values()).concat(Array.from(this.props.values()));
-        turretsAndProps.sort((a, b) => a.bound.layer - b.bound.layer);
-        
-        // Calculate type value more efficiently
-        const typeValue = (this.settings.drawHealth ? 0x02 : 0) + 
+        // Rebuild sorted turrets+props array only when Map sizes change (they only change on define())
+        if (this._tapCache === null || this._tapTurSize !== this.turrets.size || this._tapPrpSize !== this.props.size) {
+            this._tapTurSize = this.turrets.size;
+            this._tapPrpSize = this.props.size;
+            this._tapCache = [...this.turrets.values(), ...this.props.values()].sort((a, b) => a.bound.layer - b.bound.layer);
+        }
+
+        const typeValue = (this.settings.drawHealth ? 0x02 : 0) +
                           (((this.type === "tank" || this.type === "miniboss") && this.displayName) ? 0x04 : 0);
-        
-        // Determine layer value more efficiently
-        const layerValue = this.layerID || (this.bond != null ? this.bound.layer : 
-                          (this.type === "wall" ? 11 : 
-                           this.type === "food" ? 10 : 
-                           this.type === "tank" ? 5 : 
+        const layerValue = this.layerID || (this.bond != null ? this.bound.layer :
+                          (this.type === "wall" ? 11 :
+                           this.type === "food" ? 10 :
+                           this.type === "tank" ? 5 :
                            this.type === "crasher" ? 1 : 0));
 
-        // Split the score in half if we are in incognito mode
         let score = this.skill.score;
         if (this.incognito) {
             if (this.skill.level < 56) score = 26263;
             if (this.skill.level > 56) score = score / 2;
         }
-        // Create camera info object
-        const cameraInfo = {
-            type: typeValue,
-            invuln: this.invuln,
-            id: this.id,
-            index: this.index,
-            x: this.x,
-            y: this.y,
-            vx: this.velocity.x,
-            vy: this.velocity.y,
-            size: this.size,
-            realSize: this.realSize,
-            health: this.health.display(),
-            shield: this.shield.display(),
-            alpha: this.alpha,
-            facing: this.facing,
-            vfacing: this.vfacing,
-            twiggle: forceTwiggle.includes(this.facingType) || this.eastereggs.braindamage || 
+
+        // Reuse pre-allocated guns array — gunsArrayed is already maintained by define()
+        const gunsArr = this._cameraGuns;
+        gunsArr.length = this.gunsArrayed.length;
+        for (let i = 0; i < this.gunsArrayed.length; i++) gunsArr[i] = this.gunsArrayed[i].getPhotoInfo();
+
+        // Reuse pre-allocated turrets array
+        const turArr = this._cameraTurrets;
+        turArr.length = this._tapCache.length;
+        for (let i = 0; i < this._tapCache.length; i++) turArr[i] = this._tapCache[i].camera();
+
+        // Mutate pre-allocated cameraInfo object — avoids one heap allocation per entity per tick
+        const ci = this._cameraInfo;
+        ci.type = typeValue;
+        ci.invuln = this.invuln;
+        ci.id = this.id;
+        ci.index = this.index;
+        ci.x = this.x;
+        ci.y = this.y;
+        ci.vx = this.velocity.x;
+        ci.vy = this.velocity.y;
+        ci.size = this.size;
+        ci.realSize = this.realSize;
+        ci.health = this.health.display();
+        ci.shield = this.shield.display();
+        ci.alpha = this.alpha;
+        ci.facing = this.facing;
+        ci.vfacing = this.vfacing;
+        ci.twiggle = forceTwiggle.includes(this.facingType) || this.eastereggs.braindamage ||
                     this.settings.connectChildrenOnCamera || (this.facingType === "locksFacing" && this.control.alt) ||
-                    this.syncWithTank,
-            layer: layerValue,
-            color: this.color.compiled,
-            borderless: this.borderless,
-            drawFill: this.drawFill,
-            name: (this.nameColor || "#ffffff") + this.name,
-            score: this.settings.scoreLabel || score,
-            guns: Array.from(this.guns.values()).map(gun => gun.getPhotoInfo()),
-            turrets: turretsAndProps.map(turret => turret.camera()),
-        };
-        
-        // Process child camera connections if needed
+                    this.syncWithTank;
+        ci.layer = layerValue;
+        ci.color = this.color.compiled;
+        ci.borderless = this.borderless;
+        ci.drawFill = this.drawFill;
+        ci.name = (this.nameColor || "#ffffff") + this.name;
+        ci.score = this.settings.scoreLabel || score;
+        ci.guns = gunsArr;
+        ci.turrets = turArr;
+
         if (this.settings.connectChildrenOnCamera) {
             if (this.children.length > 0 || this.bulletchildren.length > 0) {
-                // Initialize variables
-                let sumX = cameraInfo.x;
-                let sumY = cameraInfo.y;
-                
-                // Process all children in one pass with a single array
-                const allChildren = [...this.children, ...this.bulletchildren];
-                for (let i = 0; i < allChildren.length; i++) {
-                    sumX += allChildren[i].x;
-                    sumY += allChildren[i].y;
-                }
-                
-                // Calculate average position (add 1 to count for this entity)
-                const totalCount = allChildren.length + 1;
+                let sumX = ci.x, sumY = ci.y;
+                const ch = this.children, bch = this.bulletchildren;
+                for (let i = 0; i < ch.length; i++) { sumX += ch[i].x; sumY += ch[i].y; }
+                for (let i = 0; i < bch.length; i++) { sumX += bch[i].x; sumY += bch[i].y; }
+                const totalCount = ch.length + bch.length + 1;
                 this.cameraOverrideX = sumX / totalCount;
                 this.cameraOverrideY = sumY / totalCount;
             } else {
@@ -787,8 +794,8 @@ class Entity extends EventEmitter {
                 this.cameraOverrideY = null;
             }
         }
-        
-        return cameraInfo;
+
+        return ci;
     }
 
     isBeingViewed(addToNearby = true) {

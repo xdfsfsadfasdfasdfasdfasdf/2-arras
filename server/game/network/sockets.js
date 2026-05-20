@@ -1400,34 +1400,33 @@ class socketManager {
     }
 
     perspective(e, player, data) {
-        if (player.body != null) {
-            if (e.alpha < 1 && !e.limited && !player.body.settings.canSeeInvisible) {
-                data[18] = Math.round(255 * this.getInvisEntityAlpha(player, e));
+        if (player.body == null) return data;
+        const owned = player.body.id === e.master.id;
+        const canSeeInvis = player.body.settings.canSeeInvisible;
+        const sameTeam = player.body.team === e.source.team &&
+            (Config.groups || (Config.mode == 'ffa' || Config.mode == 'clan' && !Config.tag));
+        const needsAlpha = e.alpha < 1 && !e.limited && !canSeeInvis;
+        if (!(owned || canSeeInvis || sameTeam || needsAlpha)) return data;
+        // Single slice covering all modifications — also fixes the pre-existing bug where
+        // needsAlpha directly mutated the shared flattenedPhoto without copying first
+        data = data.slice();
+        if (needsAlpha) data[18] = Math.round(255 * this.getInvisEntityAlpha(player, e));
+        if (owned || sameTeam) {
+            // Cache teamColor per player — only recompute when team changes, not per entity per tick
+            if (player._teamColorTeam !== player.body.team) {
+                player._teamColorTeam = player.body.team;
+                player.teamColor = new Color(!Config.random_body_colors && (Config.groups || (Config.mode == 'ffa' || Config.mode == 'clan' && !Config.tag)) ? 10 : global.getTeamColor(player.body.team)).compiled;
             }
-            if (player.body.id === e.master.id) {
-                data = data.slice(); // So we don't mess up references to the original
-                // Set the proper color if it's on our team and decide what to do about colors when sending updates and stuff
-                player.teamColor = new Color(!Config.random_body_colors && (Config.groups || (Config.mode == 'ffa' || Config.mode == 'clan' && !Config.tag)) ? 10 : global.getTeamColor(player.body.team)).compiled; // blue
-                // And make it force to our mouse if it ought to
-                if (player.command.autospin) {
-                    data[10] = 1;
-                }
-            }
-            if (player.body.settings.canSeeInvisible) {
-                data = data.slice();
-                let alpha = this.getInvisEntityAlpha(player, e);
-                if (e.limited) data[14] = Math.round(255 * alpha);
-                else data[18] = Math.round(255 * alpha);
-            }
-            if (
-                player.body.team === e.source.team &&
-                (Config.groups || (Config.mode == 'ffa' || Config.mode == 'clan' && !Config.tag))
-            ) {
-                // groups
-                data = data.slice();
-                if (e.limited) data[11] = player.teamColor;
-                else data[12] = player.teamColor;
-            }
+        }
+        if (owned && player.command.autospin) data[10] = 1;
+        if (canSeeInvis) {
+            const alpha = this.getInvisEntityAlpha(player, e);
+            if (e.limited) data[14] = Math.round(255 * alpha);
+            else data[18] = Math.round(255 * alpha);
+        }
+        if (sameTeam) {
+            if (e.limited) data[11] = player.teamColor;
+            else data[12] = player.teamColor;
         }
         return data;
     }
@@ -1505,6 +1504,7 @@ class socketManager {
         };
         let lastVisibleUpdate = 0;
         let nearby = new Map();
+        const mockupsToSend = new Set(); // allocated once per socket, cleared each gazeUpon
         let o = {
             socket,
             getNearby: () => nearby,
@@ -1608,8 +1608,8 @@ class socketManager {
                 const fovDiv = camFov / limitDistance;
                 const fovDivY = fovDiv * (9 / 13);
                 
-                // Prepare a batch of mockups to send
-                const mockupsToSend = new Set();
+                // Reuse the per-socket mockupsToSend Set — avoids allocation per gazeUpon call
+                mockupsToSend.clear();
                 
                 // Check each nearby entity for detailed visibility
                 for (const entity of nearby.values()) {
@@ -1640,8 +1640,8 @@ class socketManager {
                         this.sendMockup(index, socket);
                     }
                 }
-                // Spread it for upload
-                const view = [].concat(...visible);
+                // flat() is O(n) without the argument-list overhead of [].concat(...array)
+                const view = visible.flat();
                 if (!Config.load_all_mockups) {
                     for (let upgrade of (player.body?.upgrades || [])) {
                         if (player.body.skill.level >= upgrade.level) {
@@ -1744,20 +1744,12 @@ class socketManager {
             }
         };
         let makeLeaderboardList = (list, args) => {
-            let topTen = [];
-            for (let i = 0; i < 10 && list.length; i++) {
-                let top,
-                    is = 0;
-                for (let j = 0; j < list.length; j++) {
-                    let val = list[j].skill.score;
-                    if (val > is) {
-                        is = val;
-                        top = j;
-                    }
-                }
-                if (is === 0) break;
-                let entry = list[top];
-                let color = entry.leaderboardColor ? entry.leaderboardColor + " 0 1 0 false" 
+            list.sort((a, b) => b.skill.score - a.skill.score);
+            const topTen = [];
+            for (let i = 0; i < list.length && i < 10; i++) {
+                const entry = list[i];
+                if (entry.skill.score === 0) break;
+                const color = entry.leaderboardColor ? entry.leaderboardColor + " 0 1 0 false"
                     : Config.groups || (Config.mode == 'ffa' && !Config.tag) ? '11 0 1 0 false'
                     : entry.color.compiled;
                 topTen.push({
@@ -1773,27 +1765,17 @@ class socketManager {
                         entry.settings.renderOnLeaderboard ?? true,
                     ],
                 });
-                list.splice(top, 1);
             }
             global.gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
             return topTen.sort((a, b) => a.id - b.id);
         }
         let makeLeaderboardHPList = (list) => {
-            let topTen = [];
-            for (let i = 0; i < 10 && list.length; i++) {
-                let top,
-                    is = 0;
-                for (let j = 0; j < list.length; j++) {
-                    let val = list[j].skill.score;
-                    if (val > is) {
-                        is = val;
-                        top = j;
-                    }
-                }
-                if (is === 0) break;
-                let entry = list[top];
+            list.sort((a, b) => (b.health.amount / b.health.max) - (a.health.amount / a.health.max));
+            const topTen = [];
+            for (let i = 0; i < list.length && i < 10; i++) {
+                const entry = list[i];
                 topTen.push({
-                    id: entry.id + 100, // Make independent id
+                    id: entry.id + 100,
                     data: [
                         Math.round((entry.health.amount / entry.health.max) * 100),
                         entry.index.toString(),
@@ -1805,7 +1787,6 @@ class socketManager {
                         false,
                     ]
                 });
-                list.splice(top, 1);
             }
             global.gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
             return topTen.sort((a, b) => a.id - b.id);

@@ -10,6 +10,10 @@ class gameHandler {
         this.naturallySpawnedBosses = [];
         this.bossTimer = 0;
         this.active = false;
+        // Pre-allocated event objects — mutated in place each call, never held asynchronously
+        this._evtTick = { body: null };
+        this._evtCollide1 = { body: null, instance: null, other: null };
+        this._evtCollide2 = { body: null, instance: null, other: null };
     }
     checkUsers = () => global.gameManager.clients.length >= 1;
     // Collision stuff
@@ -18,9 +22,13 @@ class gameHandler {
         // Fast exit for noclip or ghosts
         if (instance.noclip || other.noclip) return 0;
 
-        // Emit collision events
-        instance.emit('collide', { body: instance, instance, other });
-        other.emit('collide', { body: other, instance: other, other: instance });
+        // Emit collision events — reuse pre-allocated objects to avoid per-collision heap allocation
+        this._evtCollide1.body = this._evtCollide1.instance = instance;
+        this._evtCollide1.other = other;
+        instance.emit('collide', this._evtCollide1);
+        this._evtCollide2.body = this._evtCollide2.instance = other;
+        this._evtCollide2.other = instance;
+        other.emit('collide', this._evtCollide2);
         // Custom tick handlers for bullet entities
         if (instance.tickHandler) instance.tickHandler(instance, instance, other);
         if (other.tickHandler) other.tickHandler(other, other, instance);
@@ -222,8 +230,8 @@ class gameHandler {
                 continue;
             }
 
-            // Reset collision array once at the beginning
-            instance.collisionArray = []; 
+            // Clear without allocating a new array each tick
+            instance.collisionArray.length = 0;
 
             // Handle physics only if not bonded
             if (instance.bond == null) {
@@ -270,7 +278,8 @@ class gameHandler {
             instance.activation.update();
             logs.activation.mark();
 
-            instance.emit('tick', { body: instance });
+            this._evtTick.body = instance;
+            instance.emit('tick', this._evtTick);
         }
         logs.entities.mark();
         logs.master.mark();
