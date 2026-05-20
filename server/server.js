@@ -345,6 +345,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
             }
         });
     } else {
+        const webPropsWithPath = { ...webProperties, wsPath: '/ws/' + webProperties.id };
         global.servers.push({ loadedViaMainServer: true });
         setTimeout(() => { // Space it a little out.
             if (global.launchedOnMainServer) {
@@ -352,7 +353,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, webProperties, properties, isFeatured, false);
+            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, webPropsWithPath, properties, isFeatured, false);
         }, 10)
     }
 }

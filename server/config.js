@@ -15,15 +15,17 @@ module.exports = {
     // Server ID format: [region][mode]
     //   region: l = local/dev  u = US  e = EU  a = Asia  t = other
     //   e.g. 'uf' = US FFA, 'um' = US Maze, 'et' = EU TDM, 'ld' = local Domination
-    // Each server needs a unique internal port (only used inside the host, never exposed by Render)
+    // share_client_server: true  → runs on the main port (use for single-port hosts like Render)
+    // share_client_server: false → runs on its own port (set `port` field; main server TCP-proxies to it)
     servers: [
         {
+            share_client_server: true, // routes through the main port
+
             id: 'uf',         // US FFA  —  reachable at /#uf
 
             region: "US",
             gamemode: ['ffa'],
             player_cap: 80,
-            port: 4001,       // internal routing port
 
             featured: true,
             unlisted: false,
@@ -33,8 +35,9 @@ module.exports = {
                 bot_cap: 24
             }
         },
-        // Add more servers here. Each needs a unique id and port.
+        // To add more servers, use share_client_server: false and give each a unique port:
         // {
+        //     share_client_server: false,
         //     id: 'um',       // US Maze  —  reachable at /#um
         //     region: "US",
         //     gamemode: ['maze', 'ffa'],
