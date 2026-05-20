@@ -4,167 +4,31 @@ module.exports = {
 
     // Client
     main_menu: 'index.html', // Where the main menu is located (in the /public folder).
-    host: 'localhost:3000', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
-    port: 3000, // Which port to run the web server on.
+    host: '2-arras-production.up.railway.app', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    port: process.env.PORT || 3000, // Which port to run the web server on.
 
     // Server
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     startup_logs: true, // Enable startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
 
-    servers: [ // Make sure to change the host, port and id between servers!
+    servers: [
         {
-            share_client_server: false, // Only one server at a time can have this enabled.
-            // The above is required if your VM (the machine that hosts the website stuff) doesn't support multi-ports and forces everything through the main server.
-            // This also overrides the below host and port settings to be identical to the main server's host/port (by default, 3000).
+            share_client_server: true, // Routes through the main port (required for Railway/single-port hosts)
 
-            host: 'localhost:3001', // Server host location.
-            port: 3001, // The port on the server.
-            id: 'la', // (<host>/#<id>)
+            id: 'ffa',
 
-            region: "Local", // The region the server is on.
-            gamemode: ['tdm'], // The selected gamemode.
-            player_cap: 80, // Not including bots. Set to 0 to disable.
+            region: "US",
+            gamemode: ['ffa'],
+            player_cap: 80,
 
-            featured: false, // Whether the server is featured or not.
-            unlisted: true, // Whether the server shows up in the server list (if its id isn't in the url).
-            private: true, // Whether the server requires a privileged token to join (except through server travel).
-
-            properties: { // This overrides settings in the config.js file, assuming the selected gamemode doesn't also override it.
-                teams: 4,
-                bot_cap: 40
-            }
-        },
-        {
-            share_client_server: false, // Only one server at a time can have this enabled.
-            // The above is required if your VM (the machine that hosts the website stuff) doesn't support multi-ports and forces everything through the main server.
-            // This also overrides the below host and port settings to be identical to the main server's host/port (by default, 3000).
-
-            host: 'localhost:3002', // Server host location.
-            port: 3002, // The port on the server.
-            id: 'lb', // (<host>/#<id>)
-
-            region: "Local", // The region the server is on.
-            gamemode: ['retrograde', 'ffa'], // The selected gamemode.
-            player_cap: 80, // Not including bots. Set to 0 to disable.
-
-            featured: false, // Whether the server is featured or not.
-            unlisted: true, // Whether the server shows up in the server list (if its id isn't in the url).
-            private: true, // Whether the server requires a privileged token to join (except through server travel).
-
-            properties: { // This overrides settings in the config.js file, assuming the selected gamemode doesn't also override it.
-                teams: 4,
-                bot_cap: 16,
-                server_travel_properties: {
-                    loop_interval: 30_000, // how often the portal loop executes in seconds
-                    portals: 3, // amount of portals to spawn
-                },
-                daily_tank: {
-                    tank: 'whirlwind',
-                    tier: 3,
-                    ads: false,
-                    ad_sources: [
-                        {
-                            file: 'testadvideo.mp4',
-                            use_regular_ad_size: true
-                        },
-                        {
-                            file: 'testadimage.png',
-                            use_regular_ad_size: true
-                        }
-                    ]
-                },
-                server_travel: [
-                    {
-                        ip: 'localhost:3003', // destination server host, don't add "https://" or any slashes to it
-                        portal_properties: {
-                            spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: 'red', // portal color
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            share_client_server: false, // Only one server at a time can have this enabled.
-            // The above is required if your VM (the machine that hosts the website stuff) doesn't support multi-ports and forces everything through the main server.
-            // This also overrides the below host and port settings to be identical to the main server's host/port (by default, 3000).
-
-            host: 'localhost:3003', // Server host location.
-            port: 3003, // The port on the server.
-            id: 'lx', // (<host>/#<id>)
-
-            region: "Local", // The region the server is on.
-            gamemode: ['nexus'], // The selected gamemode.
-            player_cap: 80, // Not including bots. Set to 0 to disable.
-
-            featured: false, // Whether the server is featured or not.
-            unlisted: true, // Whether the server shows up in the server list (if its id isn't in the url).
-            private: true, // Whether the server requires a privileged token to join (except through server travel).
-
-            properties: { // This overrides settings in the config.js file, assuming the selected gamemode doesn't also override it.
-                teams: 4,
-                bot_cap: 0
-                //allow_server_travel: true
-            }
-        },
-        {
-            share_client_server: false, // Only one server at a time can have this enabled.
-            // The above is required if your VM (the machine that hosts the website stuff) doesn't support multi-ports and forces everything through the main server.
-            // This also overrides the below host and port settings to be identical to the main server's host/port (by default, 3000).
-
-            host: 'localhost:3099', // Server host location.
-            port: 3099, // The port on the server.
-            id: 'lz', // (<host>/#<id>)
-
-            region: "Local", // The region the server is on.
-            gamemode: ['sandbox'], // The selected gamemode.
-            player_cap: 16, // Not including bots. Set to 0 to disable.
-
-            featured: false, // Whether the server is featured or not.
-            unlisted: false, // Whether the server shows up in the server list (if its id isn't in the url).
-            private: false, // Whether the server requires a privileged token to join (except through server travel).
-
-            properties: { // This overrides settings in the config.js file, assuming the selected gamemode doesn't also override it.
-                //teams: 4,
-                //bot_cap: 0
-            }
-        },
-        {
-            share_client_server: false,
-
-            host: 'localhost:3004',
-            port: 3004,
-            id: 'ls',
-
-            region: "Local",
-            gamemode: ['siege_classic'],
-            player_cap: 24,
-
-            featured: false,
+            featured: true,
             unlisted: false,
             private: false,
 
             properties: {
-                bot_cap: 0
+                bot_cap: 24
             }
-        },
-        {
-            share_client_server: false,
-
-            host: 'localhost:3005',
-            port: 3005,
-            id: 'lo',
-
-            region: "Local",
-            gamemode: ['old_dreadnoughts'],
-            player_cap: 16,
-
-            featured: false,
-            unlisted: false,
-            private: false,
-
-            properties: {}
         },
     ],
 
