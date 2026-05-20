@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const url = require("url");
+const net = require("net");
 const pjson = require('../package.json')
 
 const { Worker } = require("worker_threads");
@@ -313,10 +314,10 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
         let worker = new Worker("./server/serverLoader.js", {
             workerData: {
                 host,
-                port: port, // Increment port for each server
+                port: port || (4000 + index + 1),
                 gamemode,
                 region,
-                webProperties,
+                webProperties: { ...webProperties, wsPath: '/ws/' + webProperties.id },
                 properties,
                 isFeatured,
                 index,
@@ -393,18 +394,39 @@ server.listen(Config.port, () => {
     })
 });
 
-// Upgrade HTTP connections to WebSocket connections if applicable
+// Upgrade HTTP connections to WebSocket connections, routing to the correct game server by path
 server.on("upgrade", (req, socket, head) => {
-    wsServer.handleUpgrade(req, socket, head, (ws) => {
-        if (global.launchedOnMainServer) {
-            for (let i = 0; i < global.servers.length; i++) {
-                let server = global.servers[i];
-                if (server.gameManager) server.gameManager.socketManager.connect(ws, req);
-            }
-        } else {
-            ws.close();
-        }
+    const reqPath = req.url.split('?')[0];
+    const target = global.servers.find(sv => sv.wsPath && sv.wsPath === reqPath);
+
+    if (!target) { socket.destroy(); return; }
+
+    // share_client_server mode: game runs in main thread
+    if (target.gameManager) {
+        wsServer.handleUpgrade(req, socket, head, (ws) => target.gameManager.socketManager.connect(ws, req));
+        return;
+    }
+
+    // Worker mode: TCP proxy the raw upgrade to the worker's internal HTTP server
+    const proxy = net.connect(target.port, '127.0.0.1');
+    proxy.on('connect', () => {
+        let raw = `${req.method} ${req.url} HTTP/1.1\r\n`;
+        for (let i = 0; i < req.rawHeaders.length; i += 2)
+            raw += `${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}\r\n`;
+        raw += '\r\n';
+        proxy.write(raw);
+        if (head && head.length) proxy.write(head);
+        proxy.pipe(socket);
+        socket.pipe(proxy);
     });
+    const cleanup = () => {
+        try { socket.destroy(); } catch(e) {}
+        try { proxy.destroy(); } catch(e) {}
+    };
+    socket.on('error', cleanup);
+    proxy.on('error', cleanup);
+    socket.on('close', () => { try { proxy.destroy(); } catch(e) {} });
+    proxy.on('close', () => { try { socket.destroy(); } catch(e) {} });
 });
 
 // Set up a loop to periodically call Bun's garbage collector if running under Bun

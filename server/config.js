@@ -12,15 +12,18 @@ module.exports = {
     startup_logs: true, // Enable startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
 
+    // Server ID format: [region][mode]
+    //   region: l = local/dev  u = US  e = EU  a = Asia  t = other
+    //   e.g. 'uf' = US FFA, 'um' = US Maze, 'et' = EU TDM, 'ld' = local Domination
+    // Each server needs a unique internal port (only used inside the host, never exposed by Render)
     servers: [
         {
-            share_client_server: true, // Routes through the main port (required for Railway/single-port hosts)
-
-            id: 'ffa',
+            id: 'uf',         // US FFA  —  reachable at /#uf
 
             region: "US",
             gamemode: ['ffa'],
             player_cap: 80,
+            port: 4001,       // internal routing port
 
             featured: true,
             unlisted: false,
@@ -30,6 +33,16 @@ module.exports = {
                 bot_cap: 24
             }
         },
+        // Add more servers here. Each needs a unique id and port.
+        // {
+        //     id: 'um',       // US Maze  —  reachable at /#um
+        //     region: "US",
+        //     gamemode: ['maze', 'ffa'],
+        //     player_cap: 60,
+        //     port: 4002,
+        //     featured: false,
+        //     properties: { bot_cap: 0 }
+        // },
     ],
 
     // Web Server

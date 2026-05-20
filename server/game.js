@@ -72,6 +72,7 @@ class gameServer {
         this.gamemode = gamemode;
         this.region = region;
         this.webProperties = webProperties;
+        this.wsPath = webProperties.wsPath || null;
         this.serverProperties = serverProperties;
         this.name = "Unknown";
         this.featured = isfeatured;
@@ -122,10 +123,14 @@ class gameServer {
 
     // Get the game info
     getInfo(includegameManager = false) {
+        const ip = this.wsPath
+            ? (Config.host === 'localhost' ? `${Config.host}:${Config.port}${this.wsPath}` : `${Config.host}${this.wsPath}`)
+            : (this.host === "localhost" ? `${this.host}:${this.port}` : this.host);
         return {
             hidden: this.serverProperties.hidden ?? false,
-            ip: this.host === "localhost" ? `${this.host}:${this.port}` : this.host,
+            ip,
             port: this.port,
+            wsPath: this.wsPath,
             players: this.socketManager.clients.length,
             maxPlayers: this.webProperties.maxPlayers,
             id: this.webProperties.id,
@@ -193,7 +198,7 @@ class gameServer {
                     res.end("Not found");
                 } break;
             }
-        }).listen(this.port);
+        }).listen(this.port, '127.0.0.1');
         // Reroute all the upgrade messages to our socket
         this.httpServer.on("upgrade", (req, socket, head) => {
             this.wsServer.handleUpgrade(req, socket, head, ws => socketManager.connect(ws, req))
