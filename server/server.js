@@ -346,7 +346,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
     } else {
         const webPropsWithPath = { ...webProperties, wsPath: '/ws/' + webProperties.id };
         global.servers.push({ loadedViaMainServer: true });
-        setTimeout(() => { // Space it a little out.
+        setTimeout(() => {
             if (global.launchedOnMainServer) {
                 console.warn("Only one server can be loaded via through the main server!\nProcess terminated.");
                 process.exit(1);

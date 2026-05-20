@@ -14,43 +14,44 @@ module.exports = {
 
     // Server ID format: [region][mode]
     //   region: l = local/dev  u = US  e = EU  a = Asia  t = other
-    // share_client_server: true  → runs on the main port (only ONE server can use this)
-    // share_client_server: false → worker thread; give it a unique internal `port`
+    // All servers run as worker threads (share_client_server: false).
+    // Each needs a unique internal port — only the main PORT is exposed by Render.
     servers: [
         {
-            share_client_server: true, // main port — must be exactly one of these
+            share_client_server: false,
             id: 'uf',         // US FFA  —  /#uf
             region: "US",
             gamemode: ['ffa'],
             player_cap: 80,
-            featured: true,
+            port: 4001,
+            featured: false,
             unlisted: false,
             private: false,
-            properties: { bot_cap: 24 }
+            properties: {}
         },
         {
             share_client_server: false,
             id: 'um',         // US Maze  —  /#um
             region: "US",
             gamemode: ['maze', 'ffa'],
-            player_cap: 60,
+            player_cap: 80,
             port: 4002,
             featured: false,
             unlisted: false,
             private: false,
-            properties: { bot_cap: 0 }
+            properties: {}
         },
         {
             share_client_server: false,
             id: 'us',         // US Siege (rotates: Old Siege / Classic / Citadel / Blitz / Fortress)  —  /#us
             region: "US",
             gamemode: ['old_siege'],
-            player_cap: 60,
+            player_cap: 80,
             port: 4003,
             featured: false,
             unlisted: false,
             private: false,
-            properties: { bot_cap: 0, enable_food: false }
+            properties: { enable_food: false }
         },
         {
             share_client_server: false,
@@ -62,7 +63,7 @@ module.exports = {
             featured: false,
             unlisted: false,
             private: false,
-            properties: { bot_cap: 0 }
+            properties: {}
         },
     ],
 
