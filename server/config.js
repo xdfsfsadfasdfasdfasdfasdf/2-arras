@@ -4,7 +4,7 @@ module.exports = {
 
     // Client
     main_menu: 'index.html', // Where the main menu is located (in the /public folder).
-    host: '2-arras-production.up.railway.app', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    host: 'two-arras.onrender.com', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
     port: process.env.PORT || 3000, // Which port to run the web server on.
 
     // Server
