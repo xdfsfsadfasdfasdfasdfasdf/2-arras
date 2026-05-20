@@ -4,7 +4,7 @@ module.exports = {
 
     // Client
     main_menu: 'index.html', // Where the main menu is located (in the /public folder).
-    host: 'two-arras.onrender.com', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    host: process.env.RENDER_EXTERNAL_HOSTNAME || process.env.HOST || 'localhost', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
     port: process.env.PORT || 3000, // Which port to run the web server on.
 
     // Server
