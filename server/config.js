@@ -42,9 +42,9 @@ module.exports = {
         },
         {
             share_client_server: false,
-            id: 'us',         // US Siege Classic  —  /#us
+            id: 'us',         // US Siege (rotates: Old Siege / Classic / Citadel / Blitz / Fortress)  —  /#us
             region: "US",
-            gamemode: ['siege_classic'],
+            gamemode: ['old_siege'],
             player_cap: 60,
             port: 4003,
             featured: false,
@@ -54,10 +54,10 @@ module.exports = {
         },
         {
             share_client_server: false,
-            id: 'uo',         // US Old Siege  —  /#uo
+            id: 'ud',         // US Old Dreadnoughts (rotates: Growth / Overgrowth / Old Dreadnoughts)  —  /#ud
             region: "US",
-            gamemode: ['old_siege'],
-            player_cap: 60,
+            gamemode: ['old_dreadnoughts'],
+            player_cap: 80,
             port: 4004,
             featured: false,
             unlisted: false,
