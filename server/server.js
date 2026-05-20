@@ -6,7 +6,6 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const url = require("url");
-const net = require("net");
 const pjson = require('../package.json')
 
 const { Worker } = require("worker_threads");
@@ -408,26 +407,23 @@ server.on("upgrade", (req, socket, head) => {
         return;
     }
 
-    // Worker mode: TCP proxy the raw upgrade to the worker's internal HTTP server
-    const proxy = net.connect(target.port, '127.0.0.1');
-    proxy.on('connect', () => {
-        let raw = `${req.method} ${req.url} HTTP/1.1\r\n`;
-        for (let i = 0; i < req.rawHeaders.length; i += 2)
-            raw += `${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}\r\n`;
-        raw += '\r\n';
-        proxy.write(raw);
-        if (head && head.length) proxy.write(head);
-        proxy.pipe(socket);
-        socket.pipe(proxy);
+    // Worker mode: WebSocket-level proxy — handshake with client, then bridge to worker's internal WS
+    wsServer.handleUpgrade(req, socket, head, (clientWs) => {
+        const upstream = new (require('ws'))(`ws://127.0.0.1:${target.port}`);
+        upstream.on('open', () => {
+            clientWs.on('message', (data, isBinary) => {
+                if (upstream.readyState === 1) upstream.send(data, { binary: isBinary });
+            });
+            upstream.on('message', (data, isBinary) => {
+                if (clientWs.readyState === 1) clientWs.send(data, { binary: isBinary });
+            });
+            clientWs.on('close', () => { try { upstream.terminate(); } catch(e) {} });
+            upstream.on('close', () => { try { clientWs.terminate(); } catch(e) {} });
+            clientWs.on('error', () => { try { upstream.terminate(); } catch(e) {} });
+            upstream.on('error', () => { try { clientWs.terminate(); } catch(e) {} });
+        });
+        upstream.on('error', () => { try { clientWs.terminate(); } catch(e) {} });
     });
-    const cleanup = () => {
-        try { socket.destroy(); } catch(e) {}
-        try { proxy.destroy(); } catch(e) {}
-    };
-    socket.on('error', cleanup);
-    proxy.on('error', cleanup);
-    socket.on('close', () => { try { proxy.destroy(); } catch(e) {} });
-    proxy.on('close', () => { try { socket.destroy(); } catch(e) {} });
 });
 
 // Set up a loop to periodically call Bun's garbage collector if running under Bun

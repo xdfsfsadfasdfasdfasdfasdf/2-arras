@@ -14,38 +14,56 @@ module.exports = {
 
     // Server ID format: [region][mode]
     //   region: l = local/dev  u = US  e = EU  a = Asia  t = other
-    //   e.g. 'uf' = US FFA, 'um' = US Maze, 'et' = EU TDM, 'ld' = local Domination
-    // share_client_server: true  → runs on the main port (use for single-port hosts like Render)
-    // share_client_server: false → runs on its own port (set `port` field; main server TCP-proxies to it)
+    // share_client_server: true  → runs on the main port (only ONE server can use this)
+    // share_client_server: false → worker thread; give it a unique internal `port`
     servers: [
         {
-            share_client_server: true, // routes through the main port
-
-            id: 'uf',         // US FFA  —  reachable at /#uf
-
+            share_client_server: true, // main port — must be exactly one of these
+            id: 'uf',         // US FFA  —  /#uf
             region: "US",
             gamemode: ['ffa'],
             player_cap: 80,
-
             featured: true,
             unlisted: false,
             private: false,
-
-            properties: {
-                bot_cap: 24
-            }
+            properties: { bot_cap: 24 }
         },
-        // To add more servers, use share_client_server: false and give each a unique port:
-        // {
-        //     share_client_server: false,
-        //     id: 'um',       // US Maze  —  reachable at /#um
-        //     region: "US",
-        //     gamemode: ['maze', 'ffa'],
-        //     player_cap: 60,
-        //     port: 4002,
-        //     featured: false,
-        //     properties: { bot_cap: 0 }
-        // },
+        {
+            share_client_server: false,
+            id: 'um',         // US Maze  —  /#um
+            region: "US",
+            gamemode: ['maze', 'ffa'],
+            player_cap: 60,
+            port: 4002,
+            featured: false,
+            unlisted: false,
+            private: false,
+            properties: { bot_cap: 0 }
+        },
+        {
+            share_client_server: false,
+            id: 'us',         // US Siege Classic  —  /#us
+            region: "US",
+            gamemode: ['siege_classic'],
+            player_cap: 60,
+            port: 4003,
+            featured: false,
+            unlisted: false,
+            private: false,
+            properties: { bot_cap: 0 }
+        },
+        {
+            share_client_server: false,
+            id: 'uo',         // US Old Siege  —  /#uo
+            region: "US",
+            gamemode: ['old_siege'],
+            player_cap: 60,
+            port: 4004,
+            featured: false,
+            unlisted: false,
+            private: false,
+            properties: { bot_cap: 0 }
+        },
     ],
 
     // Web Server
