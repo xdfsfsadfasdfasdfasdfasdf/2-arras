@@ -26,10 +26,10 @@ class Vector {
         return this.x * this.x + this.y * this.y <= d * d;
     }
     get lengthSquared() {
-        return Math.pow(this.x, 2) + Math.pow(this.y, 2);
+        return this.x * this.x + this.y * this.y;
     }
     get length() {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        return Math.sqrt(this.x * this.x + this.y * this.y);
     }
     get direction() {
         return Math.atan2(this.y, this.x);

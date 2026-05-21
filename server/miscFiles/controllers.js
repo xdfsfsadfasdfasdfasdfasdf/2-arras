@@ -472,6 +472,7 @@ class io_nearestDifferentMaster extends IO {
         this.lockThroughWalls = opts.lockThroughWalls;
         this.mapGoal = opts.mapGoal;
         this.validTargets = [];
+        this._wallTick = 0;
     }
     validate(e, m, mm, sqrRange, sqrRangeMaster) {
         const myMaster = this.body.master.master;
@@ -561,12 +562,17 @@ class io_nearestDifferentMaster extends IO {
             range = 640 * this.body.FOV;
         }
         // Lets see if the entity still lives
-        if (this.targetLock && (
-            !this.validate(this.targetLock, this.body, this.body.master.master, range * range, range * range * 4 / 3) ||
-            this.wouldHitWall(this.body, this.targetLock) // Very expensive
-        )) {
-            this.targetLock = undefined;
-            this.tick = 100;
+        if (this.targetLock) {
+            if (!this.validate(this.targetLock, this.body, this.body.master.master, range * range, range * range * 4 / 3)) {
+                this.targetLock = undefined;
+                this.tick = 100;
+            } else if (++this._wallTick >= 5) {
+                this._wallTick = 0;
+                if (this.wouldHitWall(this.body, this.targetLock)) {
+                    this.targetLock = undefined;
+                    this.tick = 100;
+                }
+            }
         }
         // Rebuild target list every 5 ticks (~167ms) — bots are staggered by random initial tick
         this.tick++;
@@ -623,6 +629,7 @@ class io_healTeamMasters extends IO {
         this.tick = ran.irandom(30);
         this.lead = 0;
         this.validTargets = [];
+        this._wallTick = 0;
     }
     validate(e) {
         const myMaster = this.body.master.master;
@@ -703,12 +710,17 @@ class io_healTeamMasters extends IO {
             range = 340 * this.body.FOV;
         }
         // Lets see if the entity still lives
-        if (this.targetLock && (
-            !this.validate(this.targetLock, this.body, this.body.master.master, range * range, range * range * 4 / 3) ||
-            this.wouldHitWall(this.body, this.targetLock) // Very expensive
-        )) {
-            this.targetLock = undefined;
-            this.tick = 100;
+        if (this.targetLock) {
+            if (!this.validate(this.targetLock, this.body, this.body.master.master, range * range, range * range * 4 / 3)) {
+                this.targetLock = undefined;
+                this.tick = 100;
+            } else if (++this._wallTick >= 5) {
+                this._wallTick = 0;
+                if (this.wouldHitWall(this.body, this.targetLock)) {
+                    this.targetLock = undefined;
+                    this.tick = 100;
+                }
+            }
         }
         // Rebuild target list every 5 ticks (~167ms) — bots are staggered by random initial tick
         this.tick++;

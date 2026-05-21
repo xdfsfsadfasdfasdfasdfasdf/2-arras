@@ -70,49 +70,42 @@ function firmcollide(my, n, buffer = 0) {
 }
 
 function firmcollidehard(my, n, buffer = 0) {
-    let item1 = {
-        x: my.x + my.xMotion,
-        y: my.y + my.yMotion,
-    };
-    let item2 = {
-        x: n.x + n.xMotion,
-        y: n.y + n.yMotion,
-    };
-    let dist = util.getDistance(item1, item2);
+    let i1x = my.x + my.xMotion, i1y = my.y + my.yMotion;
+    let i2x = n.x + n.xMotion, i2y = n.y + n.yMotion;
+    let dx = i1x - i2x, dy = i1y - i2y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
     let s1 = Math.max(my.velocity.length, my.topSpeed);
     let s2 = Math.max(n.velocity.length, n.topSpeed);
     let strike1, strike2;
     if (buffer > 0 && dist <= my.realSize + n.realSize + buffer) {
         let repel = (my.acceleration + n.acceleration) * (my.realSize + n.realSize + buffer - dist) / buffer / Config.runSpeed;
-        my.accel.x += repel * (item1.x - item2.x) / dist;
-        my.accel.y += repel * (item1.y - item2.y) / dist;
-        n.accel.x -= repel * (item1.x - item2.x) / dist;
-        n.accel.y -= repel * (item1.y - item2.y) / dist;
+        const rdx = dx / dist, rdy = dy / dist;
+        my.accel.x += repel * rdx;
+        my.accel.y += repel * rdy;
+        n.accel.x -= repel * rdx;
+        n.accel.y -= repel * rdy;
     }
+    const runSpeedInv = 0.05 / Config.runSpeed;
     let cycles = 0; while (dist <= my.realSize + n.realSize && !(strike1 && strike2) && cycles < 150) { cycles += 1;
         strike1 = false;
         strike2 = false;
+        const rdx = (i2x - i1x) / dist, rdy = (i2y - i1y) / dist;
         if (my.velocity.length <= s1) {
-            my.velocity.x -= 0.05 * (item2.x - item1.x) / dist / Config.runSpeed;
-            my.velocity.y -= 0.05 * (item2.y - item1.y) / dist / Config.runSpeed;
+            my.velocity.x -= runSpeedInv * rdx;
+            my.velocity.y -= runSpeedInv * rdy;
         } else {
             strike1 = true;
         }
         if (n.velocity.length <= s2) {
-            n.velocity.x += 0.05 * (item2.x - item1.x) / dist / Config.runSpeed;
-            n.velocity.y += 0.05 * (item2.y - item1.y) / dist / Config.runSpeed;
+            n.velocity.x += runSpeedInv * rdx;
+            n.velocity.y += runSpeedInv * rdy;
         } else {
             strike2 = true;
         }
-        item1 = {
-            x: my.x + my.xMotion,
-            y: my.y + my.yMotion,
-        };
-        item2 = {
-            x: n.x + n.xMotion,
-            y: n.y + n.yMotion,
-        };
-        dist = util.getDistance(item1, item2);
+        i1x = my.x + my.xMotion; i1y = my.y + my.yMotion;
+        i2x = n.x + n.xMotion;  i2y = n.y + n.yMotion;
+        dx = i1x - i2x; dy = i1y - i2y;
+        dist = Math.sqrt(dx * dx + dy * dy);
     }
 }
 
@@ -133,29 +126,27 @@ function reflectcollide(wall, bounce) {
 function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
     let tock = Math.min(my.stepRemaining, n.stepRemaining),
         combinedRadius = n.size + my.size,
-        motion = {
-            _me: new Vector(my.xMotion, my.yMotion),
-            _n: new Vector(n.xMotion, n.yMotion),
-        },
-        delta = new Vector(
-            tock * (motion._me.x - motion._n.x),
-            tock * (motion._me.y - motion._n.y)
-        ),
-        difference = new Vector(my.x - n.x, my.y - n.y),
-        direction = new Vector((n.x - my.x) / difference.length, (n.y - my.y) / difference.length),
-        component = Math.max(0, direction.x * delta.x + direction.y * delta.y);
+        motionMeX = my.xMotion, motionMeY = my.yMotion,
+        motionNX = n.xMotion, motionNY = n.yMotion,
+        deltaX = tock * (motionMeX - motionNX),
+        deltaY = tock * (motionMeY - motionNY),
+        diffX = my.x - n.x, diffY = my.y - n.y,
+        diffLen = Math.sqrt(diffX * diffX + diffY * diffY),
+        dirX = (n.x - my.x) / diffLen,
+        dirY = (n.y - my.y) / diffLen,
+        component = Math.max(0, dirX * deltaX + dirY * deltaY);
 
     // radius check
-    if (component < difference.length - combinedRadius) return;
+    if (component < diffLen - combinedRadius) return;
 
     // A more complex check
     let goahead = false,
         tmin = 1 - tock,
         tmax = 1,
-        deltaLengthSquared = delta.lengthSquared,
-        B = 2 * delta.x * difference.x + 2 * delta.y * difference.y,
-        C = difference.lengthSquared - combinedRadius ** 2,
-        det = B ** 2 - (4 * deltaLengthSquared * C),
+        deltaLengthSquared = deltaX * deltaX + deltaY * deltaY,
+        B = 2 * deltaX * diffX + 2 * deltaY * diffY,
+        C = diffX * diffX + diffY * diffY - combinedRadius * combinedRadius,
+        det = B * B - 4 * deltaLengthSquared * C,
         t;
     if (!deltaLengthSquared || det < 0 || C < 0) { // This shall catch mathematical errors
         t = 0;
@@ -191,55 +182,38 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
     n.collisionArray.push(my);
     if (t) {
         // Step to where the collision occured
-        my.x += motion._me.x * t;
-        my.y += motion._me.y * t;
-        n.x += motion._n.x * t;
-        n.y += motion._n.y * t;
+        my.x += motionMeX * t;
+        my.y += motionMeY * t;
+        n.x += motionNX * t;
+        n.y += motionNY * t;
         my.stepRemaining -= t;
         n.stepRemaining -= t;
-        difference = new Vector(my.x - n.x, my.y - n.y);
-        direction = new Vector((n.x - my.x) / difference.length, (n.y - my.y) / difference.length);
-        component = Math.max(0, direction.x * delta.x + direction.y * delta.y);
+        diffX = my.x - n.x; diffY = my.y - n.y;
+        diffLen = Math.sqrt(diffX * diffX + diffY * diffY);
+        dirX = (n.x - my.x) / diffLen;
+        dirY = (n.y - my.y) / diffLen;
+        component = Math.max(0, dirX * deltaX + dirY * deltaY);
     }
 
-    let componentNorm = component / delta.length;
+    let deltaLen = Math.sqrt(deltaLengthSquared);
+    let componentNorm = component / deltaLen;
     let reductionFactor = 1,
-        deathFactor = {
-            _me: 1,
-            _n: 1,
-        },
-        accelerationFactor = (delta.length) ? (
-            (combinedRadius / 4) / (Math.floor(combinedRadius / delta.length) + 1)
-        ) : (
-            0.001
-        ),
-        depth = {
-            _me: util.clamp((combinedRadius - difference.length) / (2 * my.size), 0, 1), //1: I am totally within it
-            _n: util.clamp((combinedRadius - difference.length) / (2 * n.size), 0, 1), //1: It is totally within me
-        },
-        combinedDepth = {
-            up: depth._me * depth._n,
-            down: (1 - depth._me) * (1 - depth._n),
-        },
-        pen = {
-            _me: {
-                sqr: Math.pow(my.penetration, 2),
-                sqrt: Math.sqrt(my.penetration),
-            },
-            _n: {
-                sqr: Math.pow(n.penetration, 2),
-                sqrt: Math.sqrt(n.penetration),
-            },
-        },
-        savedHealthRatio = {
-            _me: my.health.ratio,
-            _n: n.health.ratio,
-        };
+        deathFactorMe = 1,
+        deathFactorN = 1,
+        accelerationFactor = deltaLen ? (
+            (combinedRadius / 4) / (Math.floor(combinedRadius / deltaLen) + 1)
+        ) : 0.001,
+        depthMe = util.clamp((combinedRadius - diffLen) / (2 * my.size), 0, 1),
+        depthN  = util.clamp((combinedRadius - diffLen) / (2 * n.size), 0, 1),
+        combinedDepthUp   = depthMe * depthN,
+        combinedDepthDown = (1 - depthMe) * (1 - depthN),
+        penMeSqrt = Math.sqrt(my.penetration),
+        penNSqrt  = Math.sqrt(n.penetration),
+        savedHealthRatioMe = my.health.ratio,
+        savedHealthRatioN  = n.health.ratio;
     if (doDamage) {
-        let speedFactor = { // Avoid NaNs and infinities
-            _me: my.maxSpeed ? Math.pow(motion._me.length / my.maxSpeed, 0.25) : 1,
-            _n: n.maxSpeed ? Math.pow(motion._n.length / n.maxSpeed, 0.25) : 1,
-        };
+        let sfMe = my.maxSpeed ? Math.pow(Math.hypot(motionMeX, motionMeY) / my.maxSpeed, 0.25) : 1;
+        let sfN  = n.maxSpeed  ? Math.pow(Math.hypot(motionNX, motionNY)   / n.maxSpeed,  0.25) : 1;
         /********** DO DAMAGE *********/
         let bail = false;
         if (n.type === my.settings.necroTarget && my.settings.necroTypes.includes(n.shape)) {
@@ -250,50 +224,44 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
         if (!bail && !my.invuln && !n.invuln) {
             // Calculate base damage
             let resistDiff = my.health.resist - n.health.resist,
-                damage = {
-                    _me: Config.damage_multiplier * my.damage * (1 + resistDiff) * (1 + n.heteroMultiplier  * (my.settings.damageClass === n.settings.damageClass)) * ((my.settings.buffVsFood && n.settings.damageType === 1) ? 3 : 1) * my.damageMultiplier() * Math.min(2, Math.max(speedFactor._me, 1) * speedFactor._me),
-                    _n:  Config.damage_multiplier * n.damage  * (1 - resistDiff) * (1 + my.heteroMultiplier * (my.settings.damageClass === n.settings.damageClass)) * ((n.settings.buffVsFood && my.settings.damageType === 1) ? 3 : 1) * n.damageMultiplier()  * Math.min(2, Math.max(speedFactor._n , 1) * speedFactor._n ),
-                };
+                damageMe = Config.damage_multiplier * my.damage * (1 + resistDiff) * (1 + n.heteroMultiplier * (my.settings.damageClass === n.settings.damageClass)) * ((my.settings.buffVsFood && n.settings.damageType === 1) ? 3 : 1) * my.damageMultiplier() * Math.min(2, Math.max(sfMe, 1) * sfMe),
+                damageN  = Config.damage_multiplier * n.damage  * (1 - resistDiff) * (1 + my.heteroMultiplier * (my.settings.damageClass === n.settings.damageClass)) * ((n.settings.buffVsFood && my.settings.damageType === 1) ? 3 : 1) * n.damageMultiplier()  * Math.min(2, Math.max(sfN,  1) * sfN);
             // Advanced damage calculations
             if (my.settings.ratioEffects) {
-                damage._me *= Math.min(1, Math.pow(Math.max(my.health.ratio, my.shield.ratio), 1 / my.penetration));
+                damageMe *= Math.min(1, Math.pow(Math.max(my.health.ratio, my.shield.ratio), 1 / my.penetration));
             }
             if (n.settings.ratioEffects) {
-                damage._n *= Math.min(1, Math.pow(Math.max(n.health.ratio, n.shield.ratio), 1 / n.penetration));
+                damageN *= Math.min(1, Math.pow(Math.max(n.health.ratio, n.shield.ratio), 1 / n.penetration));
             }
             if (my.settings.damageEffects) {
-                damage._me *=
+                damageMe *=
                     accelerationFactor *
-                    (1 + (componentNorm - 1) * (1 - depth._n) / my.penetration) *
-                    (1 + pen._n.sqrt * depth._n - depth._n) / pen._n.sqrt;
+                    (1 + (componentNorm - 1) * (1 - depthN) / my.penetration) *
+                    (1 + penNSqrt * depthN - depthN) / penNSqrt;
             }
             if (n.settings.damageEffects) {
-                damage._n *=
+                damageN *=
                     accelerationFactor *
-                    (1 + (componentNorm - 1) * (1 - depth._me) / n.penetration) *
-                    (1 + pen._me.sqrt * depth._me - depth._me) / pen._me.sqrt;
+                    (1 + (componentNorm - 1) * (1 - depthMe) / n.penetration) *
+                    (1 + penMeSqrt * depthMe - depthMe) / penMeSqrt;
             }
             // Find out if you'll die in this cycle, and if so how much damage you are able to do to the other target
-            let damageToApply = {
-                _me: damage._me,
-                _n: damage._n,
-            };
+            let damageToApplyMe = damageMe,
+                damageToApplyN  = damageN;
             if (n.shield.max) {
-                damageToApply._me -= n.shield.getDamage(damageToApply._me);
+                damageToApplyMe -= n.shield.getDamage(damageToApplyMe);
             }
             if (my.shield.max) {
-                damageToApply._n -= my.shield.getDamage(damageToApply._n);
+                damageToApplyN -= my.shield.getDamage(damageToApplyN);
             }
-            let stuff = my.health.getDamage(damageToApply._n, false);
-            deathFactor._me = (stuff > my.health.amount) ? my.health.amount / stuff : 1;
-            stuff = n.health.getDamage(damageToApply._me, false);
-            deathFactor._n = (stuff > n.health.amount) ? n.health.amount / stuff : 1;
-            reductionFactor = Math.min(deathFactor._me, deathFactor._n);
+            let stuff = my.health.getDamage(damageToApplyN, false);
+            deathFactorMe = (stuff > my.health.amount) ? my.health.amount / stuff : 1;
+            stuff = n.health.getDamage(damageToApplyMe, false);
+            deathFactorN = (stuff > n.health.amount) ? n.health.amount / stuff : 1;
+            reductionFactor = Math.min(deathFactorMe, deathFactorN);
             // Now apply it
-            // my.damageReceived += damage._n * deathFactor._n;
-            // n.damageReceived += damage._me * deathFactor._me;
-            const __my = damage._n * deathFactor._n;
-            const __n = damage._me * deathFactor._me;
+            const __my = damageN  * deathFactorN;
+            const __n  = damageMe * deathFactorMe;
             my.damageReceived += __my * Number(__my > 0
                 ? my.team != n.team
                 : !!n.healer && n.team == my.team && my.type == "tank" && n.master.id != my.id);
@@ -308,13 +276,13 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
     /************* DO MOTION ***********/
     if (nIsFirmCollide < 0) {
         nIsFirmCollide *= -0.5;
-        my.accel.x -= nIsFirmCollide * component * direction.x;
-        my.accel.y -= nIsFirmCollide * component * direction.y;
-        n.accel.x += nIsFirmCollide * component * direction.x;
-        n.accel.y += nIsFirmCollide * component * direction.y;
+        my.accel.x -= nIsFirmCollide * component * dirX;
+        my.accel.y -= nIsFirmCollide * component * dirY;
+        n.accel.x += nIsFirmCollide * component * dirX;
+        n.accel.y += nIsFirmCollide * component * dirY;
     } else if (nIsFirmCollide > 0) {
-        n.accel.x += nIsFirmCollide * (component * direction.x + combinedDepth.up);
-        n.accel.y += nIsFirmCollide * (component * direction.y + combinedDepth.up);
+        n.accel.x += nIsFirmCollide * (component * dirX + combinedDepthUp);
+        n.accel.y += nIsFirmCollide * (component * dirY + combinedDepthUp);
     } else {
         // Calculate the impulse of the collision
         let knockback;
@@ -327,31 +295,27 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
         } else knockback = Config.knockback_multiplier;
         let elasticity = 2 - 4 * Math.atan(my.penetration * n.penetration) / Math.PI;
         if (doInelastic && my.settings.motionEffects && n.settings.motionEffects) {
-            elasticity *= savedHealthRatio._me / pen._me.sqrt + savedHealthRatio._n / pen._n.sqrt;
+            elasticity *= savedHealthRatioMe / penMeSqrt + savedHealthRatioN / penNSqrt;
         } else {
             elasticity *= 2;
         }
-        let spring = 2 * Math.sqrt(savedHealthRatio._me * savedHealthRatio._n) / Config.run_speed,
+        let spring = 2 * Math.sqrt(savedHealthRatioMe * savedHealthRatioN) / Config.run_speed,
             elasticImpulse =
-            Math.pow(combinedDepth.down, 2) *
+            combinedDepthDown * combinedDepthDown *
             elasticity * component *
             my.mass * n.mass / (my.mass + n.mass),
             springImpulse =
-            knockback * spring * combinedDepth.up,
+            knockback * spring * combinedDepthUp,
             impulse = -(elasticImpulse + springImpulse) * (1 - my.intangibility) * (1 - n.intangibility),
-            force = {
-                x: impulse * direction.x,
-                y: impulse * direction.y,
-            },
-            modifiers = {
-                _me: knockback * my.pushability / my.mass * deathFactor._n,
-                _n: knockback * n.pushability / n.mass * deathFactor._me,
-            };
+            forceX = impulse * dirX,
+            forceY = impulse * dirY,
+            modMe = knockback * my.pushability / my.mass * deathFactorN,
+            modN  = knockback * n.pushability  / n.mass  * deathFactorMe;
         // Apply impulse as force
-        my.accel.x += modifiers._me * force.x;
-        my.accel.y += modifiers._me * force.y;
-        n.accel.x -= modifiers._n * force.x;
-        n.accel.y -= modifiers._n * force.y;
+        my.accel.x += modMe * forceX;
+        my.accel.y += modMe * forceY;
+        n.accel.x -= modN * forceX;
+        n.accel.y -= modN * forceY;
     }
 
 }

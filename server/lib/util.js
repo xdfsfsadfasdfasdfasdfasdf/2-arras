@@ -7,9 +7,9 @@ exports.addArticle = string => {
     return `${article} ${string}`
 }
 
-exports.getDistance = (p1, p2) => Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+exports.getDistance = (p1, p2) => { const dx = p2.x - p1.x, dy = p2.y - p1.y; return Math.sqrt(dx * dx + dy * dy); }
 
-exports.getDistanceSquared = (p1, p2) => Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
+exports.getDistanceSquared = (p1, p2) => { const dx = p2.x - p1.x, dy = p2.y - p1.y; return dx * dx + dy * dy; }
 
 exports.getDirection = (p1, p2) => Math.atan2(p2.y - p1.y, p2.x - p1.x)
 

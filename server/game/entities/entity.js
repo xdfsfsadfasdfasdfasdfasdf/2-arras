@@ -934,8 +934,9 @@ class Entity extends EventEmitter {
         this.accel.null();
         // Apply motion
         this.stepRemaining = 1;
-        this.x += this.stepRemaining * this.velocity.x / global.gameManager.roomSpeed;
-        this.y += this.stepRemaining * this.velocity.y / global.gameManager.roomSpeed;
+        const _rs = global.gameManager.roomSpeed;
+        this.x += this.velocity.x / _rs;
+        this.y += this.velocity.y / _rs;
     }
 
     friction() {
@@ -972,10 +973,14 @@ class Entity extends EventEmitter {
                     this.y = util.lerp(this.y, centerPoint.y, strength);
                 }
             } else {
-                this.accel.x -= Math.min(this.x - this.realSize + global.gameManager.room.width / 2 + 50, 0) * Config.room_bound_force / global.gameManager.roomSpeed;
-                this.accel.x -= Math.max(this.x + this.realSize - global.gameManager.room.width / 2 - 50, 0) * Config.room_bound_force / global.gameManager.roomSpeed;
-                this.accel.y -= Math.min(this.y - this.realSize + global.gameManager.room.height / 2 + 50, 0) * Config.room_bound_force / global.gameManager.roomSpeed;
-                this.accel.y -= Math.max(this.y + this.realSize - global.gameManager.room.height / 2 - 50, 0) * Config.room_bound_force / global.gameManager.roomSpeed;
+                const _hw = global.gameManager.room.width / 2;
+                const _hh = global.gameManager.room.height / 2;
+                const _bf = Config.room_bound_force / global.gameManager.roomSpeed;
+                const _rs = this.realSize;
+                this.accel.x -= Math.min(this.x - _rs + _hw + 50, 0) * _bf;
+                this.accel.x -= Math.max(this.x + _rs - _hw - 50, 0) * _bf;
+                this.accel.y -= Math.min(this.y - _rs + _hh + 50, 0) * _bf;
+                this.accel.y -= Math.max(this.y + _rs - _hh - 50, 0) * _bf;
             }
         }
     }
