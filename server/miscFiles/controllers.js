@@ -520,11 +520,9 @@ class io_nearestDifferentMaster extends IO {
         for (const e of validCandidates) {
             mostDangerous = Math.max(e.dangerValue, mostDangerous);
         }
+        // validCandidates already passed !wouldHitWall in the loop above — no second check needed
         let keepTarget = false;
-        const finalTargets = validCandidates.filter((e) => {
-            // Even more expensive
-            return !this.wouldHitWall(e);
-        }).filter(e => {
+        const finalTargets = validCandidates.filter(e => {
             if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) {
                 if (this.targetLock && e.id === this.targetLock.id) {
                     keepTarget = true;
@@ -570,9 +568,9 @@ class io_nearestDifferentMaster extends IO {
             this.targetLock = undefined;
             this.tick = 100;
         }
-        // OK, now let's try reprocessing the targets!
+        // Rebuild target list every 5 ticks (~167ms) — bots are staggered by random initial tick
         this.tick++;
-        if (this.tick > 2) {
+        if (this.tick > 4) {
             this.tick = 0;
             this.validTargets = this.buildList(range);
             if (this.targetLock && this.validTargets.indexOf(this.targetLock) === -1) {
@@ -664,11 +662,9 @@ class io_healTeamMasters extends IO {
         for (const e of validCandidates) {
             mostDangerous = Math.max(e.dangerValue, mostDangerous);
         }
+        // validCandidates already passed !wouldHitWall in the loop above — no second check needed
         let keepTarget = false;
-        const finalTargets = validCandidates.filter((e) => {
-            // Even more expensive
-            return !this.wouldHitWall(e);
-        }).filter(e => {
+        const finalTargets = validCandidates.filter(e => {
             if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) {
                 if (this.targetLock && e.id === this.targetLock.id) {
                     keepTarget = true;
@@ -714,9 +710,9 @@ class io_healTeamMasters extends IO {
             this.targetLock = undefined;
             this.tick = 100;
         }
-        // OK, now let's try reprocessing the targets!
+        // Rebuild target list every 5 ticks (~167ms) — bots are staggered by random initial tick
         this.tick++;
-        if (this.tick > 2) {
+        if (this.tick > 4) {
             this.tick = 0;
             this.validTargets = this.buildList(range);
             if (this.targetLock && this.validTargets.indexOf(this.targetLock) === -1) {
