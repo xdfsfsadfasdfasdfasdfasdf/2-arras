@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --trace-warnings \".\\\\server\\\\server.js\")",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Remove-Item *)",
+      "WebSearch",
+      "WebFetch(domain:arrasio.fandom.com)",
+      "WebFetch(domain:woomyarrasio.fandom.com)",
+      "WebFetch(domain:fictional-googology.fandom.com)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Niobium\\\\open-source-arras-main\\\\open-source-arras-main\\\\server\\\\game\" -Filter \"*.js\")",
+      "Bash(Select-Object Name)",
+      "Bash(grep -E \"\\\\.js$\")",
+      "WebFetch(domain:antifandom.com)"
+    ]
+  }
+}

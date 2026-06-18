@@ -1,0 +1,4 @@
+# Announcement \[2026-05-19]
+
+* Beta release
+
