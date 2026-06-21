@@ -2,3 +2,9 @@ node_modules/
 package-lock.json
 *.lnk
 server/.env
+open-source-arras-main/
+.aider.*/
+.aider*
+.aider.chat.history.md
+.aider.input.history
+.aider.tags.cache.v4/

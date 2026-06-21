@@ -2,6 +2,7 @@ let EventEmitter = require('events');
 global.entitiesIdLog = 0;
 const forceTwiggle = ["autospin", "turnWithSpeed", "spin", "fastspin", "veryfastspin", "withMotion", "smoothWithMotion", "looseWithMotion"];
 const { combineStats } = require('../../lib/definitions/facilitators.js');
+const accounts = require("../../lib/accounts.js");
 class Entity extends EventEmitter {
     constructor(position, master) {
         super();
@@ -1079,22 +1080,39 @@ class Entity extends EventEmitter {
             for (let i = 0; i < killers.length; i++) {
                 let instance = killers[i];
 
+                let type = '';
                 switch (this.type) {
                     case "tank":
                         killers.length > 1 ? instance.killCount.assists++ : instance.killCount.solo++;
+                        type = 'tank';
                         break;
 
                     case "food":
                     case "crasher":
                         instance.killCount.polygons++;
+                        type = 'shape';
                         break
 
                     case "miniboss":
                         instance.killCount.bosses++;
+                        type = 'boss';
                         break;
                 }
 
                 this.killCount.killers.push(instance.index);
+
+                // Persist stats and achievements to player account asynchronously
+                if (instance.socket && instance.socket.account && type) {
+                    accounts.recordKill(instance.socket.account.id, type)
+                        .then(newlyUnlocked => {
+                            if (newlyUnlocked && newlyUnlocked.length > 0) {
+                                for (const achName of newlyUnlocked) {
+                                    instance.sendMessage("Achievement Unlocked: " + achName + "!");
+                                }
+                            }
+                        })
+                        .catch(err => console.error("Error updating stats/achievements for kill:", err));
+                }
             };
             // Add the killers to our death message, also send them a message
             if (notJustFood) {

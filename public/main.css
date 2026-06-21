@@ -143,7 +143,7 @@ h3 {
 }
 
 .horizontalSelector span.active {
-	background: #8abc3f;
+	background: #66ebff;
 	color: #ffffff;
 	border-radius: 5px;
 	cursor: default;
@@ -183,7 +183,7 @@ body.mobile .serverSelector {
 }
 
 .serverSelector tr.selected {
-	color: #8abc3f;
+	color: #66ebff;
 	cursor: default;
 }
 
@@ -482,7 +482,7 @@ body.mobile .startMenuHolder.changelogHolder {
 }
 
 .menuTab.achieve {
-	background: #8abc3f;
+	background: #66ebff;
 }
 
 .menuTab>a {
@@ -789,11 +789,11 @@ body.mobile .startMenuSlidingContent {
 	color: white;
 	text-align: center;
 	text-shadow: 0 0 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.2);
-	background: #A9D86D;
+	background: #66ebff;
 	border: 0;
-	border-bottom: 2px solid #8abc3f;
+	border-bottom: 2px solid #35cfe5;
 	cursor: pointer;
-	box-shadow: inset 0 -2px #8abc3f;
+	box-shadow: inset 0 -2px #35cfe5;
 	border-radius: 5px;
 	font: 16px Ubuntu;
 }
@@ -801,13 +801,13 @@ body.mobile .startMenuSlidingContent {
 #startButton:hover {
 	margin-top: 2px;
 	height: 38px;
-	border-bottom: 0px solid #8abc3f;
+	border-bottom: 0px solid #35cfe5;
 }
 
 #startButton:active {
 	margin-top: 2px;
 	height: 38px;
-	background: #8abc3f;
+	background: #35cfe5;
 	border-bottom: 0px;
 	outline: none;
 	box-shadow: none;
@@ -1045,20 +1045,20 @@ body.mobile .startMenuSlidingContent {
 
 .container input:checked~.checkmark,
 .container input:checked~.radio {
-	background-color: #8abc3f;
-	border: 1px solid #8abc3f;
+	background-color: #66ebff;
+	border: 1px solid #66ebff;
 }
 
 .container:hover input:checked~.checkmark,
 .container:hover input:checked~.radio {
-	background-color: #7FA843;
-	border: 1px solid #7FA843;
+	background-color: #35cfe5;
+	border: 1px solid #35cfe5;
 }
 
 .container input:disabled:checked~.checkmark,
 .container input:disabled:checked~.radio {
-	background-color: #7FA843;
-	border: 1px solid #7FA843;
+	background-color: #35cfe5;
+	border: 1px solid #35cfe5;
 }
 
 .container .checkmark:after {
@@ -1392,7 +1392,7 @@ i.flag.down::before {
 	top: 25px;
 	left: 0;
 	z-index: 198;
-	background: #8abc3f;
+	background: #66ebff;
 	color: #fff;
 	border: none;
 	border-radius: 0 5px 5px 0;
@@ -1405,7 +1405,7 @@ i.flag.down::before {
 	letter-spacing: 0.02em;
 }
 #sidebarOpenBtn:hover {
-	background: #9ace50;
+	background: #35cfe5;
 }
 #sidebarOpenBtn.sidebar-btn-hidden {
 	transform: translateX(-110%);
@@ -1576,4 +1576,166 @@ i.flag.down::before {
 	font-size: 13px;
 	caret-color: #7af;
 	padding: 0;
+}
+
+#accountOpenBtn {
+	position: fixed;
+	top: 64px;
+	left: 0;
+	z-index: 198;
+	background: #e7896d;
+	color: #fff;
+	border: none;
+	border-radius: 0 5px 5px 0;
+	padding: 7px 14px 7px 10px;
+	font: bold 13px Ubuntu;
+	cursor: pointer;
+	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.28);
+	transition: background 0.15s, transform 0.25s;
+	outline: none;
+}
+#accountOpenBtn:hover {
+	background: #d77558;
+}
+#accountOpenBtn.account-btn-hidden {
+	transform: translateX(-110%);
+}
+
+#accountOverlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 209;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s;
+}
+#accountOverlay.visible {
+	opacity: 1;
+	pointer-events: auto;
+}
+#accountPanel {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	width: 330px;
+	max-width: calc(100vw - 24px);
+	background: #dde6eb;
+	border-radius: 5px;
+	z-index: 210;
+	box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+	transform: translate(-50%, -46%) scale(0.96);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s, transform 0.2s;
+	overflow: hidden;
+}
+#accountPanel.open {
+	opacity: 1;
+	pointer-events: auto;
+	transform: translate(-50%, -50%) scale(1);
+}
+#accountPanel #accountLoggedOut,
+#accountPanel #accountLoggedIn {
+	padding: 10px 14px 14px;
+}
+#accountCloseBtn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 17px;
+	color: #555;
+	padding: 3px 7px;
+	border-radius: 4px;
+	line-height: 1;
+	font-family: Ubuntu, sans-serif;
+}
+#accountCloseBtn:hover {
+	background: rgba(0, 0, 0, 0.12);
+}
+#accountSubmitBtn,
+#accountLogoutBtn {
+	margin: 8px 0 0;
+	width: 100%;
+	height: 34px;
+	color: white;
+	text-align: center;
+	text-shadow: 0 0 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.2);
+	background: #e7896d;
+	border: 0;
+	border-bottom: 2px solid #d77558;
+	cursor: pointer;
+	box-shadow: inset 0 -2px #d77558;
+	border-radius: 5px;
+	font: 14px Ubuntu;
+}
+#accountSubmitBtn:hover,
+#accountLogoutBtn:hover {
+	margin-top: 10px;
+	height: 32px;
+	border-bottom: 0;
+}
+#accountSubmitBtn:active,
+#accountLogoutBtn:active {
+	background: #d77558;
+	box-shadow: none;
+}
+#accountMessage {
+	min-height: 18px;
+	margin-top: 8px;
+	text-align: center;
+	font: bold 12px/18px Ubuntu;
+	color: #a33;
+}
+#accountMessage.success {
+	color: #18727e;
+}
+#accountStatusName {
+	text-align: center;
+	font: bold 20px/1.4 Ubuntu;
+	color: #222;
+	overflow-wrap: anywhere;
+}
+#accountStatusRole {
+	text-align: center;
+	font: bold 12px/1.4 Ubuntu;
+	color: #555;
+	text-transform: capitalize;
+}
+
+.achievement-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: rgba(255, 255, 255, 0.45);
+	border-radius: 4px;
+	padding: 6px 10px;
+	margin-bottom: 6px;
+	border-left: 4px solid #b5c4cb;
+	transition: all 0.15s ease-in-out;
+}
+.achievement-item.unlocked {
+	background: rgba(102, 235, 255, 0.15);
+	border-left-color: #66ebff;
+}
+.achievement-info {
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+}
+.achievement-name {
+	font: bold 12px Ubuntu, sans-serif;
+	color: #222;
+}
+.achievement-desc {
+	font: 10px Ubuntu, sans-serif;
+	color: #666;
+	margin-top: 1px;
+}
+.achievement-status {
+	font: bold 10px Ubuntu, sans-serif;
+	color: #888;
+}
+.achievement-item.unlocked .achievement-status {
+	color: #1b8a9b;
 }

@@ -7,6 +7,7 @@ const fs = require("fs");
 const http = require("http");
 const url = require("url");
 const pjson = require('../package.json')
+const accounts = require("./lib/accounts.js");
 
 const { Worker } = require("worker_threads");
 
@@ -57,6 +58,32 @@ mimeSet = {
 let wsServer; // WebSocket server instance
 let server; // HTTP server instance
 
+function readJsonBody(req, callback) {
+    let body = "";
+    req.on("data", chunk => {
+        body += chunk;
+        if (body.length > 1e6) req.destroy();
+    });
+    req.on("end", () => {
+        try {
+            callback(JSON.parse(body || "{}"));
+        } catch {
+            callback(null);
+        }
+    });
+}
+
+function sendJson(res, statusCode, data) {
+    res.writeHead(statusCode, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(data));
+}
+
+function getSessionFromRequest(req) {
+    const authorization = req.headers.authorization || "";
+    if (authorization.startsWith("Bearer ")) return authorization.slice("Bearer ".length).trim();
+    return "";
+}
+
 // Attempt to create a WebSocket server instance using the 'ws' package
 try {
     const WebSocketServer = require("ws").WebSocketServer;
@@ -73,7 +100,7 @@ if (Config.allow_ACAO && Config.startup_logs) {
 }
 
 // Create an HTTP server to handle both API and static file requests
-server = http.createServer((req, res) => {
+server = http.createServer(async (req, res) => {
     let query = {};
     let pathname = req.url.split("?")[0];
     if (req.url.includes("?")) req.url.split("?")[1].split("&").map(i => {
@@ -97,6 +124,11 @@ server = http.createServer((req, res) => {
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     }
+    if (req.method === "OPTIONS") {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
     for (let i = 0; i < clientHeaders.length; i++) {
         if (clientHeaders[i] == req.url) {
             selectedHeader = clientHeaders[i];
@@ -104,6 +136,50 @@ server = http.createServer((req, res) => {
     }
     // Handle specific API endpoints based on the request URL
     switch (pathname) {
+        case "/api/account/register": {
+            ok = false;
+            readJsonBody(req, async json => {
+                if (!json) return sendJson(res, 400, { ok: false, error: "Invalid JSON body." });
+                const result = await accounts.register(json.username, json.password);
+                sendJson(res, result.ok ? 200 : 400, result);
+            });
+        } break;
+
+        case "/api/account/login": {
+            ok = false;
+            readJsonBody(req, async json => {
+                if (!json) return sendJson(res, 400, { ok: false, error: "Invalid JSON body." });
+                const result = await accounts.login(json.username, json.password);
+                sendJson(res, result.ok ? 200 : 401, result);
+            });
+        } break;
+
+        case "/api/account/logout": {
+            ok = false;
+            readJsonBody(req, async json => {
+                const session = getSessionFromRequest(req) || json?.session || "";
+                const result = await accounts.logout(session);
+                sendJson(res, 200, result);
+            });
+        } break;
+
+        case "/api/account/me": {
+            ok = false;
+            const account = await accounts.getAccountBySession(getSessionFromRequest(req));
+            sendJson(res, account ? 200 : 401, account ? { ok: true, account } : { ok: false, error: "Not logged in." });
+        } break;
+
+        case "/api/account/watch-ad": {
+            ok = false;
+            const account = await accounts.getAccountBySession(getSessionFromRequest(req));
+            if (!account) {
+                sendJson(res, 401, { ok: false, error: "Not logged in." });
+            } else {
+                const result = await accounts.grantAdWatcher(account.id);
+                sendJson(res, 200, result);
+            }
+        } break;
+
         case "/getServers.json": {
             // Serve a list of active servers (excluding hidden ones)
             readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({

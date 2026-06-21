@@ -2,6 +2,7 @@ let crypto = require("crypto"),
     net = require('net'),
     fs = require("fs");
     PERMABAN_FILE = "./permabans.json";
+const accounts = require("../../lib/accounts.js");
 let bans = global.bans || (global.bans = []);
 let permBans = global.permBans || (global.permBans = []);
 global.chatID = 0;
@@ -182,7 +183,7 @@ class socketManager {
         }
         util.log("[INFO]: The connection has closed. Views: " + global.gameManager.views.length + ". Clients: " + this.clients.length + ".");
     }
-    incoming(message, socket) {
+    async incoming(message, socket) {
         // Decode it
         let m = protocol.decode(message);
         // Remember who we are
@@ -203,15 +204,18 @@ class socketManager {
                 socket.talk('w', true);
                 if (m.length === 1) {
                     let key = m[0].toString().trim();
-                    socket.permissions = this.permissionsDict[key];
+                    socket.account = await accounts.getAccountBySession(key);
+                    socket.permissions = socket.account ? await accounts.getPermissionsForSession(key) : this.permissionsDict[key];
 		    
-                    if (socket.permissions) {
+                    if (socket.account) {
+                        util.log(`[INFO]: ${socket.account.username} verified with an account session.`);
+                    } else if (socket.permissions) {
                         util.log(`[INFO]: A socket was verified with a token.`);
                     } else {
-                        util.log(`[WARNING]: A socket failed to verify with a token.`);
+                        util.log(`[WARNING]: A socket failed to verify with a token or account session.`);
                     }
 		    socket.key = key;
-                    socket.isAdmin = Config.admin_tokens && Config.admin_tokens.includes(key);
+                    socket.isAdmin = (socket.permissions && socket.permissions.administrator) || (Config.admin_tokens && Config.admin_tokens.includes(key));
                     if (socket.isAdmin) {
                         util.log(`[INFO]: Admin verified.`);
                     }
@@ -271,6 +275,7 @@ class socketManager {
                 if (transferbodyID) transferbodyID = transferbodyID.replace(name, "");
                 
                 // Get rid of the banned characters
+                name = socket.account ? socket.account.username : "Guest Account";
                 name = name.replace(Config.banned_characters, '');
 
                 // Give it the room state and move the camera.

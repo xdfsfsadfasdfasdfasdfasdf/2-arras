@@ -837,9 +837,351 @@ import * as socketStuff from "./socketinit.js";
         });
     }
 
+    const ALL_ACHIEVEMENTS = [
+        { id: 'kills_1', name: 'First Blood', desc: 'Kill 1 tank' },
+        { id: 'kills_5', name: 'Skirmisher', desc: 'Kill 5 tanks' },
+        { id: 'kills_10', name: 'Hunter', desc: 'Kill 10 tanks' },
+        { id: 'kills_50', name: 'Apex Predator', desc: 'Kill 50 tanks' },
+        { id: 'kills_100', name: 'Legendary', desc: 'Kill 100 tanks' },
+        { id: 'kills_500', name: 'Godlike', desc: 'Kill 500 tanks' },
+        
+        { id: 'bosses_1', name: 'Giant Slayer', desc: 'Kill 1 boss' },
+        { id: 'bosses_5', name: 'Boss Hunter', desc: 'Kill 5 bosses' },
+        { id: 'bosses_10', name: 'Raid Leader', desc: 'Kill 10 bosses' },
+        { id: 'bosses_50', name: 'Demigod', desc: 'Kill 50 bosses' },
+        { id: 'bosses_100', name: 'Titan Slayer', desc: 'Kill 100 bosses' },
+        { id: 'bosses_500', name: 'Calamity', desc: 'Kill 500 bosses' },
+        
+        { id: 'shapes_1', name: 'First Harvest', desc: 'Kill 1 shape' },
+        { id: 'shapes_5', name: 'Farmer', desc: 'Kill 5 shapes' },
+        { id: 'shapes_10', name: 'Harvester', desc: 'Kill 10 shapes' },
+        { id: 'shapes_50', name: 'Gardener', desc: 'Kill 50 shapes' },
+        { id: 'shapes_100', name: 'Clearcutter', desc: 'Kill 100 shapes' },
+        { id: 'shapes_500', name: 'Industrialist', desc: 'Kill 500 shapes' },
+        { id: 'shapes_1000', name: 'Scourge of the Nest', desc: 'Kill 1000 shapes' },
+        { id: 'shapes_5000', name: 'Polygon Annihilator', desc: 'Kill 5000 shapes' },
+        { id: 'shapes_10000', name: 'Geometric Nightmare', desc: 'Kill 10000 shapes' },
+
+        { id: 'ad_watcher', name: 'Ad Watcher', desc: 'Watch an ad purely for an achievement 💀' }
+    ];
+
+    function initAccountPanel() {
+        const overlay = document.getElementById("accountOverlay");
+        const panel = document.getElementById("accountPanel");
+        const openBtn = document.getElementById("accountOpenBtn");
+        const closeBtn = document.getElementById("accountCloseBtn");
+        const submitBtn = document.getElementById("accountSubmitBtn");
+        const logoutBtn = document.getElementById("accountLogoutBtn");
+        const nameInput = document.getElementById("accountNameInput");
+        const passwordInput = document.getElementById("accountPasswordInput");
+        const messageDiv = document.getElementById("accountMessage");
+        const tabs = document.getElementById("accountTabs").querySelectorAll("span");
+        
+        const loggedOutDiv = document.getElementById("accountLoggedOut");
+        const loggedInDiv = document.getElementById("accountLoggedIn");
+        const statusName = document.getElementById("accountStatusName");
+        const statusRole = document.getElementById("accountStatusRole");
+        const statsTanks = document.getElementById("statTanks");
+        const statBosses = document.getElementById("statBosses");
+        const statShapes = document.getElementById("statShapes");
+        const achievementsList = document.getElementById("accountAchievementsList");
+        
+        let currentTab = "login";
+
+        function showMessage(text, isSuccess = false) {
+            messageDiv.textContent = text;
+            messageDiv.className = isSuccess ? "success" : "";
+        }
+
+        function openPanel() {
+            panel.classList.add("open");
+            overlay.classList.add("visible");
+            openBtn.classList.add("account-btn-hidden");
+            showMessage("");
+        }
+
+        function closePanel() {
+            panel.classList.remove("open");
+            overlay.classList.remove("visible");
+            openBtn.classList.remove("account-btn-hidden");
+        }
+
+        openBtn.addEventListener("click", openPanel);
+        closeBtn.addEventListener("click", closePanel);
+        overlay.addEventListener("click", closePanel);
+
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                tabs.forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+                currentTab = tab.dataset.tab;
+                submitBtn.innerHTML = `<b>${currentTab === "login" ? "Log In" : "Sign Up"}</b>`;
+                showMessage("");
+            });
+        });
+
+        submitBtn.addEventListener("click", async () => {
+            const username = nameInput.value.trim();
+            const password = passwordInput.value;
+            if (!username || !password) {
+                showMessage("Name and password are required.");
+                return;
+            }
+            showMessage("Sending request...");
+            
+            const endpoint = currentTab === "login" ? "/api/account/login" : "/api/account/register";
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            }).catch(() => null);
+
+            if (!response) {
+                showMessage("Connection failed.");
+                return;
+            }
+
+            const data = await response.json();
+            if (data.ok) {
+                localStorage.setItem("sessionToken", data.session);
+                global.playerKey = data.session;
+                showMessage("Success!", true);
+                setTimeout(() => {
+                    updateStatus(data.account);
+                    closePanel();
+                }, 1000);
+            } else {
+                showMessage(data.error || "Request failed.");
+            }
+        });
+
+        logoutBtn.addEventListener("click", async () => {
+            const token = localStorage.getItem("sessionToken");
+            if (token) {
+                await fetch("/api/account/logout", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session: token })
+                }).catch(() => null);
+            }
+            localStorage.removeItem("sessionToken");
+            global.playerKey = "";
+            
+            const playerNameInput = document.getElementById("playerNameInput");
+            if (playerNameInput) {
+                playerNameInput.value = "Guest Account";
+                playerNameInput.disabled = true;
+                util.submitToLocalStorage("playerNameInput");
+            }
+            
+            loggedInDiv.style.display = "none";
+            loggedOutDiv.style.display = "block";
+            nameInput.value = "";
+            passwordInput.value = "";
+            showMessage("");
+        });
+
+        function updateStatus(account) {
+            statusName.textContent = account.username;
+            statusRole.textContent = account.role;
+            
+            statsTanks.textContent = account.stats.tanks;
+            statBosses.textContent = account.stats.bosses;
+            statShapes.textContent = account.stats.shapes;
+            
+            achievementsList.innerHTML = "";
+            ALL_ACHIEVEMENTS.forEach(ach => {
+                const isUnlocked = !!account.achievements[ach.id];
+                const item = document.createElement("div");
+                item.className = `achievement-item ${isUnlocked ? 'unlocked' : ''}`;
+                
+                item.innerHTML = `
+                    <div class="achievement-info">
+                        <span class="achievement-name">${ach.name}</span>
+                        <span class="achievement-desc">${ach.desc}</span>
+                    </div>
+                    <span class="achievement-status">${isUnlocked ? '✓ Unlocked' : '🔒 Locked'}</span>
+                `;
+                achievementsList.appendChild(item);
+            });
+
+            const playerNameInput = document.getElementById("playerNameInput");
+            if (playerNameInput) {
+                playerNameInput.value = account.username;
+                playerNameInput.disabled = true;
+                util.submitToLocalStorage("playerNameInput");
+            }
+
+            loggedOutDiv.style.display = "none";
+            loggedInDiv.style.display = "block";
+        }
+
+        async function checkMe() {
+            const token = localStorage.getItem("sessionToken");
+            const playerNameInput = document.getElementById("playerNameInput");
+            if (!token) {
+                if (playerNameInput) {
+                    playerNameInput.value = "Guest Account";
+                    playerNameInput.disabled = true;
+                    util.submitToLocalStorage("playerNameInput");
+                }
+                return;
+            }
+            global.playerKey = token;
+            const res = await fetch("/api/account/me", {
+                headers: { "Authorization": `Bearer ${token}` }
+            }).catch(() => null);
+            if (res && res.status === 200) {
+                const account = await res.json();
+                updateStatus(account);
+            } else {
+                localStorage.removeItem("sessionToken");
+                global.playerKey = "";
+                if (playerNameInput) {
+                    playerNameInput.value = "Guest Account";
+                    playerNameInput.disabled = true;
+                    util.submitToLocalStorage("playerNameInput");
+                }
+            }
+        }
+        checkMe();
+
+        window.syncAccountUI = checkMe;
+    }
+
+    function initWatchAdBtn() {
+        const watchAdBtn = document.getElementById("watchAdBtn");
+        const playOverlay = document.getElementById("adPlayOverlay");
+        const playVideo = document.getElementById("adPlayVideo");
+        const playImage = document.getElementById("adPlayImage");
+        const playCountdown = document.getElementById("adPlayCountdown");
+        const playStatus = document.getElementById("adPlayStatus");
+        const closeBtn = document.getElementById("adPlayCloseBtn");
+
+        if (!watchAdBtn) return;
+
+        let googleAdManagerLoaded = false;
+        let rewardedSlotObj = null;
+
+        (function() {
+            const gptScript = document.createElement('script');
+            gptScript.async = true;
+            gptScript.type = 'text/javascript';
+            gptScript.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
+            document.head.appendChild(gptScript);
+        })();
+
+        window.googletag = window.googletag || { cmd: [] };
+        googletag.cmd.push(() => {
+            rewardedSlotObj = googletag.defineRewardedSlot(
+                '/6355419/travel/rewarded',
+                ['fluid']
+            );
+            if (rewardedSlotObj) {
+                rewardedSlotObj.addService(googletag.pubads());
+            }
+
+            googletag.pubads().addEventListener('rewardedSlotReady', (event) => {
+                googleAdManagerLoaded = true;
+            });
+
+            googletag.pubads().addEventListener('rewardedSlotGranted', async (event) => {
+                await grantWatcherReward();
+            });
+
+            googletag.enableServices();
+        });
+
+        async function grantWatcherReward() {
+            const token = localStorage.getItem("sessionToken");
+            if (!token) {
+                alert("Log in to your account first to earn this achievement!");
+                return;
+            }
+            const res = await fetch("/api/account/watch-ad", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            }).catch(() => null);
+            if (res && res.status === 200) {
+                const data = await res.json();
+                if (data.ok) {
+                    if (data.alreadyEarned) {
+                        alert("You already earned the Ad Watcher achievement!");
+                    } else {
+                        alert("Ad watched successfully! Achievement Unlocked: Ad Watcher!");
+                    }
+                    if (window.syncAccountUI) window.syncAccountUI();
+                }
+            } else {
+                alert("Failed to record achievement on server.");
+            }
+        }
+
+        function playSimulatedAd() {
+            playOverlay.style.display = "flex";
+            closeBtn.style.display = "none";
+            playCountdown.style.display = "block";
+            
+            const isVideo = Math.random() > 0.5;
+            if (isVideo) {
+                playVideo.style.display = "block";
+                playImage.style.display = "none";
+                playVideo.play();
+                playStatus.textContent = "Playing Video Advertisement";
+            } else {
+                playVideo.style.display = "none";
+                playImage.style.display = "block";
+                playStatus.textContent = "Display Advertisement";
+            }
+
+            let timeLeft = 5;
+            playCountdown.textContent = `Ad ending in ${timeLeft}s...`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    playCountdown.style.display = "none";
+                    closeBtn.style.display = "block";
+                    playStatus.textContent = "Advertisement Finished";
+                } else {
+                    playCountdown.textContent = `Ad ending in ${timeLeft}s...`;
+                }
+            }, 1000);
+
+            closeBtn.onclick = async () => {
+                playVideo.pause();
+                playVideo.currentTime = 0;
+                playOverlay.style.display = "none";
+                await grantWatcherReward();
+            };
+        }
+
+        watchAdBtn.addEventListener("click", () => {
+            const token = localStorage.getItem("sessionToken");
+            if (!token) {
+                alert("Please log in to your account first to earn achievements!");
+                return;
+            }
+
+            if (googleAdManagerLoaded && window.googletag) {
+                googletag.cmd.push(() => {
+                    googletag.display(rewardedSlotObj);
+                });
+            } else {
+                playSimulatedAd();
+            }
+        });
+    }
+
     // Important functions
     initSidebar();
     initDevTerminal();
+    initAccountPanel();
+    initWatchAdBtn();
     tabOptionsMenuSwitcher();
     customThemeDisplayHandler();
     initCustomThemeMaker();
