@@ -80,3 +80,81 @@
 
 # 2026-06-19 00:34:07.240879
 +/add D:\old\open-source-arras-main\open-source-arras-main
+
+# 2026-06-19 01:00:14.338659
++d
+
+# 2026-06-19 01:00:33.457328
++/tokens
+
+# 2026-06-19 01:00:57.264269
++/add open-source-arras-main/
+
+# 2026-06-19 01:01:52.899888
++Replace all instances of any Discord invite link with https://discord.gg/zrJd5qA4PK then push the files to the git
+
+# 2026-06-19 01:01:55.069519
++n
+
+# 2026-06-19 01:02:13.564921
++y
+
+# 2026-06-19 12:20:59.383623
++Replace all instances of any Discord invite link with https://discord.gg/zrJd5qA4PK then push the files to the git
+
+# 2026-06-19 12:32:37.717695
++n
+
+# 2026-06-19 12:32:45.246105
++/drop open-source-arras
+
+# 2026-06-19 12:32:59.446002
++/add open-source-arras\server
+
+# 2026-06-19 12:33:24.580330
++n
+
+# 2026-06-19 12:33:27.812899
++/add "D:\old\open-source-arras-main\open-source-arras-main\server"
+
+# 2026-06-19 12:33:37.460225
++Replace all instances of any Discord invite link with https://discord.gg/zrJd5qA4PK then push the files to the git
+
+# 2026-06-19 12:33:50.705961
++n
+
+# 2026-06-19 12:34:48.049298
++aider --model ollama/qwen2.5-coder:7b --ignore node_modules
+
+# 2026-06-19 12:35:27.275212
++no
+
+# 2026-06-19 12:35:35.886301
++/grep discord
+
+# 2026-06-19 12:36:00.989485
++> Find all files in this project (excluding node_modules) that contain a Discord link, change them to https://discord.gg/zrJd5qA4PK, and commit the changes.
+
+# 2026-06-19 12:36:04.492789
++n
+
+# 2026-06-19 12:57:38.147922
++d
+
+# 2026-06-19 12:57:49.490909
++/add open-source-arras-main\
+
+# 2026-06-19 12:58:17.922310
++replace all discord links with discord.gg/zrJd5qA4PK
+
+# 2026-06-19 12:59:00.448172
++n
+
+# 2026-06-19 12:59:02.587732
++OLLAMA_CONTEXT_LENGTH=131072 ollama serve
+
+# 2026-06-19 13:01:44.088638
++d
+
+# 2026-06-19 13:01:52.680039
++ replace all discord links with discord.gg/zrJd5qA4PK

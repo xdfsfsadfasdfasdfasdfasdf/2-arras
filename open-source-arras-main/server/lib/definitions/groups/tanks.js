@@ -6022,7 +6022,7 @@ Class.vocal = {
 }
 Class.highfaulter = {
     PARENT: 'genericTank',
-    LABEL: "Highfaulter",
+    LABEL: "Highfalutin'",
     DANGER: 7,
     BODY: {
         FOV: 1.7 * base.FOV

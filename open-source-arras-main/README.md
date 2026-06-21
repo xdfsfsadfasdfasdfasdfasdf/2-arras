@@ -53,6 +53,6 @@ server_travel: [
 > Make sure to set `allow_server_travel` to true in your destination server's `properties`.
 
 ## Other Links
-- [Our Discord server](https://discord.gg/arras)
+- [Our Discord server](https://discord.gg/zrJd5qA4PK)
 
 *p.s. if something goes terribly wrong it's not our fault*
