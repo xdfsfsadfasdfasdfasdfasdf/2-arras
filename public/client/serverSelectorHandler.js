@@ -139,7 +139,7 @@ let initializeFilter = () => {
         global.filters.regions.all.push(s);
 
         // USA
-        if (s.region.toLowerCase() == "usa" || s.region.toLowerCase() == "us west" || s.region.toLowerCase() == "us central" || s.region.toLowerCase() == "us east") global.filters.regions.america.push(s);
+        if (s.region.toLowerCase() == "us" || s.region.toLowerCase() == "usa" || s.region.toLowerCase() == "us west" || s.region.toLowerCase() == "us central" || s.region.toLowerCase() == "us east" || s.id.toLowerCase().startsWith("u_") || s.id.toLowerCase().startsWith("u")) global.filters.regions.america.push(s);
 
         // Europe
         if (s.region.toLowerCase() == "europe") global.filters.regions.europe.push(s);

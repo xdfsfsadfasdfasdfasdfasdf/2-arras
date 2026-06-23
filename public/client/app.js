@@ -747,94 +747,7 @@ import * as socketStuff from "./socketinit.js";
         }
     }
 
-    // Dev terminal — toggled with backtick on the home screen.
-    function initDevTerminal() {
-        const terminal = document.getElementById("devTerminal");
-        const output = document.getElementById("devTerminalOutput");
-        const input = document.getElementById("devTerminalInput");
-        let authenticated = false;
-        let devKey = null;
 
-        function print(text, cls = "info") {
-            const line = document.createElement("div");
-            line.className = "term-line " + cls;
-            line.textContent = text;
-            output.appendChild(line);
-            output.scrollTop = output.scrollHeight;
-        }
-
-        async function tryAuth() {
-            const tokenField = document.getElementById("playerKeyInput");
-            const key = tokenField ? tokenField.value.trim() : "";
-            if (!key) {
-                print("Enter your dev key in the 'Insert token here' field first.", "error");
-                return;
-            }
-            const res = await fetch("/api/terminal", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ key, command: "__ping__" }),
-            }).catch(() => null);
-            if (res && res.status === 400) {
-                authenticated = true;
-                devKey = key;
-                print("Authenticated.  $new | $close <id> [var] | $stop <id> [var] | $message <text>", "success");
-            } else {
-                print("Token field key is not the dev key.", "error");
-            }
-        }
-
-        async function openTerminal() {
-            terminal.classList.add("visible");
-            input.focus();
-            if (output.childElementCount === 0) print("2-Arras Dev Terminal", "info");
-            if (!authenticated) await tryAuth();
-        }
-
-        function closeTerminal() {
-            terminal.classList.remove("visible");
-        }
-
-        async function runCommand(cmd) {
-            print("> " + cmd, "input");
-            const res = await fetch("/api/terminal", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ key: devKey, command: cmd }),
-            }).catch(() => null);
-            if (!res) { print("Network error.", "error"); return; }
-            const text = await res.text();
-            if (res.ok) {
-                print(text, "success");
-            } else if (res.status === 403) {
-                print("Access denied.", "error");
-                authenticated = false;
-                devKey = null;
-            } else {
-                print(text || "Error " + res.status, "error");
-            }
-        }
-
-        input.addEventListener("keydown", async (e) => {
-            if (e.key === "Escape") { closeTerminal(); return; }
-            if (e.key !== "Enter") return;
-            const val = input.value.trim();
-            input.value = "";
-            if (!val) return;
-            if (!authenticated) { await tryAuth(); return; }
-            await runCommand(val);
-        });
-
-        // Backtick (`) toggles the terminal on the home screen only
-        document.addEventListener("keydown", (e) => {
-            if (global.gameStart) return;
-            if (e.key === "`" || (e.key === "Dead" && e.code === "Backquote")) {
-                e.preventDefault();
-                if (terminal.classList.contains("visible")) closeTerminal();
-                else openTerminal();
-            }
-        });
-    }
 
     const ALL_ACHIEVEMENTS = [
         { id: 'kills_1', name: 'First Blood', desc: 'Kill 1 tank' },
@@ -1028,8 +941,8 @@ import * as socketStuff from "./socketinit.js";
                 headers: { "Authorization": `Bearer ${token}` }
             }).catch(() => null);
             if (res && res.status === 200) {
-                const account = await res.json();
-                updateStatus(account);
+                const data = await res.json();
+                updateStatus(data.account);
             } else {
                 localStorage.removeItem("sessionToken");
                 global.playerKey = "";
@@ -1174,7 +1087,6 @@ import * as socketStuff from "./socketinit.js";
 
     // Important functions
     initSidebar();
-    initDevTerminal();
     initAccountPanel();
     initWatchAdBtn();
     tabOptionsMenuSwitcher();

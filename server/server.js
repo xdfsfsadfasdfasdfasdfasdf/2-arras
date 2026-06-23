@@ -9,7 +9,7 @@ const url = require("url");
 const pjson = require('../package.json')
 const accounts = require("./lib/accounts.js");
 
-const { Worker } = require("worker_threads");
+const { Worker, SHARE_ENV } = require("worker_threads");
 
 // Increase the stack trace limit for better debugging
 Error.stackTraceLimit = Infinity;
@@ -212,85 +212,7 @@ server = http.createServer(async (req, res) => {
             readString = JSON.stringify(global.addonAuthorInfos);
         } break;
 
-        case "/api/terminal": {
-            ok = false;
-            let termBody = "";
-            req.on("data", c => termBody += c);
-            req.on("end", () => {
-                let json = null;
-                try { json = JSON.parse(termBody); } catch {}
-                if (!json || !process.env.DEVELOPER || json.key !== process.env.DEVELOPER) {
-                    res.writeHead(403);
-                    res.end("Forbidden");
-                    return;
-                }
-                const cmd = (json.command || "").trim();
-                const workers = global.serverWorkers || [];
-                if (cmd === "$new") {
-                    for (let w of workers) if (w) w.postMessage(["closeArena", null]);
-                    res.writeHead(200);
-                    res.end("Closing all arenas.");
-                } else if (cmd.startsWith("$close ")) {
-                    const parts = cmd.slice("$close ".length).trim().split(/\s+/);
-                    const serverId = parts[0];
-                    const variationName = parts.length > 1 ? parts.slice(1).join(" ") : null;
-                    const idx = global.servers.findIndex(s => s && s.id === serverId);
-                    if (idx === -1) {
-                        res.writeHead(404);
-                        res.end("No server with id: " + serverId);
-                        return;
-                    }
-                    const w = workers[idx];
-                    if (w) {
-                        w.postMessage(["closeArena", variationName]);
-                        res.writeHead(200);
-                        res.end("Closing #" + serverId + (variationName ? " → " + variationName : "") + ".");
-                    } else if (global.servers[idx].gameManager) {
-                        const gm = global.servers[idx].gameManager;
-                        if (variationName) gm._forcedVariation = variationName;
-                        gm.closeArena();
-                        res.writeHead(200);
-                        res.end("Closing #" + serverId + (variationName ? " → " + variationName : "") + ".");
-                    } else {
-                        res.writeHead(500);
-                        res.end("No handle for server: " + serverId);
-                    }
-                } else if (cmd.startsWith("$stop ")) {
-                    const parts = cmd.slice("$stop ".length).trim().split(/\s+/);
-                    const serverId = parts[0];
-                    const variationName = parts.length > 1 ? parts.slice(1).join(" ") : null;
-                    const idx = global.servers.findIndex(s => s && s.id === serverId);
-                    if (idx === -1) {
-                        res.writeHead(404);
-                        res.end("No server with id: " + serverId);
-                        return;
-                    }
-                    const w = workers[idx];
-                    if (w) {
-                        w.postMessage(["stopArena", variationName]);
-                        res.writeHead(200);
-                        res.end("Stopping #" + serverId + (variationName ? " → " + variationName : "") + ".");
-                    } else if (global.servers[idx].gameManager) {
-                        const gm = global.servers[idx].gameManager;
-                        if (variationName) gm._forcedVariation = variationName;
-                        gm.stopArena();
-                        res.writeHead(200);
-                        res.end("Stopping #" + serverId + (variationName ? " → " + variationName : "") + ".");
-                    } else {
-                        res.writeHead(500);
-                        res.end("No handle for server: " + serverId);
-                    }
-                } else if (cmd.startsWith("$message ")) {
-                    const text = cmd.slice("$message ".length);
-                    for (let w of workers) if (w) w.postMessage(["broadcast", text]);
-                    res.writeHead(200);
-                    res.end("Message sent.");
-                } else {
-                    res.writeHead(400);
-                    res.end("Unknown command: " + cmd);
-                }
-            });
-        } break;
+
         case "/api/sendPlayer": {
             ok = false;
             let body = "";
@@ -396,7 +318,8 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
                 properties,
                 isFeatured,
                 index,
-            }
+            },
+            env: SHARE_ENV
         });
         global.serverWorkers = global.serverWorkers || [];
         global.serverWorkers[index] = worker;

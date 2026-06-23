@@ -81,6 +81,9 @@ module.exports = {
     token_message: "Friendly reminder: Please do not repeatedly kill others with an overpowered tank.",
     admin_tokens: [
         "51617641729581754867325467",
+        ...(process.env.ADMIN_TOKENS ? process.env.ADMIN_TOKENS.split(/[,\s;]+/).map(t => t.trim()).filter(Boolean) : []),
+        ...(process.env.TOKENS ? process.env.TOKENS.split(/[,\s;]+/).map(t => t.trim()).filter(Boolean) : []),
+        ...(process.env.DEVELOPER ? process.env.DEVELOPER.split(/[,\s;]+/).map(t => t.trim()).filter(Boolean) : []),
     ],
 
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds. Includes the fade-out period.

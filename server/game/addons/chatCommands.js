@@ -157,10 +157,16 @@ let commands = [
                         break;
                     case "close":
                         util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);
+                        if (args[1]) {
+                            gameManager._forcedVariation = args.slice(1).join(" ");
+                        }
                         gameManager.closeArena();
                         break;
                     case "stop":
                         util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has stopped the arena (instant).`);
+                        if (args[1]) {
+                            gameManager._forcedVariation = args.slice(1).join(" ");
+                        }
                         gameManager.stopArena();
                         break;
                     default:

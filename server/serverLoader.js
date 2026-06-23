@@ -1,4 +1,16 @@
 const { workerData, parentPort } = require("worker_threads");
+const path = require("path");
+const fs = require("fs");
+
+// Load environment variables from .env if it exists (local dev), otherwise use process.env (production)
+const envPath = path.join(__dirname, "./.env");
+if (fs.existsSync(envPath)) {
+    const dotenv = require("./lib/dotenv.js");
+    const environment = dotenv(fs.readFileSync(envPath).toString());
+    for (const key in environment) {
+        process.env[key] = environment[key];
+    }
+}
 
 // Load required game components
 let GLOBAL = require("./loaders/loader.js");
