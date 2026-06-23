@@ -263,6 +263,12 @@ input:disabled {
 	color: black;
 }
 
+#playerNameInput:disabled {
+	background-color: #eee;
+	color: #666;
+	cursor: not-allowed;
+}
+
 #playerKeyInput {
 	padding: 3px;
 	color: black;

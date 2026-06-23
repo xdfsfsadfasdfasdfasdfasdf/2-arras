@@ -151,7 +151,6 @@ import * as socketStuff from "./socketinit.js";
         })
 
         // Retrieve forms
-        util.retrieveFromLocalStorage("playerNameInput");
         util.retrieveFromLocalStorage("playerKeyInput");
         util.retrieveFromLocalStorage("optSharpEdges");
         util.retrieveFromLocalStorage("optSlowerFOV");
@@ -971,7 +970,6 @@ import * as socketStuff from "./socketinit.js";
             if (playerNameInput) {
                 playerNameInput.value = "Guest Account";
                 playerNameInput.disabled = true;
-                util.submitToLocalStorage("playerNameInput");
             }
             
             loggedInDiv.style.display = "none";
@@ -1009,7 +1007,6 @@ import * as socketStuff from "./socketinit.js";
             if (playerNameInput) {
                 playerNameInput.value = account.username;
                 playerNameInput.disabled = true;
-                util.submitToLocalStorage("playerNameInput");
             }
 
             loggedOutDiv.style.display = "none";
@@ -1023,7 +1020,6 @@ import * as socketStuff from "./socketinit.js";
                 if (playerNameInput) {
                     playerNameInput.value = "Guest Account";
                     playerNameInput.disabled = true;
-                    util.submitToLocalStorage("playerNameInput");
                 }
                 return;
             }
@@ -1040,7 +1036,6 @@ import * as socketStuff from "./socketinit.js";
                 if (playerNameInput) {
                     playerNameInput.value = "Guest Account";
                     playerNameInput.disabled = true;
-                    util.submitToLocalStorage("playerNameInput");
                 }
             }
         }
@@ -1683,10 +1678,10 @@ import * as socketStuff from "./socketinit.js";
         let autolevelUpInput = document.getElementById("autoLevelUp").checked;
         global.autolvlUp = autolevelUpInput;
         // Name and keys
-        util.submitToLocalStorage("playerNameInput");
         util.submitToLocalStorage("playerKeyInput");
         global.playerName = global.player.name = playerNameInput.value;
-        global.playerKey = playerKeyInput.value.replace(/(<([^>]+)>)/gi, "").substring(0, 64);
+        let sessionToken = localStorage.getItem("sessionToken");
+        global.playerKey = sessionToken || playerKeyInput.value.replace(/(<([^>]+)>)/gi, "").substring(0, 64);
         // Change the screen
         global.screenWidth = window.innerWidth;
         global.screenHeight = window.innerHeight;
