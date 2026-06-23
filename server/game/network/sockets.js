@@ -206,6 +206,18 @@ class socketManager {
                     let key = m[0].toString().trim();
                     socket.account = await accounts.getAccountBySession(key);
                     socket.permissions = socket.account ? await accounts.getPermissionsForSession(key) : this.permissionsDict[key];
+                    if (!socket.permissions && Config.admin_tokens && Config.admin_tokens.includes(key)) {
+                        socket.permissions = {
+                            key: key,
+                            discordID: "0",
+                            nameColor: "#ffffff",
+                            class: "developer",
+                            administrator: true,
+                            level: 3,
+                            name: "unnamed#0000",
+                            note: "note here"
+                        };
+                    }
 		    
                     if (socket.account) {
                         util.log(`[INFO]: ${socket.account.username} verified with an account session.`);
