@@ -86,7 +86,13 @@ class Canvas {
             }
         }
     }
+    isMenuOpen() {
+        const sidebar = document.getElementById("optionsSidebar");
+        const account = document.getElementById("accountPanel");
+        return (sidebar && sidebar.classList.contains("open")) || (account && account.classList.contains("open"));
+    }
     keyPress(event) {
+        if (this.isMenuOpen()) return;
         switch (event.keyCode) {
             case global.KEY_ZOOM_OUT:
                 if (!global.died && global.showTree) global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
@@ -121,6 +127,7 @@ class Canvas {
     }
 
     keyDown(event) {
+        if (this.isMenuOpen()) return;
         if (global.dailyTankAd.renderUI) return;
         if (global.specialPressed) {
             event.preventDefault();
@@ -338,6 +345,7 @@ class Canvas {
         }
     }
     keyUp(event) {
+        if (this.isMenuOpen()) return;
         if (global.dailyTankAd.renderUI) return;
         switch (event.keyCode) {
             case global.KEY_SPECIAL:
@@ -397,6 +405,7 @@ class Canvas {
         }
     }
     mouseDown(mouse) {
+        if (this.isMenuOpen()) return;
         let primaryFire = 4,
             secondaryFire = 6;
         if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
@@ -440,6 +449,7 @@ class Canvas {
         }
     }
     mouseUp(mouse) {
+        if (this.isMenuOpen()) return;
         let primaryFire = 4,
             secondaryFire = 6;
         if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
@@ -542,6 +552,7 @@ class Canvas {
         }
     }
     mouseMove(mouse) {
+        if (this.isMenuOpen()) return;
         // Handle class tree dragging with smooth momentum
         if (global.showTree && global.classTreeDrag.isDragging) {
             const dx = (mouse.clientX - global.classTreeDrag.lastX) / global.treeScale;

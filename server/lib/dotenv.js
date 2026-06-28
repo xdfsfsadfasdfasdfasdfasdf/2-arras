@@ -11,7 +11,10 @@ if (typeof Object.fromEntries !== 'function') {
 
 module.exports = data => Object.fromEntries(data.split(/\r?\n/g).map(line => {
     if (!line.includes('=') || line.trim().startsWith('#')) return null;
-    const key = line.slice(0, line.indexOf('='));
-    const value = line.slice(line.indexOf('=') + 1);
+    const key = line.slice(0, line.indexOf('=')).trim();
+    let value = line.slice(line.indexOf('=') + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+    }
     return (key && value) ? [key, value] : null;
 }).filter(item => item !== null))

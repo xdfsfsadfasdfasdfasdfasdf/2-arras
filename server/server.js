@@ -15,7 +15,9 @@ const { Worker, SHARE_ENV } = require("worker_threads");
 Error.stackTraceLimit = Infinity;
 
 // Load environment variables from .env if it exists (local dev), otherwise use process.env (production)
-const envPath = path.join(__dirname, "./.env");
+const envPath = fs.existsSync(path.join(__dirname, "./.env"))
+    ? path.join(__dirname, "./.env")
+    : path.join(__dirname, "../.env");
 if (fs.existsSync(envPath)) {
     const dotenv = require("./lib/dotenv.js");
     const environment = dotenv(fs.readFileSync(envPath).toString());

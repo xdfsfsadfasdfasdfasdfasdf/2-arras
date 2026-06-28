@@ -321,20 +321,27 @@ import * as socketStuff from "./socketinit.js";
         document.getElementById("startButton").onclick = () => startGame();
         document.onkeydown = (e) => {
             if (document.activeElement && document.activeElement.id === "devTerminalInput") return;
+            const sidebar = document.getElementById("optionsSidebar");
+            const account = document.getElementById("accountPanel");
+            const isMenuOpen = (sidebar && sidebar.classList.contains("open")) || (account && account.classList.contains("open"));
+            
+            if (selectedElement && isMenuOpen) {
+                if (e.location === 3 && e.key.length === 1) {
+                    // Numpad key with printable output — bind as "Num<key>" with its own keyCode
+                    setKeybind("Num" + e.key, e.keyCode);
+                } else if (1 !== e.key.length) {
+                    if (e.key === "Backspace" || e.key === "Delete") {
+                        setKeybind("", -1);
+                    }
+                } else {
+                    setKeybind(e.key.toUpperCase(), e.keyCode);
+                }
+                e.preventDefault();
+                return;
+            }
             if (!(global.gameStart || e.shiftKey || e.ctrlKey || e.altKey)) {
                 let key = e.which || e.keyCode;
-                if (selectedElement) {
-                    if (e.location === 3 && e.key.length === 1) {
-                        // Numpad key with printable output — bind as "Num<key>" with its own keyCode
-                        setKeybind("Num" + e.key, e.keyCode);
-                    } else if (1 !== e.key.length) {
-                        if (e.key === "Backspace" || e.key === "Delete") {
-                            setKeybind("", -1);
-                        }
-                    } else {
-                        setKeybind(e.key.toUpperCase(), e.keyCode);
-                    }
-                } else if (key === global.KEY_ENTER) {
+                if (key === global.KEY_ENTER) {
                     startGame();
                 }
             }
@@ -1733,21 +1740,25 @@ import * as socketStuff from "./socketinit.js";
     }
     const ska = (x) => skas[x];
     var getClassUpgradeKey = function (number) {
+        let keyId = "KEY_CHOOSE_" + (number + 1);
+        let bind = controlsArray.find(c => c.keyId === keyId);
+        if (bind) {
+            return bind.keyName;
+        }
         switch (number) {
-            case 0:
-                return "Y";
-            case 1:
-                return "U";
-            case 2:
-                return "I";
-            case 3:
-                return "H";
-            case 4:
-                return "J";
-            case 5:
-                return "K";
-            default:
-                return null;
+            case 0: return "Y";
+            case 1: return "U";
+            case 2: return "I";
+            case 3: return "H";
+            case 4: return "J";
+            case 5: return "K";
+            case 6: return "L";
+            case 7: return ";";
+            case 8: return "'";
+            case 9: return ",";
+            case 10: return ".";
+            case 11: return "/";
+            default: return null;
         }
     };
 
@@ -4033,7 +4044,7 @@ import * as socketStuff from "./socketinit.js";
             upgradeSpin = Date.now() * 0.0005;
             upgradeSpin = upgradeSpin - (Math.floor(upgradeSpin / Math.PI / 2) * Math.PI * 2);
 
-            let x = glide * 2 * spacing + spacing + 5;
+            let x = glide * 2 * spacing + spacing + 5 + 105;
             let y = spacing - height - internalSpacing + 5;
             let xStart = x;
             let initialX = x;
