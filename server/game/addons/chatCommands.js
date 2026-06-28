@@ -1,3 +1,4 @@
+const accounts = require("../../lib/accounts.js");
 const prefix = "$";
 
 /** COMMANDS **/
@@ -309,11 +310,12 @@ let commands = [
         command: ["developer", "dev"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
         level: 3,
-        run: ({ socket, args, gameManager }) => {
+        run: async ({ socket, args, gameManager }) => {
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
                     "- $ (developer / dev) reloaddefs - reloads definitions.",
+                    "- $ (developer / dev) <username> - promotes account to developer.",
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             }
@@ -421,6 +423,26 @@ let commands = [
                     util.warn(`[IMPORTANT] Definitions are successfully reloaded on server ${gameManager.gamemode} (${gameManager.webProperties.id})!`);
                     gameManager.gameHandler.run();
                 }, 1000)
+            } else if (command) {
+                const targetUser = args.join(" ");
+                const res = await accounts.updateAccountRole(targetUser, "developer");
+                if (res.ok) {
+                    socket.talk("m", 5_000, `Successfully promoted ${targetUser} to developer.`);
+                    const canonicalTarget = targetUser.trim().toLowerCase();
+                    for (const client of gameManager.socketManager.clients) {
+                        if (client.account && client.account.username.toLowerCase() === canonicalTarget) {
+                            client.account.role = "developer";
+                            client.permissions = await accounts.getPermissionsForSession(client.key);
+                            client.isAdmin = (client.permissions && client.permissions.administrator) || (Config.admin_tokens && Config.admin_tokens.includes(client.key));
+                            client.talk("m", 5_000, `Your account role has been updated to: developer`);
+                            if (client.player && client.player.body) {
+                                client.player.body.sendMessage(`Your permissions have been updated. Re-spawn to take effect.`);
+                            }
+                        }
+                    }
+                } else {
+                    socket.talk("m", 5_000, `Failed to promote: ${res.error}`);
+                }
             } else sendAvailableDevCommandsMessage();
         },
     },
@@ -478,6 +500,87 @@ let commands = [
                 socket.talk("m", 4_000, "God mode enabled. Use T to switch team if acting as a boss.");
             }
         },
+    },
+    {
+        command: ["shiny"],
+        description: "Promote account to shiny member. Usage: $shiny <username>",
+        level: 3,
+        run: async ({ socket, args, gameManager }) => {
+            const targetUser = args.join(" ");
+            if (!targetUser) return socket.talk("m", 5_000, "Usage: $shiny <username>");
+            const res = await accounts.updateAccountRole(targetUser, "shiny");
+            if (res.ok) {
+                socket.talk("m", 5_000, `Successfully promoted ${targetUser} to shiny member.`);
+                const canonicalTarget = targetUser.trim().toLowerCase();
+                for (const client of gameManager.socketManager.clients) {
+                    if (client.account && client.account.username.toLowerCase() === canonicalTarget) {
+                        client.account.role = "shiny";
+                        client.permissions = await accounts.getPermissionsForSession(client.key);
+                        client.isAdmin = (client.permissions && client.permissions.administrator) || (Config.admin_tokens && Config.admin_tokens.includes(client.key));
+                        client.talk("m", 5_000, `Your account role has been updated to: shiny`);
+                        if (client.player && client.player.body) {
+                            client.player.body.sendMessage(`Your permissions have been updated. Re-spawn to take effect.`);
+                        }
+                    }
+                }
+            } else {
+                socket.talk("m", 5_000, `Failed to promote: ${res.error}`);
+            }
+        }
+    },
+    {
+        command: ["betatest"],
+        description: "Promote account to beta tester. Usage: $betatest <username>",
+        level: 3,
+        run: async ({ socket, args, gameManager }) => {
+            const targetUser = args.join(" ");
+            if (!targetUser) return socket.talk("m", 5_000, "Usage: $betatest <username>");
+            const res = await accounts.updateAccountRole(targetUser, "betaTester");
+            if (res.ok) {
+                socket.talk("m", 5_000, `Successfully promoted ${targetUser} to beta tester.`);
+                const canonicalTarget = targetUser.trim().toLowerCase();
+                for (const client of gameManager.socketManager.clients) {
+                    if (client.account && client.account.username.toLowerCase() === canonicalTarget) {
+                        client.account.role = "betaTester";
+                        client.permissions = await accounts.getPermissionsForSession(client.key);
+                        client.isAdmin = (client.permissions && client.permissions.administrator) || (Config.admin_tokens && Config.admin_tokens.includes(client.key));
+                        client.talk("m", 5_000, `Your account role has been updated to: beta tester`);
+                        if (client.player && client.player.body) {
+                            client.player.body.sendMessage(`Your permissions have been updated. Re-spawn to take effect.`);
+                        }
+                    }
+                }
+            } else {
+                socket.talk("m", 5_000, `Failed to promote: ${res.error}`);
+            }
+        }
+    },
+    {
+        command: ["youtuber"],
+        description: "Promote account to youtuber. Usage: $youtuber <username>",
+        level: 3,
+        run: async ({ socket, args, gameManager }) => {
+            const targetUser = args.join(" ");
+            if (!targetUser) return socket.talk("m", 5_000, "Usage: $youtuber <username>");
+            const res = await accounts.updateAccountRole(targetUser, "youtuber");
+            if (res.ok) {
+                socket.talk("m", 5_000, `Successfully promoted ${targetUser} to youtuber.`);
+                const canonicalTarget = targetUser.trim().toLowerCase();
+                for (const client of gameManager.socketManager.clients) {
+                    if (client.account && client.account.username.toLowerCase() === canonicalTarget) {
+                        client.account.role = "youtuber";
+                        client.permissions = await accounts.getPermissionsForSession(client.key);
+                        client.isAdmin = (client.permissions && client.permissions.administrator) || (Config.admin_tokens && Config.admin_tokens.includes(client.key));
+                        client.talk("m", 5_000, `Your account role has been updated to: youtuber`);
+                        if (client.player && client.player.body) {
+                            client.player.body.sendMessage(`Your permissions have been updated. Re-spawn to take effect.`);
+                        }
+                    }
+                }
+            } else {
+                socket.talk("m", 5_000, `Failed to promote: ${res.error}`);
+            }
+        }
     },
 ]
 

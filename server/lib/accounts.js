@@ -216,6 +216,19 @@ async function getPermissionsForSession(sessionToken) {
     if (role === "admin" || role === "developer") {
         permissions.level = 3;
         permissions.administrator = true;
+        permissions.class = "developer";
+    }
+    if (role === "shiny" || role === "shinyMember") {
+        permissions.level = 2;
+        permissions.class = "arrasMenu_shinyMember";
+    }
+    if (role === "youtuber") {
+        permissions.level = 2;
+        permissions.class = "arrasMenu_youtuber";
+    }
+    if (role === "betaTester" || role === "beta_tester") {
+        permissions.level = 1;
+        permissions.class = "arrasMenu_betaTester";
     }
     if (account.nameColor) permissions.nameColor = account.nameColor;
     if (account.class) permissions.class = account.class;
@@ -312,6 +325,22 @@ async function grantAdWatcher(accountId) {
     }
 }
 
+async function updateAccountRole(username, role) {
+    try {
+        const canonical = canonicalName(username);
+        const res = await pool.query(
+            "UPDATE accounts SET role = $1 WHERE canonical = $2 RETURNING *",
+            [role, canonical]
+        );
+        const account = res.rows[0];
+        if (!account) return { ok: false, error: "Account not found." };
+        return { ok: true, account };
+    } catch (err) {
+        console.error("Error updating role:", err);
+        return { ok: false, error: "Database error." };
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -322,4 +351,5 @@ module.exports = {
     canonicalName,
     recordKill,
     grantAdWatcher,
+    updateAccountRole,
 };
