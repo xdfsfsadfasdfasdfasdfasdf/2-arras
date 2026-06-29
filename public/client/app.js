@@ -790,6 +790,7 @@ import * as socketStuff from "./socketinit.js";
         const openBtn = document.getElementById("accountOpenBtn");
         const closeBtn = document.getElementById("accountCloseBtn");
         const submitBtn = document.getElementById("accountSubmitBtn");
+        const forgotBtn = document.getElementById("accountForgotBtn");
         const logoutBtn = document.getElementById("accountLogoutBtn");
         const nameInput = document.getElementById("accountNameInput");
         const passwordInput = document.getElementById("accountPasswordInput");
@@ -828,6 +829,11 @@ import * as socketStuff from "./socketinit.js";
         openBtn.addEventListener("click", openPanel);
         closeBtn.addEventListener("click", closePanel);
         overlay.addEventListener("click", closePanel);
+        if (forgotBtn) {
+            forgotBtn.addEventListener("click", () => {
+                showMessage("To reset your password, please contact an administrator on Discord.");
+            });
+        }
 
         tabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -835,6 +841,9 @@ import * as socketStuff from "./socketinit.js";
                 tab.classList.add("active");
                 currentTab = tab.dataset.tab;
                 submitBtn.innerHTML = `<b>${currentTab === "login" ? "Log In" : "Sign Up"}</b>`;
+                if (forgotBtn) {
+                    forgotBtn.style.display = currentTab === "login" ? "block" : "none";
+                }
                 showMessage("");
             });
         });

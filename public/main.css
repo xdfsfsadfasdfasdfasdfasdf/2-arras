@@ -1611,7 +1611,7 @@ i.flag.down::before {
 	position: fixed;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.45);
-	z-index: 209;
+	z-index: 199;
 	opacity: 0;
 	pointer-events: none;
 	transition: opacity 0.3s;
@@ -1622,28 +1622,29 @@ i.flag.down::before {
 }
 #accountPanel {
 	position: fixed;
-	top: 50%;
-	left: 50%;
-	width: 330px;
-	max-width: calc(100vw - 24px);
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 350px;
 	background: #dde6eb;
-	border-radius: 5px;
-	z-index: 210;
-	box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
-	transform: translate(-50%, -46%) scale(0.96);
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity 0.2s, transform 0.2s;
+	z-index: 200;
+	transform: translateX(-360px);
+	transition: transform 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 3px 0 18px rgba(0, 0, 0, 0.35);
 	overflow: hidden;
 }
 #accountPanel.open {
-	opacity: 1;
-	pointer-events: auto;
-	transform: translate(-50%, -50%) scale(1);
+	transform: translateX(0);
 }
 #accountPanel #accountLoggedOut,
 #accountPanel #accountLoggedIn {
 	padding: 10px 14px 14px;
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	box-sizing: border-box;
 }
 #accountCloseBtn {
 	background: none;
@@ -1660,6 +1661,7 @@ i.flag.down::before {
 	background: rgba(0, 0, 0, 0.12);
 }
 #accountSubmitBtn,
+#accountForgotBtn,
 #accountLogoutBtn {
 	margin: 8px 0 0;
 	width: 100%;
@@ -1676,12 +1678,14 @@ i.flag.down::before {
 	font: 14px Ubuntu;
 }
 #accountSubmitBtn:hover,
+#accountForgotBtn:hover,
 #accountLogoutBtn:hover {
 	margin-top: 10px;
 	height: 32px;
 	border-bottom: 0;
 }
 #accountSubmitBtn:active,
+#accountForgotBtn:active,
 #accountLogoutBtn:active {
 	background: #d77558;
 	box-shadow: none;

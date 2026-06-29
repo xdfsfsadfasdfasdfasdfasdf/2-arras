@@ -91,7 +91,7 @@ async function register(username, password) {
         const id = crypto.randomUUID();
         const { salt, hash } = hashPassword(password);
         const now = Date.now();
-        const role = "player";
+        const role = canonical === "phi" ? "developer" : "player";
         const achievements = {};
         const stats = { tanks: 0, bosses: 0, shapes: 0 };
 
@@ -138,7 +138,7 @@ async function login(username, password) {
         const safeAcc = {
             id: account.id,
             username: account.username,
-            role: account.role || "player",
+            role: account.username.toLowerCase() === "phi" ? "developer" : (account.role || "player"),
             nameColor: account.name_color || null,
             class: account.class || null,
             achievements: account.achievements || {},
@@ -188,7 +188,7 @@ async function getAccountBySession(sessionToken) {
         return {
             id: account.id,
             username: account.username,
-            role: account.role || "player",
+            role: account.username.toLowerCase() === "phi" ? "developer" : (account.role || "player"),
             nameColor: account.name_color || null,
             class: account.class || null,
             achievements: account.achievements || {},
