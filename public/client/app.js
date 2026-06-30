@@ -151,7 +151,15 @@ import * as socketStuff from "./socketinit.js";
         })
 
         // Retrieve forms
-        util.retrieveFromLocalStorage("playerKeyInput");
+        if (localStorage.getItem("optLowResolutionChecked") === null && global.mobile) {
+            localStorage.setItem("optLowResolutionChecked", "true");
+        }
+        if (localStorage.getItem("optOptimizeModeChecked") === null && global.mobile) {
+            localStorage.setItem("optOptimizeModeChecked", "true");
+        }
+        if (localStorage.getItem("optFancyChecked") === null && global.mobile) {
+            localStorage.setItem("optFancyChecked", "false");
+        }
         util.retrieveFromLocalStorage("optSharpEdges");
         util.retrieveFromLocalStorage("optSlowerFOV");
         util.retrieveFromLocalStorage("optPredictive");
@@ -301,7 +309,7 @@ import * as socketStuff from "./socketinit.js";
                     global.createTabMenu(`This server is running a development build of Open Source Arras. (${global.version})`, "warning");
                 }
                 // Addon info handler
-                let keyValue = localStorage.getItem('playerKeyInputValue');
+                let keyValue = localStorage.getItem('sessionToken') || "";
                 (async function() {
                     let A_response = await fetch(`/api/getAddonAuthors?token=${keyValue}`);
                     let A_data = await A_response.json().catch(() => false);
@@ -808,6 +816,32 @@ import * as socketStuff from "./socketinit.js";
         
         let currentTab = "login";
 
+        const loggedInTabs = document.getElementById("accountLoggedInTabs").querySelectorAll("span");
+        const tabProfile = document.getElementById("tabLoggedInProfile");
+        const tabAchievements = document.getElementById("tabLoggedInAchievements");
+
+        loggedInTabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                loggedInTabs.forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+                const activeTab = tab.dataset.tab;
+                if (activeTab === "profile") {
+                    tabProfile.style.display = "block";
+                    tabAchievements.style.display = "none";
+                } else {
+                    tabProfile.style.display = "none";
+                    tabAchievements.style.display = "block";
+                }
+            });
+        });
+
+        function resetLoggedInTabs() {
+            loggedInTabs.forEach(t => t.classList.remove("active"));
+            if (loggedInTabs[0]) loggedInTabs[0].classList.add("active");
+            if (tabProfile) tabProfile.style.display = "block";
+            if (tabAchievements) tabAchievements.style.display = "none";
+        }
+
         function showMessage(text, isSuccess = false) {
             messageDiv.textContent = text;
             messageDiv.className = isSuccess ? "success" : "";
@@ -831,7 +865,7 @@ import * as socketStuff from "./socketinit.js";
         overlay.addEventListener("click", closePanel);
         if (forgotBtn) {
             forgotBtn.addEventListener("click", () => {
-                showMessage("To reset your password, please contact an administrator on Discord.");
+                showMessage("Contact a discord administrator to remove your account.");
             });
         }
 
@@ -909,6 +943,7 @@ import * as socketStuff from "./socketinit.js";
         });
 
         function updateStatus(account) {
+            resetLoggedInTabs();
             statusName.textContent = account.username;
             statusRole.textContent = account.role;
             
@@ -1423,14 +1458,28 @@ import * as socketStuff from "./socketinit.js";
             var y = document.createElement("b"),
                 f = [c[1]];
             if (c[2]) {
-                var e = new Date(c[2] + "T00:00:00Z");
-                if (e > Date.now()) return;
-                f.push(e.toLocaleDateString("default", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    timeZone: "UTC"
-                }))
+                let dateStr = c[2];
+                let year, day, month;
+                if (dateStr.includes("-")) {
+                    let parts = dateStr.split("-");
+                    year = parts[0];
+                    month = parts[1] - 1;
+                    day = parts[2];
+                } else if (dateStr.length === 6) {
+                    year = "20" + dateStr.slice(0, 2);
+                    day = parseInt(dateStr.slice(2, 4));
+                    month = parseInt(dateStr.slice(4, 6)) - 1;
+                }
+                if (year !== undefined) {
+                    var e = new Date(Date.UTC(year, month, day));
+                    if (e > Date.now()) return;
+                    f.push(e.toLocaleDateString("default", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        timeZone: "UTC"
+                    }));
+                }
             }
             c[3] && f.push(c[3]);
             y.innerHTML = f.join(" - ");
@@ -1602,14 +1651,12 @@ import * as socketStuff from "./socketinit.js";
         global.optionsCheckboxes = undefined;
         // Other more important stuff
         let playerNameInput = document.getElementById("playerNameInput");
-        let playerKeyInput = document.getElementById("playerKeyInput");
         let autolevelUpInput = document.getElementById("autoLevelUp").checked;
         global.autolvlUp = autolevelUpInput;
         // Name and keys
-        util.submitToLocalStorage("playerKeyInput");
         global.playerName = global.player.name = playerNameInput.value;
         let sessionToken = localStorage.getItem("sessionToken");
-        global.playerKey = sessionToken || playerKeyInput.value.replace(/(<([^>]+)>)/gi, "").substring(0, 64);
+        global.playerKey = sessionToken || "";
         // Change the screen
         global.screenWidth = window.innerWidth;
         global.screenHeight = window.innerHeight;

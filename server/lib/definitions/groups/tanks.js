@@ -5977,24 +5977,15 @@ Class.undercoverCop = {
         }
     ]
 }
+
 Class.vocal = {
     PARENT: 'genericTank',
     LABEL: "Vocal",
     DANGER: 7,
     BODY: {
-        FOV: 1.5 * base.FOV
+        FOV: base.FOV * 1.15
     },
     GUNS: [
-        {
-            POSITION: {
-                LENGTH: 24,
-                WIDTH: 8
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper]),
-                TYPE: 'bullet'
-            }
-        },
         {
             POSITION: {
                 LENGTH: 18,
@@ -6004,7 +5995,6 @@ Class.vocal = {
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic]),
                 TYPE: 'bullet',
-                AUTOFIRE: true
             }
         },
 	{
@@ -6013,16 +6003,62 @@ Class.vocal = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, {recoil: 60, reload: 0.05, damage: 10, penetration: 5}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, {recoil: 60, reload: 40, damage: 1000, penetration: 5}]),
                 TYPE: 'bullet',
+                LABEL: 'vocal cord',
                 ALT_FIRE: true
             }
         }
     ]
 }
-Class.highfaulter = {
+
+Class.bilunabirotunda = {
     PARENT: 'genericTank',
-    LABEL: "Highfaulter",
+    LABEL: "Bilunabirotunda",
+    DANGER: 7,
+    BODY: {
+        FOV: 1.3 * base.FOV
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 12
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.pounder]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 12,
+                ANGLE: 180
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder]),
+                TYPE: 'bullet',
+            }
+        },
+	{
+            POSITION: {
+                LENGTH: 30,
+                WIDTH: 12
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.pounder, {recoil: 90, reload: 45, damage: 1250, penetration: 10}]),
+                TYPE: 'bullet',
+                LABEL: 'vocal cord',
+                ALT_FIRE: true
+            }
+        }
+    ]
+}
+
+Class["highfalutin'"] = {
+    PARENT: 'genericTank',
+    LABEL: "Highfalutin'",
     DANGER: 7,
     BODY: {
         FOV: 1.7 * base.FOV
@@ -6071,8 +6107,9 @@ Class.highfaulter = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, {recoil: 80, reload: 0.05, damage: 10, penetration: 5}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, {recoil: 80, reload: 30, damage: 1250, penetration: 7}]),
                 TYPE: 'bullet',
+                LABEL: 'vocal cord',
                 ALT_FIRE: true
             }
         }
@@ -6267,5 +6304,6 @@ Class.basic.UPGRADES_TIER_1 = ['twin', 'sniper', 'machineGun', 'flankGuard', 'di
     Class.sprayer.UPGRADES_TIER_3.push('splasher')
     Class.flankGuard.UPGRADES_TIER_3.push('tripleMachine')
     Class.trapGuard.UPGRADES_TIER_3.push('whirlGuard')
-    Class.vocal.UPGRADES_TIER_3 = ['bushwhacker', 'highfaulter', 'autoVocal']
+    Class.vocal.UPGRADES_TIER_3 = ['bushwhacker', "highfalutin'", 'autoVocal', 'bilunabirotunda']
+
 

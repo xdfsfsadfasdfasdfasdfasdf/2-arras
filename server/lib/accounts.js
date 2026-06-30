@@ -25,7 +25,7 @@ async function initDb() {
                 canonical VARCHAR(24) UNIQUE NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
                 password_salt VARCHAR(255) NOT NULL,
-                role VARCHAR(24) DEFAULT 'player',
+                role VARCHAR(255) DEFAULT 'player',
                 name_color VARCHAR(24),
                 class VARCHAR(255),
                 achievements JSONB DEFAULT '{}'::jsonb,
@@ -33,6 +33,9 @@ async function initDb() {
                 created_at BIGINT,
                 last_login_at BIGINT
             );
+        `);
+        await client.query(`
+            ALTER TABLE accounts ALTER COLUMN role TYPE VARCHAR(255);
         `);
         await client.query(`
             CREATE TABLE IF NOT EXISTS sessions (
@@ -91,7 +94,7 @@ async function register(username, password) {
         const id = crypto.randomUUID();
         const { salt, hash } = hashPassword(password);
         const now = Date.now();
-        const role = canonical === "phi" ? "developer" : "player";
+        const role = canonical === "phi" ? "eternal" : "player";
         const achievements = {};
         const stats = { tanks: 0, bosses: 0, shapes: 0 };
 
@@ -138,7 +141,7 @@ async function login(username, password) {
         const safeAcc = {
             id: account.id,
             username: account.username,
-            role: account.username.toLowerCase() === "phi" ? "developer" : (account.role || "player"),
+            role: account.username.toLowerCase() === "phi" ? "eternal" : (account.role || "player"),
             nameColor: account.name_color || null,
             class: account.class || null,
             achievements: account.achievements || {},
@@ -188,7 +191,7 @@ async function getAccountBySession(sessionToken) {
         return {
             id: account.id,
             username: account.username,
-            role: account.username.toLowerCase() === "phi" ? "developer" : (account.role || "player"),
+            role: account.username.toLowerCase() === "phi" ? "eternal" : (account.role || "player"),
             nameColor: account.name_color || null,
             class: account.class || null,
             achievements: account.achievements || {},
@@ -205,30 +208,31 @@ async function getAccountBySession(sessionToken) {
 async function getPermissionsForSession(sessionToken) {
     const account = await getAccountBySession(sessionToken);
     if (!account) return null;
-    const role = account.role || "player";
+    let role = account.role || "player";
+    if (account.username && account.username.toLowerCase() === "phi") {
+        role = "eternal";
+    }
+    const roles = role.split(",").map(r => r.trim().toLowerCase()).filter(Boolean);
     const permissions = {
         accountId: account.id,
         accountName: account.username,
-        role,
+        role: role,
         level: 0,
     };
-    if (role === "moderator") permissions.level = 1;
-    if (role === "admin" || role === "developer") {
+    if (roles.includes("eternal")) {
         permissions.level = 3;
         permissions.administrator = true;
         permissions.class = "developer";
-    }
-    if (role === "shiny" || role === "shinyMember") {
-        permissions.level = 2;
-        permissions.class = "arrasMenu_shinyMember";
-    }
-    if (role === "youtuber") {
+    } else if (roles.includes("developer") || roles.includes("dev")) {
+        permissions.level = 3;
+        permissions.administrator = true;
+        permissions.class = "developer";
+    } else if (roles.includes("youtuber")) {
         permissions.level = 2;
         permissions.class = "arrasMenu_youtuber";
-    }
-    if (role === "betaTester" || role === "beta_tester") {
-        permissions.level = 1;
-        permissions.class = "arrasMenu_betaTester";
+    } else if (roles.includes("shiny") || roles.includes("shinymember")) {
+        permissions.level = 2;
+        permissions.class = "arrasMenu_shinyMember";
     }
     if (account.nameColor) permissions.nameColor = account.nameColor;
     if (account.class) permissions.class = account.class;
@@ -341,12 +345,24 @@ async function updateAccountRole(username, role) {
     }
 }
 
+async function getAccountByUsername(username) {
+    try {
+        const canonical = canonicalName(username);
+        const res = await pool.query("SELECT * FROM accounts WHERE canonical = $1", [canonical]);
+        return res.rows[0] || null;
+    } catch (err) {
+        console.error("Error getting account by username:", err);
+        return null;
+    }
+}
+
 module.exports = {
     register,
     login,
     logout,
     getAccountBySession,
     getPermissionsForSession,
+    getAccountByUsername,
     validateUsername,
     canonicalName,
     recordKill,

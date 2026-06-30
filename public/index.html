@@ -56,7 +56,6 @@
                 </div>
                 <div class="serverSelector shadowScroll"><table><tbody id="serverSelector"></tbody></table></div>
                 <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="playerNameInput" maxlength="24" value="Guest Account" disabled>
-                <input type="text" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
                 <div class="startButtonHolder">
                     <button id="startButton" tabindex="2"><b>Play</b></button>
                 </div>
@@ -82,23 +81,31 @@
             <input type="text" id="accountNameInput" maxlength="24" spellcheck="false" autocomplete="username" placeholder="Account name">
             <input type="password" id="accountPasswordInput" maxlength="128" autocomplete="current-password" placeholder="Password">
             <button id="accountSubmitBtn"><b>Log In</b></button>
-            <button id="accountForgotBtn"><b>Forgot Password?</b></button>
+            <button id="accountForgotBtn"><b>I can't access my account!</b></button>
             <div id="accountMessage"></div>
         </div>
         <div id="accountLoggedIn" style="display: none;">
-            <div id="accountStatusName"></div>
-            <div id="accountStatusRole"></div>
-            <div class="optionsHeader">Lifetime Stats</div>
-            <div id="accountStatsList" style="font: 13px Ubuntu, sans-serif; color: #333; margin: 5px 0 10px; display: flex; justify-content: space-around; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px;">
-                <div>Tanks: <b id="statTanks">0</b></div>
-                <div>Bosses: <b id="statBosses">0</b></div>
-                <div>Shapes: <b id="statShapes">0</b></div>
+            <div class="horizontalSelector" id="accountLoggedInTabs">
+                <span class="active" data-tab="profile">Profile</span>
+                <span data-tab="achievements">Achievements</span>
             </div>
-            <div class="optionsHeader">Achievements</div>
-            <div id="accountAchievementsList" class="shadowScroll" style="max-height: 150px; overflow-y: auto; font: 12px Ubuntu, sans-serif; text-align: left; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; margin-bottom: 10px;">
-                <!-- Achievements will be inserted here -->
+            <div id="tabLoggedInProfile">
+                <div id="accountStatusName"></div>
+                <div id="accountStatusRole"></div>
+                <div class="optionsHeader">Lifetime Stats</div>
+                <div id="accountStatsList" style="font: 13px Ubuntu, sans-serif; color: #333; margin: 5px 0 10px; display: flex; justify-content: space-around; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px;">
+                    <div>Tanks: <b id="statTanks">0</b></div>
+                    <div>Bosses: <b id="statBosses">0</b></div>
+                    <div>Shapes: <b id="statShapes">0</b></div>
+                </div>
+                <button id="accountLogoutBtn"><b>Log Out</b></button>
             </div>
-            <button id="accountLogoutBtn"><b>Log Out</b></button>
+            <div id="tabLoggedInAchievements" style="display: none;">
+                <div class="optionsHeader">Achievements</div>
+                <div id="accountAchievementsList" class="shadowScroll" style="max-height: 250px; overflow-y: auto; font: 12px Ubuntu, sans-serif; text-align: left; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; margin-bottom: 10px;">
+                    <!-- Achievements will be inserted here -->
+                </div>
+            </div>
         </div>
     </div>
 
