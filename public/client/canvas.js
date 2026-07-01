@@ -174,7 +174,7 @@ class Canvas {
                 if (global.gameStart && !global.died && !global.disconnected) {
                     this.spawnChatInput(true);
                 }
-                break;
+                return;
 
             case global.KEY_SHIFT:
                 if (global.showTree) this.treeScrollSpeedMultiplier = 5;

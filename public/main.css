@@ -21,6 +21,10 @@
 	outline: 1px solid transparent;
 }
 
+input, button, select, textarea {
+	font-family: 'Ubuntu', sans-serif;
+}
+
 .greyText {
 	opacity: 0.5;
 }
