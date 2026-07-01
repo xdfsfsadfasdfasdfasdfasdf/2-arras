@@ -169,13 +169,6 @@ class Canvas {
         }
 
         switch (event.keyCode) {
-            case 192: // Backtick key (`/~)
-                event.preventDefault();
-                if (global.gameStart && !global.died && !global.disconnected) {
-                    this.spawnChatInput(true);
-                }
-                return;
-
             case global.KEY_SHIFT:
                 if (global.showTree) this.treeScrollSpeedMultiplier = 5;
                 else this.socket.cmd.set(6, true);
