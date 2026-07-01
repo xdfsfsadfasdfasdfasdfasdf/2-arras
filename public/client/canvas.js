@@ -168,6 +168,7 @@ class Canvas {
             }
         }
 
+        switch (event.keyCode) {
             case 192: // Backtick key (`/~)
                 event.preventDefault();
                 if (global.gameStart && !global.died && !global.disconnected) {
