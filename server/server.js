@@ -182,6 +182,109 @@ server = http.createServer(async (req, res) => {
             }
         } break;
 
+        case "/api/account/search": {
+            ok = false;
+            const targetUsername = query.username || "";
+            const account = await accounts.searchAccount(targetUsername);
+            if (!account) {
+                sendJson(res, 404, { ok: false, error: "User not found." });
+            } else {
+                const executorSession = getSessionFromRequest(req);
+                const executorPermissions = executorSession ? await accounts.getPermissionsForSession(executorSession) : null;
+                const canManage = executorPermissions && executorPermissions.level >= 3;
+                sendJson(res, 200, { ok: true, account, canManage });
+            }
+        } break;
+
+        case "/api/account/update-bio": {
+            ok = false;
+            readJsonBody(req, async json => {
+                const session = getSessionFromRequest(req) || json?.session || "";
+                const result = await accounts.updateBio(session, json?.bio);
+                sendJson(res, result.ok ? 200 : 400, result);
+            });
+        } break;
+
+        case "/api/account/update-role": {
+            ok = false;
+            readJsonBody(req, async json => {
+                const session = getSessionFromRequest(req) || json?.session || "";
+                const targetUsername = json?.targetUsername || "";
+                const action = json?.action || "";
+                
+                const executorPermissions = await accounts.getPermissionsForSession(session);
+                if (!executorPermissions || executorPermissions.level < 3) {
+                    return sendJson(res, 403, { ok: false, error: "Unauthorized. Requires dev or eternal role." });
+                }
+                
+                const executorRoleStr = executorPermissions.role || "player";
+                const isEternal = executorRoleStr.split(",").map(r => r.trim().toLowerCase()).includes("eternal") || executorPermissions.accountName.toLowerCase() === "phi";
+                
+                const targetAccount = await accounts.getAccountByUsername(targetUsername);
+                if (!targetAccount) return sendJson(res, 404, { ok: false, error: "Target user not found." });
+                
+                let targetRoles = (targetAccount.role || "player").split(",").map(r => r.trim().toLowerCase()).filter(Boolean);
+                if (targetAccount.username.toLowerCase() === "phi") {
+                    targetRoles = ["eternal"];
+                }
+                
+                let newRoleStr = "";
+                let targetRole = "player";
+                
+                if (action === "promote") {
+                    if (targetRoles.includes("player")) {
+                        targetRole = "shiny";
+                    } else if (targetRoles.includes("shiny")) {
+                        targetRole = "developer";
+                    } else if (targetRoles.includes("developer") || targetRoles.includes("dev")) {
+                        targetRole = "eternal";
+                    } else {
+                        return sendJson(res, 400, { ok: false, error: "User is already at the maximum role." });
+                    }
+                    
+                    if (targetRole === "eternal" && !isEternal) {
+                        return sendJson(res, 403, { ok: false, error: "Only eternal accounts can promote to eternal." });
+                    }
+                    if (targetRole === "developer" && !isEternal) {
+                        return sendJson(res, 403, { ok: false, error: "Only eternal accounts can promote to developer." });
+                    }
+                    
+                    let newRoles = targetRoles.filter(r => r !== "player");
+                    if (!newRoles.includes(targetRole)) newRoles.push(targetRole);
+                    newRoleStr = newRoles.join(",");
+                } else if (action === "demote") {
+                    const targetHasEternal = targetRoles.includes("eternal");
+                    const targetHasDev = targetRoles.includes("developer") || targetRoles.includes("dev");
+                    
+                    if (targetHasEternal && !isEternal) {
+                        return sendJson(res, 403, { ok: false, error: "You cannot demote an eternal account." });
+                    }
+                    if (targetHasDev && !isEternal) {
+                        return sendJson(res, 403, { ok: false, error: "You cannot demote a developer account." });
+                    }
+                    
+                    newRoleStr = "player";
+                } else {
+                    return sendJson(res, 400, { ok: false, error: "Invalid action." });
+                }
+                
+                const resDb = await accounts.updateAccountRole(targetUsername, newRoleStr);
+                if (resDb.ok) {
+                    updateLocalClients(targetUsername, newRoleStr);
+                    if (global.serverWorkers) {
+                        for (let worker of global.serverWorkers) {
+                            if (worker) {
+                                worker.postMessage(["updateRole", targetUsername, newRoleStr]);
+                            }
+                        }
+                    }
+                    sendJson(res, 200, { ok: true, role: newRoleStr });
+                } else {
+                    sendJson(res, 500, { ok: false, error: resDb.error || "Failed to update role." });
+                }
+            });
+        } break;
+
         case "/getServers.json": {
             // Serve a list of active servers (excluding hidden ones)
             readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({
@@ -355,6 +458,29 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
             global.launchedOnMainServer = true;
             new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, webPropsWithPath, properties, isFeatured, false);
         }, 10)
+    }
+}
+
+function updateLocalClients(username, newRoleStr) {
+    for (let sv of global.servers) {
+        if (sv.gameManager && sv.gameManager.socketManager) {
+            updateSocketsForManager(sv.gameManager.socketManager, username, newRoleStr);
+        }
+    }
+}
+
+async function updateSocketsForManager(socketManager, username, newRoleStr) {
+    const canonicalTarget = username.toLowerCase();
+    for (const client of socketManager.clients) {
+        if (client.account && client.account.username.toLowerCase() === canonicalTarget) {
+            client.account.role = newRoleStr;
+            client.permissions = await accounts.getPermissionsForSession(client.key);
+            client.isAdmin = (client.permissions && client.permissions.administrator) || (Config.admin_tokens && Config.admin_tokens.includes(client.key));
+            client.talk("m", 5_000, `Your account role has been updated to: ${newRoleStr}`);
+            if (client.player && client.player.body) {
+                client.player.body.sendMessage(`Your permissions have been updated. Re-spawn to take effect.`);
+            }
+        }
     }
 }
 

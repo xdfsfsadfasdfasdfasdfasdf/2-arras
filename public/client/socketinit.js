@@ -884,7 +884,7 @@ let incoming = async function(message, socket) {
             case 'c': { // force camera move
                 global.player.renderx = global.player.cx.x = m[0];
                 global.player.rendery = global.player.cy.y = m[1];
-                global.player.renderv = global.player.view = m[2];
+                global.player.renderv = global.player.view = m[2] * 0.82;
                 global.player.animX.add(m[0]);
                 global.player.animY.add(m[1]);
             } break;
@@ -976,7 +976,7 @@ let incoming = async function(message, socket) {
                 // We'll have to do protocol decoding on the remaining data
                 theshit = m.slice(7);
                 // More stuff
-                let defaultFov = 2000;
+                let defaultFov = 2000 * 0.82;
             if (!global.gameStart && startSettings.allowtostartgame) {
                 // Start the game
                 global.gameStart = true;
@@ -1014,7 +1014,7 @@ let incoming = async function(message, socket) {
                 global.player.animX.add(m[1]);
                 global.player.animY.add(m[2]);
                 // Fov stuff
-                global.player.view = camfov;
+                global.player.view = camfov * 0.82;
                 global.player.animv.add(global.player.view);
                 if (isNaN(global.player.renderv) || global.player.renderv === 0) {
                     global.player.renderv = defaultFov;

@@ -147,6 +147,7 @@ class socketManager {
                     player.body.kill();
                     player.body.destroy();
                 } else if (!global.gameManager.arenaClosed) {
+                    player.body.accountID = socket.account ? socket.account.id : null;
                     let timeout = setTimeout(() => {
                         if (player.body != null) {
                             player.body.kill();
@@ -1176,7 +1177,12 @@ class socketManager {
         if (socket.player.loc && !global.spawnPoint && !Config.clan_wars) loc = socket.player.loc;
         // Create and bind a body for the player host
         let body;
-        const filter = this.disconnections.filter(r => r.ip === socket.ip && r.body && !r.body.isDead());
+        const filter = this.disconnections.filter(r => 
+            r.ip === socket.ip && 
+            r.body && 
+            !r.body.isDead() && 
+            r.body.accountID === (socket.account ? socket.account.id : null)
+        );
         if (filter.length) {
             let recover = filter[0];
             util.remove(this.disconnections, this.disconnections.indexOf(recover));
@@ -1190,6 +1196,7 @@ class socketManager {
             body = new Entity(loc);
             body.protect();
             body.isPlayer = true;
+            body.accountID = socket.account ? socket.account.id : null;
             body.define(Config.spawn_class);
             if (Class.menu_tanks) {
                 let string = Class.menu_tanks.UPGRADES_TIER_0[0];

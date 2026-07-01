@@ -21,6 +21,7 @@ Class.spectator = {
     IGNORED_BY_AI: true,
     NO_COLLISIONS: true,
     INVISIBLE: [0, 0],
+    ALPHA: [0, 0],
     UPGRADES_TIER_0: [],
     SKILL_CAP: Array(10).fill(0),
     BODY: {

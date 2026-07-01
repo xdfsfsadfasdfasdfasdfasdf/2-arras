@@ -60,7 +60,7 @@ Class.developer = {
 Class.spectator = {
     PARENT: "genericTank",
     LABEL: "Spectator",
-    ALPHA: 0,
+    ALPHA: [0, 0],
     CAN_BE_ON_LEADERBOARD: false,
     ACCEPTS_SCORE: false,
     DRAW_HEALTH: false,

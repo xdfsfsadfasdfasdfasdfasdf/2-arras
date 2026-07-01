@@ -102,7 +102,7 @@ class Canvas {
                 break;
         }
     }
-    spawnChatInput() {
+    spawnChatInput(prefilledWithCommandPrefix = false) {
         if (!this.chatBox) {
             this.chatBox = document.createElement("div");
             this.chatBox.id = "chatBox";
@@ -115,7 +115,14 @@ class Canvas {
             this.chatInput.addEventListener('keydown', event => this.chatListener("chatInput", event));
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
         }
-        this.chatInput.focus();
+        if (prefilledWithCommandPrefix) {
+            this.chatInput.value = "$";
+        } else {
+            this.chatInput.value = "";
+        }
+        setTimeout(() => {
+            this.chatInput.focus();
+        }, 10);
         global.showChat = true;
     }
 
@@ -161,7 +168,13 @@ class Canvas {
             }
         }
 
-        switch (event.keyCode) {
+            case 192: // Backtick key (`/~)
+                event.preventDefault();
+                if (global.gameStart && !global.died && !global.disconnected) {
+                    this.spawnChatInput(true);
+                }
+                break;
+
             case global.KEY_SHIFT:
                 if (global.showTree) this.treeScrollSpeedMultiplier = 5;
                 else this.socket.cmd.set(6, true);
@@ -771,6 +784,18 @@ class Canvas {
                                 this.spawnChatInput();
                                 break;
                             }
+                            break;
+                        case 100:
+                            config.game.autoLevelUp = !config.game.autoLevelUp;
+                            localStorage.setItem("autoLevelUp", config.game.autoLevelUp);
+                            const checkbox = document.getElementById("autoLevelUp");
+                            if (checkbox) checkbox.checked = config.game.autoLevelUp;
+                            break;
+                        case 101:
+                            this.socket.talk("t", 5, true);
+                            break;
+                        case 102:
+                            global.showTree = !global.showTree;
                             break;
                         default:
                             throw new Error("Unknown button index.");

@@ -577,29 +577,7 @@ let commands = [
             }
         },
     },
-    {
-        command: ["god"],
-        description: "Toggle god mode: invulnerable, phase through walls, hostile to players.",
-        level: 2,
-        run: ({ socket }) => {
-            const body = socket.player?.body;
-            if (!body) return socket.talk("m", 4_000, "You must be spawned to use this command.");
 
-            if (body._godModeOn) {
-                body.godmode = false;
-                body.isArenaCloser = false;
-                body.ac = false;
-                body._godModeOn = false;
-                socket.talk("m", 4_000, "God mode disabled.");
-            } else {
-                body.godmode = true;
-                body.isArenaCloser = true;
-                body.ac = true;
-                body._godModeOn = true;
-                socket.talk("m", 4_000, "God mode enabled. Use T to switch team if acting as a boss.");
-            }
-        },
-    },
     {
         command: ["eternal"],
         description: "Promote account to eternal. Usage: $eternal <username>",

@@ -819,6 +819,7 @@ import * as socketStuff from "./socketinit.js";
         const loggedInTabs = document.getElementById("accountLoggedInTabs").querySelectorAll("span");
         const tabProfile = document.getElementById("tabLoggedInProfile");
         const tabAchievements = document.getElementById("tabLoggedInAchievements");
+        const tabSearch = document.getElementById("tabLoggedInSearch");
 
         loggedInTabs.forEach(tab => {
             tab.addEventListener("click", () => {
@@ -828,9 +829,15 @@ import * as socketStuff from "./socketinit.js";
                 if (activeTab === "profile") {
                     tabProfile.style.display = "block";
                     tabAchievements.style.display = "none";
-                } else {
+                    tabSearch.style.display = "none";
+                } else if (activeTab === "achievements") {
                     tabProfile.style.display = "none";
                     tabAchievements.style.display = "block";
+                    tabSearch.style.display = "none";
+                } else if (activeTab === "search") {
+                    tabProfile.style.display = "none";
+                    tabAchievements.style.display = "none";
+                    tabSearch.style.display = "block";
                 }
             });
         });
@@ -840,6 +847,7 @@ import * as socketStuff from "./socketinit.js";
             if (loggedInTabs[0]) loggedInTabs[0].classList.add("active");
             if (tabProfile) tabProfile.style.display = "block";
             if (tabAchievements) tabAchievements.style.display = "none";
+            if (tabSearch) tabSearch.style.display = "none";
         }
 
         function showMessage(text, isSuccess = false) {
@@ -951,6 +959,11 @@ import * as socketStuff from "./socketinit.js";
             statBosses.textContent = account.stats.bosses;
             statShapes.textContent = account.stats.shapes;
             
+            const ownBioArea = document.getElementById("accountOwnBio");
+            if (ownBioArea) {
+                ownBioArea.value = account.bio || "";
+            }
+            
             achievementsList.innerHTML = "";
             ALL_ACHIEVEMENTS.forEach(ach => {
                 const isUnlocked = !!account.achievements[ach.id];
@@ -1003,6 +1016,146 @@ import * as socketStuff from "./socketinit.js";
                 }
             }
         }
+        const saveBioBtn = document.getElementById("accountSaveBioBtn");
+        const ownBioArea = document.getElementById("accountOwnBio");
+        const bioStatus = document.getElementById("accountBioStatus");
+        if (saveBioBtn && ownBioArea) {
+            saveBioBtn.addEventListener("click", async () => {
+                const token = localStorage.getItem("sessionToken");
+                if (!token) return;
+                bioStatus.textContent = "Saving...";
+                bioStatus.style.color = "#333";
+                const res = await fetch("/api/account/update-bio", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ bio: ownBioArea.value })
+                }).catch(() => null);
+                if (res && res.status === 200) {
+                    bioStatus.textContent = "Saved biography successfully!";
+                    bioStatus.style.color = "#18727e";
+                } else {
+                    const data = res ? await res.json().catch(() => ({})) : {};
+                    bioStatus.textContent = data.error || "Failed to save bio.";
+                    bioStatus.style.color = "#a33";
+                }
+                setTimeout(() => { bioStatus.textContent = ""; }, 3000);
+            });
+        }
+
+        const searchInput = document.getElementById("accountSearchInput");
+        const searchBtn = document.getElementById("accountSearchBtn");
+        const searchResult = document.getElementById("accountSearchResult");
+        const searchError = document.getElementById("accountSearchError");
+        
+        const searchResultName = document.getElementById("searchResultName");
+        const searchResultRole = document.getElementById("searchResultRole");
+        const searchResultBio = document.getElementById("searchResultBio");
+        const searchResultLastActive = document.getElementById("searchResultLastActive");
+        const searchResultAchievements = document.getElementById("searchResultAchievements");
+        const searchResultAdminControls = document.getElementById("searchResultAdminControls");
+        
+        const promoteBtn = document.getElementById("accountPromoteBtn");
+        const demoteBtn = document.getElementById("accountDemoteBtn");
+
+        let lastSearchedUsername = "";
+
+        if (searchBtn && searchInput) {
+            searchBtn.addEventListener("click", async () => {
+                const username = searchInput.value.trim();
+                if (!username) return;
+                
+                searchError.style.display = "none";
+                searchResult.style.display = "none";
+                
+                const token = localStorage.getItem("sessionToken");
+                const res = await fetch(`/api/account/search?username=${encodeURIComponent(username)}`, {
+                    headers: token ? { "Authorization": `Bearer ${token}` } : {}
+                }).catch(() => null);
+                
+                if (res && res.status === 200) {
+                    const data = await res.json();
+                    const acc = data.account;
+                    lastSearchedUsername = acc.username;
+                    
+                    searchResultName.textContent = acc.username;
+                    searchResultRole.textContent = acc.role;
+                    searchResultBio.textContent = acc.bio || "No biography written yet.";
+                    
+                    const lastActiveDate = new Date(acc.lastActive);
+                    searchResultLastActive.textContent = acc.lastActive > 0 ? lastActiveDate.toLocaleString() : "Never";
+                    
+                    searchResultAchievements.innerHTML = "";
+                    const earnedAchs = acc.achievements || {};
+                    let hasAchievements = false;
+                    ALL_ACHIEVEMENTS.forEach(ach => {
+                        if (earnedAchs[ach.id]) {
+                            hasAchievements = true;
+                            const item = document.createElement("div");
+                            item.className = "achievement-item unlocked";
+                            item.innerHTML = `
+                                <div class="achievement-info">
+                                    <span class="achievement-name">${ach.name}</span>
+                                    <span class="achievement-desc">${ach.desc}</span>
+                                </div>
+                            `;
+                            searchResultAchievements.appendChild(item);
+                        }
+                    });
+                    if (!hasAchievements) {
+                        searchResultAchievements.textContent = "No achievements unlocked yet.";
+                    }
+                    
+                    if (data.canManage) {
+                        searchResultAdminControls.style.display = "flex";
+                        const roles = acc.role.split(",").map(r => r.trim().toLowerCase());
+                        if (roles.includes("eternal")) {
+                            promoteBtn.disabled = true;
+                            promoteBtn.textContent = "Eternal";
+                        } else {
+                            promoteBtn.disabled = false;
+                            promoteBtn.textContent = "Promote";
+                        }
+                    } else {
+                        searchResultAdminControls.style.display = "none";
+                    }
+                    
+                    searchResult.style.display = "block";
+                } else {
+                    const data = res ? await res.json().catch(() => ({})) : {};
+                    searchError.textContent = data.error || "User not found.";
+                    searchError.style.display = "block";
+                }
+            });
+        }
+
+        async function handleRoleAction(action) {
+            if (!lastSearchedUsername) return;
+            const token = localStorage.getItem("sessionToken");
+            if (!token) return;
+            
+            const res = await fetch("/api/account/update-role", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ targetUsername: lastSearchedUsername, action })
+            }).catch(() => null);
+            
+            if (res && res.status === 200) {
+                if (searchBtn) searchBtn.click();
+            } else {
+                const data = res ? await res.json().catch(() => ({})) : {};
+                alert(data.error || "Failed to update role.");
+            }
+        }
+
+        if (promoteBtn) promoteBtn.addEventListener("click", () => handleRoleAction("promote"));
+        if (demoteBtn) demoteBtn.addEventListener("click", () => handleRoleAction("demote"));
+
         checkMe();
 
         window.syncAccountUI = checkMe;
@@ -1961,7 +2114,16 @@ import * as socketStuff from "./socketinit.js";
         context.textAlign = "left";
         context.textBaseline = "middle";
         context.strokeStyle = color.black;
-        context.fillStyle = defaultFillStyle;
+        if (defaultFillStyle === "rainbow") {
+            let time = Date.now() * 0.003;
+            let grad = context.createLinearGradient(Xoffset, Yoffset, Xoffset + context.measureText(renderedFullText).width, Yoffset);
+            grad.addColorStop(0, `hsl(${time * 50 % 360}, 100%, 70%)`);
+            grad.addColorStop(0.5, `hsl(${(time * 50 + 120) % 360}, 100%, 70%)`);
+            grad.addColorStop(1, `hsl(${(time * 50 + 240) % 360}, 100%, 70%)`);
+            context.fillStyle = grad;
+        } else {
+            context.fillStyle = defaultFillStyle;
+        }
         context.save();
         context.lineCap = "round";
         context.lineJoin = "round";
@@ -3799,6 +3961,9 @@ import * as socketStuff from "./socketinit.js";
         // Draw minimap and FPS monitors
         // Minimap stuff starts here
         let len = alcoveSize; // * global.screenWidth;
+        if (global.mobile) {
+            len *= 1.35;
+        }
         let height = (len / global.gameWidth) * global.gameHeight;
         let upgradeColumns = Math.ceil(gui.upgrades.length / 9);
         let x = global.mobile ? spacing : global.screenWidth - spacing - len - 5;
@@ -4087,7 +4252,7 @@ import * as socketStuff from "./socketinit.js";
             let height = len;
 
             // Animation processing
-            global.columnCount = global.mobile ? 10 : 5;
+            global.columnCount = global.mobile ? 3 : 5;
             if (!global.canUpgrade) {
                 upgradeMenu.force(-global.columnCount * 3)
                 global.canUpgrade = true;
@@ -4100,7 +4265,7 @@ import * as socketStuff from "./socketinit.js";
             upgradeSpin = Date.now() * 0.0005;
             upgradeSpin = upgradeSpin - (Math.floor(upgradeSpin / Math.PI / 2) * Math.PI * 2);
 
-            let x = glide * 2 * spacing + spacing + 5 + 105;
+            let x = glide * 2 * spacing + spacing + 5 + 35;
             let y = spacing - height - internalSpacing + 5;
             let xStart = x;
             let initialX = x;
@@ -4265,8 +4430,12 @@ import * as socketStuff from "./socketinit.js";
             gameDraw.setColor(ctx[2], color.black);
             ctx[2].beginPath();
             ctx[2].moveTo(crosshairpos.x, crosshairpos.y - 20);
+            ctx[2].lineTo(crosshairpos.x, crosshairpos.y - 6);
+            ctx[2].moveTo(crosshairpos.x, crosshairpos.y + 6);
             ctx[2].lineTo(crosshairpos.x, crosshairpos.y + 20);
             ctx[2].moveTo(crosshairpos.x - 20, crosshairpos.y);
+            ctx[2].lineTo(crosshairpos.x - 6, crosshairpos.y);
+            ctx[2].moveTo(crosshairpos.x + 6, crosshairpos.y);
             ctx[2].lineTo(crosshairpos.x + 20, crosshairpos.y);
             ctx[2].closePath();
             ctx[2].stroke();
@@ -4332,12 +4501,25 @@ import * as socketStuff from "./socketinit.js";
 
         if (global.mobile) {
             buttons = global.clickables.mobileButtons.active ? [
-                [[global.clickables.mobileButtons.active ? "-" : "+"], [`Alt ${global.clickables.mobileButtons.altFire ? "Manual" : "Disabled"}`, 6], [`${!document.fullscreenElement ? "Full" : "Exit Full"} Screen`, 5]],
-                [["Autofire", 3.5], ["Reverse", 3.5], ["Self-Destruct", 5]],
-                [["Autospin", 3.5], ["Override", 3.5], ["Level Up", 5]],
-                [["Action", 3.5], ["Special", 3.5], ["Chat", 5]],
+                [
+                    [global.clickables.mobileButtons.active ? "-" : "+", 1, 1, 0], 
+                    [config.game.autoLevelUp ? "◆ Max" : "◇ Never", 2, 1, 100], 
+                    ["Self-Destruct", 1, 1, 9]
+                ],
+                [
+                    ["Autofire", 1, 1, 3], 
+                    ["Override", 1, 1, 7], 
+                    ["Score Pause", 1, 1, 101], 
+                    ["Action", 1, 1, 5]
+                ],
+                [
+                    ["Autospin", 1, 1, 6], 
+                    ["Reverse", 1, 1, 4], 
+                    ["Class Tree", 1, 1, 102], 
+                    ["Chat", 1, 1, 11]
+                ]
             ] : [
-                [[global.clickables.mobileButtons.active ? "-" : "+"]],
+                [[global.clickables.mobileButtons.active ? "-" : "+", 1, 1, 0]]
             ];
         }
         if (global.clickables.mobileButtons.altFire) buttons.push([["\u2756", 2, 2]]);
@@ -4374,50 +4556,50 @@ import * as socketStuff from "./socketinit.js";
                 let amount = skill.amount,
                     skillColor = color[skill.color],
                     cap = skill.cap,
-                    name = statNames[9 - i].split(/\s+/),
+                    name = statNames[i].split(/\s+/),
                     halfNameLength = Math.floor(name.length / 2),
                     [name1, name2] = name.length === 1 ? [name[0], null] : [name.slice(0, halfNameLength).join(" "), name.slice(halfNameLength).join(" ")];
 
-                ctx[2].globalAlpha = 0.5;
+                ctx[2].globalAlpha = 0.6;
                 ctx[2].fillStyle = skillColor;
-                drawGuiRect(x, spacing, t, 2 * q / 3);
-
-                ctx[2].globalAlpha = 0.1;
-                ctx[2].fillStyle = color.black;
-                drawGuiRect(x, spacing + q * 2 / 3 * 2 / 3, t, q * 2 / 3 / 3);
+                drawGuiRect(x, spacing, t, q);
 
                 ctx[2].globalAlpha = 1;
-                ctx[2].fillStyle = color.guiwhite;
-                drawGuiRect(x, spacing + q * 2 / 3, t, q / 3);
-
-                ctx[2].fillStyle = skillColor;
-                drawGuiRect(x, spacing + q * 2 / 3, t * amount / softcap, q / 3);
-
                 ctx[2].strokeStyle = color.black;
-                ctx[2].lineWidth = 1;
-                for (let j = 1; j < cap; j++) {
-                    let width = x + j / softcap * t;
-                    drawGuiLine(width, spacing + q * 2 / 3, width, spacing + q);
-                }
-
-                cap === 0 || !gui.points || softcap !== cap && amount === softcap || global.clickables.stat.place(9 - i, x * clickableRatio, spacing * clickableRatio, t * clickableRatio, q * clickableRatio);
+                ctx[2].lineWidth = 3;
+                drawGuiRect(x, spacing, t, q, true);
 
                 if (name2) {
-                    drawText(name2, x + t / 2, spacing + q * 0.55, q / 5, color.guiwhite, "center");
-                    drawText(name1, x + t / 2, spacing + q * 0.3, q / 5, color.guiwhite, "center");
+                    drawText(name2, x + t / 2, spacing + q * 0.65, q / 4.5, color.guiwhite, "center");
+                    drawText(name1, x + t / 2, spacing + q * 0.35, q / 4.5, color.guiwhite, "center");
                 } else {
-                    drawText(name1, x + t / 2, spacing + q * 0.425, q / 5, color.guiwhite, "center");
+                    drawText(name1, x + t / 2, spacing + q * 0.5, q / 4.5, color.guiwhite, "center");
                 }
 
                 if (amount > 0) {
-                    drawText(`+${amount}`, x + t / 2, spacing + q * 1.3, q / 4, skillColor, "center");
+                    drawText(amount, x + t - 6, spacing + 12, q / 5, color.guiwhite, "right");
                 }
 
-                ctx[2].strokeStyle = color.black;
-                ctx[2].globalAlpha = 1;
-                ctx[2].lineWidth = 3;
-                drawGuiLine(x, spacing + q * 2 / 3, x + t, spacing + q * 2 / 3);
-                drawGuiRect(x, spacing, t, q, true);
+                // Stacked boxes going downwards
+                let boxHeight = 10, boxSpacing = 3;
+                let startY = spacing + q + 6;
+                for (let j = 0; j < softcap; j++) {
+                    let boxY = startY + j * (boxHeight + boxSpacing);
+                    ctx[2].globalAlpha = 1;
+                    if (j < amount) {
+                        ctx[2].fillStyle = skillColor;
+                        drawGuiRect(x, boxY, t, boxHeight);
+                    } else {
+                        ctx[2].fillStyle = "rgba(0, 0, 0, 0.15)";
+                        drawGuiRect(x, boxY, t, boxHeight);
+                        ctx[2].strokeStyle = color.black;
+                        ctx[2].lineWidth = 1;
+                        drawGuiRect(x, boxY, t, boxHeight, true);
+                    }
+                }
+
+                let totalHeight = q + 6 + softcap * (boxHeight + boxSpacing);
+                cap === 0 || !gui.points || softcap !== cap && amount === softcap || global.clickables.stat.place(i, x * clickableRatio, spacing * clickableRatio, t * clickableRatio, totalHeight * clickableRatio);
 
                 x += n * (t + 14);
             }

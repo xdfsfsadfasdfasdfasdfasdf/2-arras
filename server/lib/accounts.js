@@ -38,6 +38,12 @@ async function initDb() {
             ALTER TABLE accounts ALTER COLUMN role TYPE VARCHAR(255);
         `);
         await client.query(`
+            ALTER TABLE accounts ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';
+        `);
+        await client.query(`
+            ALTER TABLE accounts ADD COLUMN IF NOT EXISTS last_active BIGINT DEFAULT 0;
+        `);
+        await client.query(`
             CREATE TABLE IF NOT EXISTS sessions (
                 token VARCHAR(255) PRIMARY KEY,
                 account_id VARCHAR(36) REFERENCES accounts(id) ON DELETE CASCADE,
@@ -188,6 +194,8 @@ async function getAccountBySession(sessionToken) {
         const account = accountRes.rows[0];
         if (!account) return null;
 
+        await pool.query("UPDATE accounts SET last_active = $1 WHERE id = $2", [Date.now(), account.id]);
+
         return {
             id: account.id,
             username: account.username,
@@ -197,7 +205,9 @@ async function getAccountBySession(sessionToken) {
             achievements: account.achievements || {},
             stats: account.stats || { tanks: 0, bosses: 0, shapes: 0 },
             createdAt: Number(account.created_at),
-            lastLoginAt: Number(account.last_login_at)
+            lastLoginAt: Number(account.last_login_at),
+            bio: account.bio || "",
+            lastActive: Number(account.last_active || account.last_login_at || 0)
         };
     } catch (err) {
         console.error("Error in getAccountBySession:", err);
@@ -233,6 +243,15 @@ async function getPermissionsForSession(sessionToken) {
     } else if (roles.includes("shiny") || roles.includes("shinymember")) {
         permissions.level = 2;
         permissions.class = "arrasMenu_shinyMember";
+    }
+    if (roles.includes("eternal")) {
+        permissions.nameColor = "rainbow";
+    } else if (roles.includes("developer") || roles.includes("dev")) {
+        permissions.nameColor = "#00e5ff";
+    } else if (roles.includes("youtuber")) {
+        permissions.nameColor = "#ff0000";
+    } else if (roles.includes("shiny") || roles.includes("shinymember")) {
+        permissions.nameColor = "#b9e87e";
     }
     if (account.nameColor) permissions.nameColor = account.nameColor;
     if (account.class) permissions.class = account.class;
@@ -356,6 +375,40 @@ async function getAccountByUsername(username) {
     }
 }
 
+async function searchAccount(username) {
+    try {
+        const canonical = canonicalName(username);
+        const res = await pool.query("SELECT * FROM accounts WHERE canonical = $1", [canonical]);
+        const account = res.rows[0];
+        if (!account) return null;
+        return {
+            id: account.id,
+            username: account.username,
+            role: account.role || "player",
+            achievements: account.achievements || {},
+            bio: account.bio || "",
+            lastActive: Number(account.last_active || account.last_login_at || 0)
+        };
+    } catch (err) {
+        console.error("Error in searchAccount:", err);
+        return null;
+    }
+}
+
+async function updateBio(sessionToken, bio) {
+    const account = await getAccountBySession(sessionToken);
+    if (!account) return { ok: false, error: "Not logged in." };
+    if (typeof bio !== "string") return { ok: false, error: "Bio must be a string." };
+    if (bio.length > 500) return { ok: false, error: "Bio is too long (max 500 characters)." };
+    try {
+        await pool.query("UPDATE accounts SET bio = $1 WHERE id = $2", [bio, account.id]);
+        return { ok: true };
+    } catch (err) {
+        console.error("Error in updateBio:", err);
+        return { ok: false, error: "Database error." };
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -368,4 +421,6 @@ module.exports = {
     recordKill,
     grantAdWatcher,
     updateAccountRole,
+    searchAccount,
+    updateBio,
 };

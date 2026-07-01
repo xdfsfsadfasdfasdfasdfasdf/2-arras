@@ -1393,28 +1393,53 @@ i.flag.down::before {
 }
 
 /* Sidebar open button — fixed top-left, matches in-game green style */
-#sidebarOpenBtn {
+#sidebarOpenBtn,
+#accountOpenBtn {
 	position: fixed;
-	top: 25px;
 	left: 0;
 	z-index: 198;
-	background: #66ebff;
 	color: #fff;
 	border: none;
 	border-radius: 0 5px 5px 0;
-	padding: 7px 14px 7px 10px;
+	padding: 7px 10px;
 	font: bold 13px Ubuntu;
 	cursor: pointer;
 	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.28);
-	transition: background 0.15s, transform 0.25s;
+	transition: background 0.15s, transform 0.25s, width 0.25s;
 	outline: none;
 	letter-spacing: 0.02em;
+	width: 32px;
+	height: 30px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: left;
+}
+#sidebarOpenBtn {
+	top: 25px;
+	background: #66ebff;
 }
 #sidebarOpenBtn:hover {
 	background: #35cfe5;
+	width: 95px;
+}
+#accountOpenBtn {
+	top: 65px;
+	background: #e7896d;
+}
+#accountOpenBtn:hover {
+	background: #d77558;
+	width: 95px;
 }
 #sidebarOpenBtn.sidebar-btn-hidden {
 	transform: translateX(-110%);
+}
+#accountOpenBtn.account-btn-hidden {
+	transform: translateX(-110%);
+}
+#sidebarOpenBtn span,
+#accountOpenBtn span {
+	margin-left: 8px;
+	font-weight: bold;
 }
 
 /* Widen the theme select inside the sidebar */

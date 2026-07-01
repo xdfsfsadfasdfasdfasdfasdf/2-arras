@@ -88,6 +88,7 @@
             <div class="horizontalSelector" id="accountLoggedInTabs">
                 <span class="active" data-tab="profile">Profile</span>
                 <span data-tab="achievements">Achievements</span>
+                <span data-tab="search">Search</span>
             </div>
             <div id="tabLoggedInProfile">
                 <div id="accountStatusName"></div>
@@ -98,6 +99,12 @@
                     <div>Bosses: <b id="statBosses">0</b></div>
                     <div>Shapes: <b id="statShapes">0</b></div>
                 </div>
+                <div class="optionsHeader">Biography</div>
+                <div style="margin-bottom: 12px;">
+                    <textarea id="accountOwnBio" placeholder="Tell us about yourself..." style="width: 100%; height: 60px; padding: 6px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; font-family: Ubuntu, sans-serif; resize: none;"></textarea>
+                    <button id="accountSaveBioBtn" style="width: 100%; height: 28px; background: #e7896d; color: white; border: none; border-bottom: 2px solid #d77558; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-top: 4px;">Save Biography</button>
+                    <div id="accountBioStatus" style="font-size: 11px; text-align: center; margin-top: 3px; height: 14px;"></div>
+                </div>
                 <button id="accountLogoutBtn"><b>Log Out</b></button>
             </div>
             <div id="tabLoggedInAchievements" style="display: none;">
@@ -105,6 +112,31 @@
                 <div id="accountAchievementsList" class="shadowScroll" style="max-height: 250px; overflow-y: auto; font: 12px Ubuntu, sans-serif; text-align: left; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; margin-bottom: 10px;">
                     <!-- Achievements will be inserted here -->
                 </div>
+            </div>
+            <div id="tabLoggedInSearch" style="display: none; text-align: left;">
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <input type="text" id="accountSearchInput" placeholder="Enter username..." style="flex: 1; height: 32px; padding: 0 10px; border-radius: 4px; border: 1px solid #ccc; font-family: Ubuntu, sans-serif;">
+                    <button id="accountSearchBtn" style="padding: 0 16px; height: 34px; background: #e7896d; color: white; border: none; border-bottom: 2px solid #d77558; border-radius: 4px; cursor: pointer; font-weight: bold;">Search</button>
+                </div>
+                <div id="accountSearchResult" style="display: none;">
+                    <div id="searchResultName" style="font-size: 18px; font-weight: bold; color: #222; margin-bottom: 4px;"></div>
+                    <div id="searchResultRole" style="font-size: 12px; font-weight: bold; color: #555; text-transform: capitalize; margin-bottom: 12px;"></div>
+                    
+                    <div class="optionsHeader">Biography</div>
+                    <div id="searchResultBio" style="font-size: 13px; color: #444; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; min-height: 40px; margin-bottom: 12px; white-space: pre-wrap; word-break: break-word;"></div>
+                    
+                    <div class="optionsHeader">Last Active</div>
+                    <div id="searchResultLastActive" style="font-size: 12px; color: #666; margin-bottom: 12px;"></div>
+                    
+                    <div class="optionsHeader">Achievements</div>
+                    <div id="searchResultAchievements" style="font-size: 12px; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; margin-bottom: 12px;"></div>
+
+                    <div id="searchResultAdminControls" style="display: none; gap: 8px; margin-top: 15px;">
+                        <button id="accountPromoteBtn" style="flex: 1; height: 34px; background: #66ebff; color: white; border: none; border-bottom: 2px solid #35cfe5; border-radius: 4px; cursor: pointer; font-weight: bold;">Promote</button>
+                        <button id="accountDemoteBtn" style="flex: 1; height: 34px; background: #e7896d; color: white; border: none; border-bottom: 2px solid #d77558; border-radius: 4px; cursor: pointer; font-weight: bold;">Demote</button>
+                    </div>
+                </div>
+                <div id="accountSearchError" style="color: #a33; font-weight: bold; text-align: center; margin-top: 10px; display: none;"></div>
             </div>
         </div>
     </div>
@@ -420,8 +452,8 @@
             <div class="optionsHeader">There are no loaded addons.</div>
         </div>
     </div>
-    <button id="sidebarOpenBtn" title="Open settings">&#9881; Options</button>
-    <button id="accountOpenBtn" title="Open account">Account</button>
+    <button id="sidebarOpenBtn" title="Open settings">&#9881;<span>Options</span></button>
+    <button id="accountOpenBtn" title="Open account">&#128100;<span>Account</span></button>
     <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
     <script type="module" src="./client/app.js"></script>
     <script type="module" src="./client/config.js"></script>
