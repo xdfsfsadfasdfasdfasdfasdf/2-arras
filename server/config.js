@@ -23,7 +23,7 @@ module.exports = {
             port: defaultPort, // The port on the server.
             id: 'la', // (<host>/#<id>)
 
-            region: "Local", // The region the server is on.
+            region: process.env.REGION || "USA", // The region the server is on (e.g. USA, Europe, Asia, Oceania).
             gamemode: ['ffa'], // The selected gamemode.
             player_cap: 80, // Not including bots. Set to 0 to disable.
 
