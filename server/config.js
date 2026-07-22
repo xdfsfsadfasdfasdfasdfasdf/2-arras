@@ -33,21 +33,6 @@ module.exports = {
 
             properties: { // Single-port properties
                 bot_cap: 20,
-                daily_tank: {
-                    tank: 'whirlwind',
-                    tier: 3,
-                    ads: false,
-                    ad_sources: [
-                        {
-                            file: 'example_video_ad.mp4',
-                            use_regular_ad_size: true
-                        },
-                        {
-                            file: 'example_image_ad.png',
-                            use_regular_ad_size: true
-                        }
-                    ]
-                }
             }
         }
     ],
@@ -241,7 +226,7 @@ module.exports = {
     // DO NOT change them here unless you know what you are doing!
     gamemode_name_prefixes: [],
     arena_shape: 'rect',
-    arms_race: false,
+    arms_race: true,
     blackout: false,
     clan_wars: false,
     diep: false,

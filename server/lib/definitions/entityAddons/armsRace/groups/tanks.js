@@ -8806,17 +8806,11 @@ if (Config.retrograde) {
             Class.overseer.UPGRADES_TIER_4.splice(10, 0, "overblaster_AR", "overgatling_AR", "overdoubleMachine_AR")
         //Class.cruiser.UPGRADES_TIER_3
             Class.battleship.UPGRADES_TIER_4.push("doubleFaucet_AR")
-    if (!Config.daily_tank == undefined && Config.daily_tank.tank == "whirlwind") {
         Class.doubleArtillery_AR.UPGRADES_TIER_4.push("doubleMunition_AR") //.splice(4, 0, "doubleMunition_AR")
-    }
 }
 
-if (!Config.daily_tank == undefined && Config.daily_tank.tank == "whirlwind") {
 Class.vortex_AR.LABEL = "Directive"
 
-/*if (enable_whirlwind) { // do another check without daily_tank so we aren't duplicating
-Class.basic.UPGRADES_TIER_1.push("whirlwind")
-}*/
     //Class.flankGuard.UPGRADES_TIER_2
         Class.hexaTank.UPGRADES_TIER_3.splice(3, 0, "hexaWhirl")
             Class.octoTank.UPGRADES_TIER_4.push("octoWhirl_AR")
@@ -8856,7 +8850,6 @@ Class.basic.UPGRADES_TIER_1.push("whirlwind")
             Class.foctillery_AR.UPGRADES_TIER_4.push("PLACEHOLDER_whirlFoctillery_AR")
             Class.discharger_AR.UPGRADES_TIER_4.push("PLACEHOLDER_whirlDischarger_AR")
         Class.launcher.UPGRADES_TIER_3.splice(5, 0, "vortex")
-}
 
 } else {
 Class.autoDoubleFlank_AR.LABEL = "Auto-Double Flank Twin"
