@@ -201,7 +201,7 @@ Class.undertowBullet = {
                     diffY = instance.y - body.y,
                     dist2 = diffX ** 2 + diffY ** 2;
                 if (dist2 <= ((body.size / 12)*250) ** 1.9) {
-                    if ((instance.team != body.team || (instance.type == "undertowEffect" && instance.master.id == body.master.id)) && instance.type != "wall" && instance.isTurret != true) {
+                    if ((instance.team != body.team || (instance.type == "undertowEffect" && instance.master.id == body.master.id)) && instance.type != "wall" && instance.isTurret != true && instance.isDominator != true) {
                     if (instance.type == "undertowEffect") {
                         forceMulti = 1
                     }

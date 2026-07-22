@@ -3918,7 +3918,7 @@ import * as socketStuff from "./socketinit.js";
             
             let devKeyWidth = Math.max(22, (global.screenWidth / clickableRatio - spacing * 14) / 12 * 0.45);
             let devKeyHeight = devKeyWidth * 0.9;
-            let devStartX = global.screenWidth / clickableRatio - (12 * (devKeyWidth + spacing)) - spacing * 2;
+            let devStartX = spacing + alcoveSize + spacing;
             let devStartY = yOffset + spacing;
 
             drawText(statusText, devStartX + (12 * (devKeyWidth + spacing)) / 2, devStartY - 6, 12, color.gold || color.yellow, "center", true);
