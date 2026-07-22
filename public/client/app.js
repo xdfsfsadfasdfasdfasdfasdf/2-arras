@@ -4071,10 +4071,11 @@ import * as socketStuff from "./socketinit.js";
                 chatInput.force(0);
             }
             if (global.died && global.showChat) {
-                global.canvas.chatBox.blur();
+                global.canvas.chatInput.blur();
                 global.canvas.cv.focus();
                 global.showChat = false;
-                if (global.canvas.chatBox.value) global.canvas.chatBox.value = "";
+                if (global.canvas.chatInput.value) global.canvas.chatInput.value = "";
+                if (global.canvas.chatSendButton) { global.canvas.chatSendButton.remove(); global.canvas.chatSendButton = null; }
             }
 
             chatInput.set(1);
@@ -4101,7 +4102,22 @@ import * as socketStuff from "./socketinit.js";
             global.canvas.chatInput.style.height = 0.95 * g + `px`;
             global.canvas.chatInput.style.left = (x - boxLengthHalf - 0.35 * g / 2) / global.screenWidth * 100 + `%`;
             global.canvas.chatInput.style.top =  (y - g * (2.26) - 0.55 * g) / global.screenWidth * window.innerWidth + `px`;
-            if (global.canvas.chatBox && global.showChatGlide < 0.005 && !global.showChat) chatInput.force(0), global.canvas.chatInput.remove(), global.canvas.chatBox.remove(), global.canvas.chatBox = false;
+            // Mobile send button positioning
+            if (global.mobile && global.canvas.chatSendButton) {
+                let inputLeft = (x - boxLengthHalf - 0.35 * g / 2) / global.screenWidth * 100;
+                let inputWidth = (boxLengthHalf * 2 + 0.35 * g) / global.screenWidth * 100;
+                let inputTop = (y - g * (2.26) - 0.55 * g) / global.screenWidth * window.innerWidth;
+                global.canvas.chatSendButton.style.opacity = global.showChatGlide;
+                global.canvas.chatSendButton.style.top = (inputTop + 0.95 * g + 6) + 'px';
+                global.canvas.chatSendButton.style.left = (inputLeft + inputWidth / 2 - 30) + '%';
+            }
+            if (global.canvas.chatBox && global.showChatGlide < 0.005 && !global.showChat) {
+                chatInput.force(0);
+                global.canvas.chatInput.remove();
+                global.canvas.chatBox.remove();
+                global.canvas.chatBox = false;
+                if (global.canvas.chatSendButton) { global.canvas.chatSendButton.remove(); global.canvas.chatSendButton = null; }
+            }
         }
     }
     let drawAdScreen = () => {

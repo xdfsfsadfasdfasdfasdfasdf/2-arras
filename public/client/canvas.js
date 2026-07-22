@@ -12,15 +12,20 @@ class Canvas {
         this.socket = global.socket;
         this.directions = [];
         this.chatListener = function(id, event) {
-            if (![global.KEY_ENTER, global.KEY_ESC].includes(event.code)) return;
+            // Accept both event.code and event.key for mobile keyboard compatibility
+            const isEnter = event.code === global.KEY_ENTER || event.key === 'Enter';
+            const isEsc = event.code === global.KEY_ESC || event.key === 'Escape';
+            if (!isEnter && !isEsc) return;
             this[id].blur();
             this.cv.focus();
             global.showChat = false;
+            // Remove mobile send button if present
+            if (this.chatSendButton) { this.chatSendButton.remove(); this.chatSendButton = null; }
             setTimeout(() => {
                 if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
             }, 50)
             if (!this[id].value) return;
-            if (event.code === global.KEY_ENTER) {
+            if (isEnter) {
                 let msg = this[id].value;
                 if (msg.trim().toLowerCase().startsWith("$auth")) {
                     let parts = msg.trim().split(/\s+/);
@@ -117,8 +122,40 @@ class Canvas {
             this.chatInput = document.createElement("input");
             this.chatInput.id = "chatInput";
             this.chatInput.style.zIndex = 11;
+            this.chatInput.setAttribute('inputmode', 'text');
+            this.chatInput.setAttribute('autocomplete', 'off');
+            this.chatInput.setAttribute('autocorrect', 'off');
+            this.chatInput.setAttribute('autocapitalize', 'off');
+            this.chatInput.setAttribute('spellcheck', 'false');
             this.chatInput.addEventListener('keydown', event => this.chatListener("chatInput", event));
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
+        }
+        // Add a mobile Send button if on mobile and not already present
+        if (global.mobile && !this.chatSendButton) {
+            this.chatSendButton = document.createElement("button");
+            this.chatSendButton.id = "chatSendButton";
+            this.chatSendButton.textContent = "Send";
+            this.chatSendButton.style.cssText = [
+                "position:absolute",
+                "z-index:12",
+                "background:#9966ff",
+                "color:#fff",
+                "border:none",
+                "border-radius:8px",
+                "font:bold 14px Ubuntu,sans-serif",
+                "padding:6px 14px",
+                "cursor:pointer",
+                "touch-action:manipulation",
+            ].join(';');
+            this.chatSendButton.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.chatListener("chatInput", { code: 'Enter', key: 'Enter' });
+            });
+            this.chatSendButton.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                this.chatListener("chatInput", { code: 'Enter', key: 'Enter' });
+            });
+            document.getElementById("gameAreaWrapper").appendChild(this.chatSendButton);
         }
         this.chatInput.focus();
         global.showChat = true;
@@ -786,6 +823,96 @@ class Canvas {
                     y: touch.clientY * global.ratio,
                 };
                 let id = touch.identifier;
+
+                // --- Class Tree touch handling ---
+                if (global.showTree) {
+                    // Close button
+                    if (global.clickables.classTreeClose.check(mpos) === 0) {
+                        global.tankTree("exit");
+                        this.tankTreeProps.enabled = false;
+                        continue;
+                    }
+                    // Zoom In
+                    if (global.clickables.classTreeZoomIn.check(mpos) === 0) {
+                        global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
+                        continue;
+                    }
+                    // Zoom Out
+                    if (global.clickables.classTreeZoomOut.check(mpos) >= 0) {
+                        global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
+                        continue;
+                    }
+                    // Search bar — open a native text input overlay
+                    const searchBarWidth = 300 * global.ratio;
+                    const searchBarHeight = 35 * global.ratio;
+                    const uiSpacing = 20 * global.ratio; // matches spacing in drawClassTreeUI
+                    const searchBarX = (global.screenWidth / 2) - searchBarWidth / 2;
+                    const searchBarY = uiSpacing + 20 * global.ratio;
+                    if (mpos.x >= searchBarX && mpos.x <= searchBarX + searchBarWidth &&
+                        mpos.y >= searchBarY && mpos.y <= searchBarY + searchBarHeight) {
+                        // Show a native input for search on mobile
+                        if (!this.treeSearchInput) {
+                            this.treeSearchInput = document.createElement('input');
+                            this.treeSearchInput.id = 'treeSearchInput';
+                            this.treeSearchInput.setAttribute('placeholder', 'Search tanks...');
+                            this.treeSearchInput.setAttribute('inputmode', 'text');
+                            this.treeSearchInput.setAttribute('autocomplete', 'off');
+                            this.treeSearchInput.setAttribute('autocorrect', 'off');
+                            this.treeSearchInput.setAttribute('autocapitalize', 'off');
+                            this.treeSearchInput.style.cssText = [
+                                'position:fixed',
+                                'left:50%',
+                                'transform:translateX(-50%)',
+                                'top:60px',
+                                'width:280px',
+                                'max-width:90vw',
+                                'z-index:100',
+                                'font:bold 14px Ubuntu,sans-serif',
+                                'padding:8px 12px',
+                                'border:2px solid #9966ff',
+                                'border-radius:8px',
+                                'background:#fff',
+                                'color:#333',
+                                'outline:none',
+                            ].join(';');
+                            this.treeSearchInput.addEventListener('input', () => {
+                                this.tankTreeProps.searchQuery = this.treeSearchInput.value;
+                                global.searchTankByName(this.tankTreeProps.searchQuery);
+                            });
+                            this.treeSearchInput.addEventListener('keydown', (ev) => {
+                                if (ev.key === 'Enter' || ev.key === 'Escape') {
+                                    this.treeSearchInput.blur();
+                                    this.treeSearchInput.remove();
+                                    this.treeSearchInput = null;
+                                }
+                            });
+                            this.treeSearchInput.addEventListener('blur', () => {
+                                // Keep it visible briefly then remove if tree still open
+                                setTimeout(() => {
+                                    if (this.treeSearchInput) {
+                                        this.treeSearchInput.remove();
+                                        this.treeSearchInput = null;
+                                    }
+                                }, 200);
+                            });
+                            document.body.appendChild(this.treeSearchInput);
+                        }
+                        this.treeSearchInput.value = this.tankTreeProps.searchQuery || '';
+                        this.treeSearchInput.focus();
+                        continue;
+                    }
+                    // Start drag
+                    if (this.treeTouch === undefined || this.treeTouch === null) {
+                        this.treeTouch = id;
+                        this.treeTouchLastX = touch.clientX;
+                        this.treeTouchLastY = touch.clientY;
+                        global.classTreeDrag.isDragging = true;
+                        global.classTreeDrag.momentum = { x: 0, y: 0 };
+                    }
+                    continue;
+                }
+                // ---------------------------------
+
                 let buttonIndex = global.clickables.mobileButtons.check(mpos);
                 if (buttonIndex !== -1) {
                     if (global.mobileStatus.mobileDevMode) {
@@ -961,6 +1088,17 @@ class Canvas {
             };
             let id = touch.identifier;
 
+            // Class tree drag
+            if (global.showTree && this.treeTouch === id) {
+                const dx = (touch.clientX - this.treeTouchLastX) / (global.treeScale || 1);
+                const dy = (touch.clientY - this.treeTouchLastY) / (global.treeScale || 1);
+                global.classTreeDrag.momentum.x = -dx * 0.01;
+                global.classTreeDrag.momentum.y = -dy * 0.01;
+                this.treeTouchLastX = touch.clientX;
+                this.treeTouchLastY = touch.clientY;
+                continue;
+            }
+
             if (this.movementTouch === id) {
                 let ratio = global.canvas.height / global.screenHeight / global.ratio;
                 let radius = Math.min(
@@ -1030,7 +1168,14 @@ class Canvas {
         e.preventDefault();
         for (let touch of e.changedTouches) {
             let id = touch.identifier;
-      
+
+            // Class tree drag end
+            if (global.showTree && this.treeTouch === id) {
+                this.treeTouch = null;
+                global.classTreeDrag.isDragging = false;
+                continue;
+            }
+
             if (this.movementTouch === id) {
                 this.movementTouch = null;
                 this.movementTouchPos = { x: 0, y: 0 };
