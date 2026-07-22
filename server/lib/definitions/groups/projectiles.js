@@ -576,7 +576,9 @@ Class.auto4Missile = {
     TURRETS: [
         {
             POSITION: [12, 0, 0, 0, 360, 1],
-            TYPE: "auto4MissileTurret",
+            // Mount the complete four-turret Auto-4 tank, rather than a
+            // single auto gun that resembles an Auto-Smasher launcher.
+            TYPE: "auto4",
         },
     ],
 }
