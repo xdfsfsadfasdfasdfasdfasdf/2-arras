@@ -32,6 +32,9 @@ module.exports = {
         },
         {
             share_client_server: false,
+            // Keep this game worker private and route browser WebSockets through
+            // the main server, so players only need the public game port.
+            proxy_client_server: true,
             host: process.env.HOST || `localhost:${defaultPort + 1}`,
             port: defaultPort + 1,
             id: 'siege-citadel',
@@ -47,6 +50,9 @@ module.exports = {
         },
         {
             share_client_server: false,
+            // Keep this game worker private and route browser WebSockets through
+            // the main server, so players only need the public game port.
+            proxy_client_server: true,
             host: process.env.HOST || `localhost:${defaultPort + 2}`,
             port: defaultPort + 2,
             id: 'sandbox',

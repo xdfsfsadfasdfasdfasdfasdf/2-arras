@@ -234,6 +234,7 @@ const global = {
     xoffset: -0,
     yoffset: -0,
     gameLoading: false,
+    serverPath: "",
     gameStart: false,
     gameConnecting: false,
     gameUpdate: false,

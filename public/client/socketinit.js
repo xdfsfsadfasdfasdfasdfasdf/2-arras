@@ -1272,7 +1272,7 @@ let incoming = async function(message, socket) {
 }
 const socketInit = () => {
     window.resizeEvent();
-    let socket = new WebSocket(protocols[location.protocol] + global.serverAdd);
+    let socket = new WebSocket(protocols[location.protocol] + global.serverAdd + global.serverPath);
     // Set up our socket
     socket.binaryType = 'arraybuffer';
     socket.open = false;

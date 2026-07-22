@@ -9,6 +9,7 @@ const url = require("url");
 const pjson = require('../package.json')
 
 const { Worker } = require("worker_threads");
+const WebSocket = require("ws");
 
 // Increase the stack trace limit for better debugging
 Error.stackTraceLimit = Infinity;
@@ -112,7 +113,7 @@ server = http.createServer((req, res) => {
             let requestHost = req.headers.host || Config.host;
             readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => {
                 let serverIp = server.ip;
-                if (server.share_client_server || server.loadedViaMainServer) {
+                if (server.share_client_server || server.loadedViaMainServer || server.proxyClientServer) {
                     serverIp = requestHost;
                 } else if (serverIp.startsWith("localhost")) {
                     // When the browser reaches the main server from another
@@ -133,6 +134,7 @@ server = http.createServer((req, res) => {
                     featured: server.featured,
                     region: server.region,
                     gameMode: server.gameMode,
+                    wsPath: server.proxyClientServer ? `/ws/${encodeURIComponent(server.id)}` : "",
                 };
             }));
         } break;
@@ -341,7 +343,11 @@ server.on("listening", () => {
             s.port,
             s.gamemode,
             s.region,
-            { id: s.id, maxPlayers: s.player_cap },
+            {
+                id: s.id,
+                maxPlayers: s.player_cap,
+                proxyClientServer: s.proxy_client_server ?? false,
+            },
             s.properties,
             s.featured
         );
@@ -363,17 +369,54 @@ server.on("error", (err) => {
 
 tryListen(currentAttemptPort);
 
-// Upgrade HTTP connections to WebSocket connections if applicable
+// Upgrade HTTP connections to WebSocket connections if applicable.
+// Worker-backed gamemodes can be reached through /ws/<server id>, keeping every
+// public connection on this server's port while each simulation stays isolated.
 server.on("upgrade", (req, socket, head) => {
     wsServer.handleUpgrade(req, socket, head, (ws) => {
-        if (global.launchedOnMainServer) {
-            for (let i = 0; i < global.servers.length; i++) {
-                let server = global.servers[i];
-                if (server.gameManager) server.gameManager.socketManager.connect(ws, req);
-            }
-        } else {
-            ws.close();
+        const pathname = new URL(req.url, "http://localhost").pathname;
+        const target = global.servers.find(game =>
+            game.proxyClientServer && pathname === `/ws/${encodeURIComponent(game.id)}`
+        );
+
+        if (target) {
+            const forwardedFor = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+            const upstream = new WebSocket(`ws://127.0.0.1:${target.port}`, {
+                headers: { "x-forwarded-for": forwardedFor },
+            });
+            const upstreamMessages = [];
+
+            ws.on("message", (data, isBinary) => {
+                if (upstream.readyState === WebSocket.OPEN) {
+                    upstream.send(data, { binary: isBinary });
+                } else if (upstream.readyState === WebSocket.CONNECTING) {
+                    upstreamMessages.push([data, isBinary]);
+                }
+            });
+            upstream.on("open", () => {
+                for (const [data, isBinary] of upstreamMessages) upstream.send(data, { binary: isBinary });
+                upstreamMessages.length = 0;
+            });
+            upstream.on("message", (data, isBinary) => {
+                if (ws.readyState === WebSocket.OPEN) ws.send(data, { binary: isBinary });
+            });
+
+            const closeSockets = () => {
+                if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) ws.terminate();
+                if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) upstream.terminate();
+            };
+            ws.on("close", closeSockets);
+            ws.on("error", closeSockets);
+            upstream.on("close", closeSockets);
+            upstream.on("error", closeSockets);
+            return;
         }
+
+        if (global.launchedOnMainServer && pathname === "/") {
+            const mainGame = global.servers.find(game => game.gameManager);
+            if (mainGame) return mainGame.gameManager.socketManager.connect(ws, req);
+        }
+        ws.close();
     });
 });
 

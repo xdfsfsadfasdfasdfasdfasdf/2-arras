@@ -173,6 +173,7 @@ class gameServer {
             featured: this.featured,
             region: this.region,
             gameMode: this.name,
+            proxyClientServer: this.webProperties.proxyClientServer,
             gameManager: includegameManager ? this : false,
             // Worker-backed servers own a separate WebSocket endpoint. Marking
             // them as main-server clients makes the selector route every entry

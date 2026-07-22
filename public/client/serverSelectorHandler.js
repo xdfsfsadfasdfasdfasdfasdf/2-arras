@@ -65,6 +65,7 @@ global.loadServerSelector = (serverData, text) => {
                 localStorage.setItem("lastServer", server.id);
                 tr.classList.add("selected");
                 global.serverAdd = server.ip;
+                global.serverPath = server.wsPath || "";
                 if (server.ip === "localhost" && server.port) {
                     global.serverAdd = global.serverAdd + ":" + server.port;
                 }
