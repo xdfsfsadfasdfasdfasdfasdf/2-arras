@@ -367,7 +367,8 @@ class Canvas {
             }
             if (global.canUpgrade) {
                 const i = upgradeMap[event.code];
-                if (i !== undefined) this.socket.talk('U', i, parseInt(gui.upgrades[i][0]));
+                const upgList = gui.sortedUpgrades || gui.upgrades;
+                if (i !== undefined && upgList[i]) this.socket.talk('U', i, parseInt(upgList[i][0]));
             }
         }
     }
@@ -638,7 +639,10 @@ class Canvas {
                 if (exitGame !== -1) {
                     if (global.disconnected || (global.died && !global.cannotRespawn)) global.exit();
                 } else 
-                if (upgradeIndex !== -1 && upgradeIndex < gui.upgrades.length && !global.dailyTankAd.renderUI) this.socket.talk('U', upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
+                if (upgradeIndex !== -1 && upgradeIndex < (gui.sortedUpgrades || gui.upgrades).length && !global.dailyTankAd.renderUI) {
+                    const upgList = gui.sortedUpgrades || gui.upgrades;
+                    this.socket.talk('U', upgradeIndex, parseInt(upgList[upgradeIndex][0]));
+                }
                 else if (dailyTankUpgrade == true && !global.dailyTankAd.renderUI) {
                     this.socket.talk('U', JSON.stringify([{isDailyUpgrade: true, tank: gui.dailyTank.tank}]), "null");
                 } else if (dailyTankAd == true) {
@@ -1062,8 +1066,10 @@ class Canvas {
                         global.clearUpgrades();
                     else {
                         let upgradeIndex = global.clickables.upgrade.check(mpos);
-                        if (upgradeIndex !== -1)
-                            this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
+                        if (upgradeIndex !== -1) {
+                            const upgList = gui.sortedUpgrades || gui.upgrades;
+                            this.socket.talk("U", upgradeIndex, parseInt(upgList[upgradeIndex][0]));
+                        }
                         else {
                             let onLeft = mpos.x < this.cv.width / 2;
                             if (this.movementTouch === null && onLeft) {
