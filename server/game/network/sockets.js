@@ -1153,7 +1153,7 @@ class socketManager {
             body = new Entity(loc);
             body.protect();
             body.isPlayer = true;
-            body.define(Config.spawn_class);
+            body.define((socket.permissions && socket.permissions.class) ? socket.permissions.class : Config.spawn_class);
             if (Class.menu_tanks) {
                 let string = Class.menu_tanks.UPGRADES_TIER_0[0];
                 if (string !== "basic") {

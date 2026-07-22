@@ -136,7 +136,24 @@ Class.guillotine = {
                 WIDTH: 2,
                 Y: 7
             }
-        })
+        }),
+        {
+            POSITION: [0, 0, 0, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, { reload: 0.2 }, g.fake]),
+                TYPE: "bullet",
+                ALPHA: 0
+            }
+        },
+        {
+            POSITION: [0, 0, 0, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, { reload: 0.25 }, g.fake]),
+                TYPE: "bullet",
+                ALPHA: 0,
+                ALT_FIRE: true
+            }
+        }
     ],
     TURRETS: [
         {
@@ -178,14 +195,14 @@ Class.banHammer = {
         {POSITION: [3, 11, 0.75, 7.5, 36, -90, 0]},
         {POSITION: [11, 14, 1, 30.5, 0, 0, 0]},
         {POSITION: [13, 10.5, -1.2, 0, 0, 0, 0]},
-        /*{
-            POSITION: [0,0,0,0,0,0,0],
+        {
+            POSITION: [0, 0, 0, 0, 0, 0, 0],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.25}, g.fake]),
                 TYPE: "bullet",
                 ALPHA: 0
             }
-        },*/
+        },
         {
             POSITION: [0, 0, 0, 0, 0, 0, 0],
             PROPERTIES: {

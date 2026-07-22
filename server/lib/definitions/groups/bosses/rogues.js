@@ -8,6 +8,7 @@ Class.menu_rogues = makeMenu("Rogues", {upgrades: [
     "julius",
     "genghis",
     "napoleon",
+    "ouranous",
 ], color: "darkGrey", boxColor: "darkGrey", shape: 6})
 
 Class.roguePalisade = {
@@ -125,3 +126,42 @@ Class.rogueArmada = {
         TYPE: 'shottrapTurret'
     }, 7),
 }
+
+function makeRogueEgg(rogueClass, shape, label) {
+    return {
+        PARENT: "miniboss",
+        LABEL: label,
+        SHAPE: shape,
+        COLOR: "egg",
+        UPGRADE_COLOR: "egg",
+        SIZE: 30,
+        VALUE: 3e5,
+        BODY: {
+            SPEED: 0,
+            HEALTH: base.HEALTH * 15,
+            SHIELD: base.SHIELD * 3,
+            DAMAGE: 0,
+            PUSHABILITY: 0.1,
+        },
+        ON: [
+            {
+                event: "dead",
+                handler: ({ body }) => {
+                    let boss = new Entity({ x: body.x, y: body.y });
+                    boss.define(rogueClass);
+                    boss.team = TEAM_ENEMIES;
+                    if (Config.fortress || Config.citadel) {
+                        boss.controllers.push(new ioTypes.siegeAI(boss, {}, global.gameManager));
+                    }
+                }
+            }
+        ]
+    };
+}
+
+Class.roguePalisadeEgg = makeRogueEgg("roguePalisade", 6, "Rogue Palisade Egg");
+Class.rogueArmadaEgg = makeRogueEgg("rogueArmada", 7, "Rogue Armada Egg");
+Class.juliusEgg = makeRogueEgg("julius", 9, "Julius Egg");
+Class.genghisEgg = makeRogueEgg("genghis", 9, "Genghis Egg");
+Class.napoleonEgg = makeRogueEgg("napoleon", 9, "Napoleon Egg");
+Class.ouranousEgg = makeRogueEgg("ouranous", 11, "Ouranous Egg");

@@ -569,6 +569,17 @@ Class.autoSmasherMissile = {
         },
     ],
 }
+Class.auto4Missile = {
+    PARENT: "missile",
+    HITS_OWN_TYPE: "never",
+    GUNS: [],
+    TURRETS: [
+        {
+            POSITION: [12, 0, 0, 0, 360, 1],
+            TYPE: "auto4MissileTurret",
+        },
+    ],
+}
 
 // Healer Projectiles
 Class.healerBullet = {

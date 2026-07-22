@@ -616,6 +616,10 @@ Class.bacteriaClone = {
             POSITION: {
                 LENGTH: 5,
                 WIDTH: 32
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, { reload: 2, recoil: 0.25, shudder: 0.1, size: 0.62, speed: 2 }]),
+                TYPE: "bullet"
             }
         }
     ],

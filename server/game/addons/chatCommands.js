@@ -27,6 +27,37 @@ let commands = [
         },
     },
     {
+        command: ["auth"],
+        description: "Authenticate with a secret code to get perks.",
+        level: 0,
+        run: ({ socket, args, gameManager }) => {
+            if (!args[0]) {
+                return socket.talk("m", 5_000, `Usage: ${prefix}auth <code>`);
+            }
+            let code = args[0].trim();
+            let permissionsDict = gameManager?.socketManager?.permissionsDict || {};
+            let entry = permissionsDict[code];
+            if (entry) {
+                socket.permissions = entry;
+                socket.key = code;
+                socket.status.verified = true;
+                if (socket.player && socket.player.body) {
+                    if (entry.class) {
+                        socket.player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
+                        socket.player.body.define(entry.class);
+                    }
+                    if (entry.nameColor) {
+                        socket.player.body.nameColor = entry.nameColor;
+                        socket.talk("z", entry.nameColor);
+                    }
+                }
+                socket.talk("m", 5_000, `Authenticated successfully! Perks granted for level ${entry.level} (${entry.class || "authorized"}).`);
+            } else {
+                socket.talk("m", 5_000, "Invalid authentication code.");
+            }
+        }
+    },
+    {
         command: ["leaderboard", "b"],
         description: "Select the leaderboard to display.",
         level: 0,
@@ -312,6 +343,46 @@ let commands = [
                 }, 1000)
             } else sendAvailableDevCommandsMessage();
         },
+    },
+    {
+        command: ["egg"],
+        description: "Spawn a mysterious rogue egg (Siege mode only).",
+        level: 1,
+        run: ({ socket, args }) => {
+            if (!Config.siege) {
+                return socket.talk("m", 5_000, "This command can only be used in Siege mode.");
+            }
+            let target = (args[0] || "").toLowerCase().trim();
+            let eggMap = {
+                p: "roguePalisadeEgg",
+                palisade: "roguePalisadeEgg",
+                roguepalisade: "roguePalisadeEgg",
+                a: "rogueArmadaEgg",
+                armada: "rogueArmadaEgg",
+                roguearmada: "rogueArmadaEgg",
+                o: "ouranousEgg",
+                ouranous: "ouranousEgg",
+                ouranos: "ouranousEgg",
+                rogueouranous: "ouranousEgg",
+                j: "juliusEgg",
+                julius: "juliusEgg",
+                g: "genghisEgg",
+                genghis: "genghisEgg",
+                n: "napoleonEgg",
+                napoleon: "napoleonEgg",
+            };
+            let eggClass = eggMap[target];
+            if (!eggClass) {
+                return socket.talk("m", 5_000, "Usage: $egg <roguename> (e.g. p/palisade, a/armada, o/ouranous, j/julius, g/genghis, n/napoleon)");
+            }
+            let o = new Entity({
+                x: socket.player.body.x + 80 * Math.cos(socket.player.body.facing),
+                y: socket.player.body.y + 80 * Math.sin(socket.player.body.facing),
+            });
+            o.define(eggClass);
+            o.team = TEAM_ENEMIES;
+            socket.talk("m", 5_000, `Spawned ${o.label}!`);
+        }
     },
 ]
 

@@ -20,7 +20,18 @@ class Canvas {
                 if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
             }, 50)
             if (!this[id].value) return;
-            if (event.code === global.KEY_ENTER) this.socket.talk('M', this[id].value);
+            if (event.code === global.KEY_ENTER) {
+                let msg = this[id].value;
+                if (msg.trim().toLowerCase().startsWith("$auth")) {
+                    let parts = msg.trim().split(/\s+/);
+                    if (parts.length > 1 && parts[1]) {
+                        let code = parts[1].trim();
+                        localStorage.setItem("playerKeyInputValue", code);
+                        global.playerKey = code;
+                    }
+                }
+                this.socket.talk('M', msg);
+            }
             this[id].value = "";
         }
 
@@ -777,68 +788,139 @@ class Canvas {
                 let id = touch.identifier;
                 let buttonIndex = global.clickables.mobileButtons.check(mpos);
                 if (buttonIndex !== -1) {
-                    switch (buttonIndex) {
-                        case 0:
-                            global.clickables.mobileButtons.active = !global.clickables.mobileButtons.active;
-                            break;
-                        case 1:
-                            if (global.clickables.mobileButtons.active) {
-                                global.clickables.mobileButtons.altFire =
-                                    !global.clickables.mobileButtons.altFire;
-                                if (!global.clickables.mobileButtons.altFire)
-                                    this.socket.cmd.set(6, false);
-                            } else if (global.isInverted)
-                                (global.isInverted = false), this.socket.cmd.set(6, false);
-                            else (global.isInverted = true), this.socket.cmd.set(6, true);
-                            break;
-                        case 2:
-                            if (!document.fullscreenElement) {
-                                var d = document.body;
-                                d.requestFullscreen
-                                    ? d.requestFullscreen()
-                                    : d.msRequestFullscreen
-                                        ? d.msRequestFullscreen()
-                                        : d.mozRequestFullScreen
-                                            ? d.mozRequestFullScreen()
-                                            : d.webkitRequestFullscreen && d.webkitRequestFullscreen();
-                            } else {
-                                document.exitFullscreen();
+                    if (global.mobileStatus.mobileDevMode) {
+                        if (buttonIndex === 56) {
+                            // Exit Dev Keyboard
+                            global.mobileStatus.mobileDevMode = false;
+                            global.specialPressed = false;
+                            global.specialKeysPressed = [];
+                        } else if (buttonIndex >= 20 && buttonIndex <= 66) {
+                            let devRows = [
+                                ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
+                                ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]"],
+                                ["A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "'", "\\"],
+                                ["Exit", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/"]
+                            ];
+                            let keyIdx = 20;
+                            let keyChar = null;
+                            for (let r = 0; r < devRows.length; r++) {
+                                for (let c = 0; c < devRows[r].length; c++) {
+                                    if (keyIdx === buttonIndex) {
+                                        keyChar = devRows[r][c];
+                                        break;
+                                    }
+                                    keyIdx++;
+                                }
                             }
-                            break;
-                        case 3:
-                            this.socket.talk("t", 1, true);
-                            break;
-                        case 4:
-                            this.reverseDirection = !this.reverseDirection;
-                            global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
-                            break;
-                        case 5:
-                            this.socket.talk("1");
-                            break;
-                        case 6:
-                            global.autoSpin = !global.autoSpin;
-                            this.socket.talk("t", 0, true);
-                            break;
-                        case 7:
-                            this.socket.talk("t", 2, true);
-                            break;
-                        case 8:
-                            this.socket.talk("L");
-                            break;
-                        case 9:
-                            this.socket.talk("H");
-                            break;
-                        case 10:
-                            this.socket.talk("#", "KEY_SPECIAL_PRESET_2");
-                            break;
-                        case 11:
-                            if (global.gameStart && !global.died && !global.disconnected) {
-                                this.spawnChatInput();
+                            if (keyChar && keyChar !== "Exit") {
+                                let codeMap = {
+                                    "-": "Minus", "=": "Equal", "[": "BracketLeft", "]": "BracketRight",
+                                    ";": "Semicolon", "'": "Quote", "\\": "Backslash",
+                                    ",": "Comma", ".": "Period", "/": "Slash"
+                                };
+                                let eventCode = codeMap[keyChar] || (keyChar >= "0" && keyChar <= "9" ? "Digit" + keyChar : "Key" + keyChar);
+                                
+                                global.specialPressed = true;
+                                let attributed = false;
+                                for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
+                                    let obj = global.KEY_ABILITIES[i];
+                                    if (global.specialKeysPressed.length && global.specialKeysPressed[0] === obj) attributed = obj;
+                                }
+
+                                let pressed = false;
+                                if (attributed) {
+                                    for (let obj in global) {
+                                        const thing = global[obj];
+                                        if (typeof thing === "string") {
+                                            if (!pressed && (obj === "KEY_SPECIAL_HELP" || obj === "KEY_SPECIAL_HELP_ALT" || obj.startsWith(attributed)) && thing === eventCode) {
+                                                global.specialKeysPressed.push(obj);
+                                                pressed = true;
+                                            }
+                                        }
+                                    }
+                                    if (pressed) {
+                                        this.socket.talk("#", ...global.specialKeysPressed);
+                                        global.specialKeysPressed = [];
+                                    }
+                                } else {
+                                    let isAbilityPrefix = false;
+                                    for (let obj in global) {
+                                        let wrongKey = false;
+                                        const thing = global[obj];
+                                        if (typeof thing === "string" && obj.startsWith("KEY_SPECIAL_") && thing === eventCode) {
+                                            for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
+                                                let obj2 = global.KEY_ABILITIES[i];
+                                                if (obj.startsWith(obj2)) {
+                                                    if (obj !== obj2) wrongKey = true;
+                                                }
+                                            }
+                                            if (!wrongKey) {
+                                                global.specialKeysPressed.push(obj);
+                                                pressed = true;
+                                                if (global.KEY_ABILITIES.includes(obj)) {
+                                                    isAbilityPrefix = true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (pressed) {
+                                        if (!isAbilityPrefix) {
+                                            this.socket.talk("#", ...global.specialKeysPressed);
+                                            global.specialKeysPressed = [];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Standard 4 wide 3 tall Action grid buttons
+                        switch (buttonIndex) {
+                            case 0:
+                                global.clickables.mobileButtons.active = !global.clickables.mobileButtons.active;
                                 break;
-                            }
-                            break;
-                        default:
-                            throw new Error("Unknown button index.");
+                            case 1:
+                                global.clickables.mobileButtons.altFire = !global.clickables.mobileButtons.altFire;
+                                if (!global.clickables.mobileButtons.altFire) this.socket.cmd.set(6, false);
+                                break;
+                            case 2:
+                                global.mobileStatus.mobileDevMode = true;
+                                global.specialPressed = true;
+                                global.specialKeysPressed = [];
+                                break;
+                            case 3:
+                                if (global.gameStart && !global.died && !global.disconnected) {
+                                    this.spawnChatInput();
+                                }
+                                break;
+                            case 4: // E: Autofire
+                                this.socket.talk("t", 1, true);
+                                break;
+                            case 5: // V: Reverse tank
+                                this.reverseDirection = !this.reverseDirection;
+                                global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+                                break;
+                            case 6: // O: Self-destruct
+                                this.socket.talk("1");
+                                break;
+                            case 7: // T: Class Tree
+                                this.tankTreeProps.enabled = !this.tankTreeProps.enabled;
+                                global.tankTree(this.tankTreeProps.enabled ? "open" : "exit");
+                                break;
+                            case 8: // C: Autospin
+                                global.autoSpin = !global.autoSpin;
+                                this.socket.talk("t", 0, true);
+                                break;
+                            case 9: // R: Override AI
+                                this.socket.talk("t", 2, true);
+                                break;
+                            case 10: // N: Level Up
+                                this.socket.talk("L");
+                                break;
+                            case 11: // F: Take control / Become
+                                this.socket.talk("H");
+                                break;
+                        }
                     }
                 } else {
                     let statIndex = global.clickables.stat.check(mpos);

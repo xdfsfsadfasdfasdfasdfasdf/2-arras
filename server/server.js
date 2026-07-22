@@ -15,12 +15,15 @@ Error.stackTraceLimit = Infinity;
 
 // Load environment variables from .env using a custom dotenv loader
 const dotenv = require("./lib/dotenv.js");
-const envContent = fs.readFileSync(path.join(__dirname, "./.env")).toString();
-const environment = dotenv(envContent);
+const envPath = path.join(__dirname, "./.env");
+if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath).toString();
+    const environment = dotenv(envContent);
 
-// Set each environment variable in process.env
-for (const key in environment) {
-    process.env[key] = environment[key];
+    // Set each environment variable in process.env
+    for (const key in environment) {
+        process.env[key] = environment[key];
+    }
 }
 
 // Load all necessary modules and files via the loader

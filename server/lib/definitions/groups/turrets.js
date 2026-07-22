@@ -1498,6 +1498,149 @@ Class.undertowTurret = makeTurret("undertow", {canRepel: true, limitFov: true, e
 Class.forkTurret = makeTurret("fork", {canRepel: true, limitFov: true, extraStats: []})
 Class.hunterTurret = makeTurret("hunter", {canRepel: true, limitFov: true, extraStats: []})
 Class.tripletTurret = makeTurret("triplet", {canRepel: true, limitFov: true, extraStats: []})
+Class.iteratorTurret = makeTurret("iterator", {canRepel: true, limitFov: true, color: "mirror", extraStats: []})
+Class.auto4MissileTurret = makeTurret("auto4gun", {canRepel: true, limitFov: true})
+Class.auto4LauncherTurret = makeTurret({
+    GUNS: [
+        {
+            POSITION: [4, 12, 1.2, 16, 0, 0, 0],
+        }, {
+            POSITION: [18, 20, -0.7, 0, 0, 0, 1],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, { reload: 3.1, health: 1.9, damage: 1.2, resist: 1.2, speed: 1.3, maxSpeed: 1.3, range: 2.5 }]),
+                TYPE: "auto4Missile",
+                NO_LIMITATIONS: true,
+            },
+        },
+    ],
+}, {canRepel: true, limitFov: true, fov: 10, independent: true, extraStats: []})
+Class.penTurret = makeTurret({
+    GUNS: [
+        {
+            POSITION: [20, 8, 1, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard]),
+                TYPE: "bullet",
+            },
+        },
+        {
+            POSITION: [4, 8, 1.7, 13, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap",
+            },
+        },
+    ],
+}, {canRepel: true, limitFov: true})
+Class.sidewinderTurret = makeTurret("sidewinder", {canRepel: true, limitFov: true, extraStats: []})
+Class.voluteTurret = makeTurret("volute", {canRepel: true, limitFov: true, extraStats: []})
+Class.triplexTurret = makeTurret("triplex", {canRepel: true, limitFov: true, extraStats: []})
+Class.tripletMinion = {
+    PARENT: "genericMinion",
+    LABEL: "Triplet Minion",
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 17.5,
+                WIDTH: 8,
+                Y: 5.5,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.minionGun]),
+                WAIT_TO_CYCLE: true,
+                TYPE: "bullet"
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 21,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.minionGun]),
+                WAIT_TO_CYCLE: true,
+                TYPE: "bullet"
+            }
+        }
+    ]
+}
+Class.ouranousFactorySpawner = makeTurret({
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15.5,
+                WIDTH: 11
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 2,
+                WIDTH: 14,
+                X: 15.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.minion]),
+                TYPE: "tripletMinion",
+                MAX_CHILDREN: 4,
+                STAT_CALCULATOR: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 14
+            }
+        }
+    ]
+}, {canRepel: true, limitFov: true})
+Class.twindertowTurret = makeTurret({
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 14.5,
+                WIDTH: 9,
+                ASPECT: 0.8,
+                Y: 4,
+                ANGLE: 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, {size: 0.8, reload: 1.2}]),
+                TYPE: "undertowBullet",
+            },
+        }, {delayIncrement: 0.5}),
+        ...weaponMirror({
+            POSITION: [11.25, 8, 0.15, 4.25, 4, 22.5, 0]
+        }),
+        {
+            POSITION: [15, 10, 0.4, 0, 0, 0, 0]
+        }
+    ]
+}, {canRepel: true, limitFov: true, extraStats: []})
+Class.underseerTurret = makeTurret({
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 12,
+                ASPECT: 1.2,
+                X: 8,
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.sunchip, {reload: 0.8}]),
+                TYPE: 'sunchip',
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'necro',
+                WAIT_TO_CYCLE: true,
+                MAX_CHILDREN: 4,
+            }
+        },
+    ],
+}, {canRepel: true, limitFov: true, extraStats: []})
 Class.heavyTurret = makeTurret({
     GUNS: [
             {

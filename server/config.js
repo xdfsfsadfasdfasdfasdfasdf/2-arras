@@ -14,25 +14,50 @@ module.exports = {
     startup_logs: true, // Enable startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
 
-    servers: [ // Single-port server configuration with dynamic port support
+    servers: [
         {
-            share_client_server: true, // Only one server at a time can have this enabled.
-            // Required for single-port environments where all HTTP and WebSocket traffic flows through the main server port.
-
-            host: process.env.HOST || `localhost:${defaultPort}`, // Server host location.
-            port: defaultPort, // The port on the server.
-            id: 'la', // (<host>/#<id>)
-
-            region: process.env.REGION || "USA", // The region the server is on (e.g. USA, Europe, Asia, Oceania).
-            gamemode: ['ffa'], // The selected gamemode.
-            player_cap: 80, // Not including bots. Set to 0 to disable.
-
-            featured: false, // Whether the server is featured or not.
-            unlisted: false, // Whether the server shows up in the server list (if its id isn't in the url).
-            private: false, // Whether the server requires a privileged token to join (except through server travel).
-
-            properties: { // Single-port properties
+            share_client_server: true,
+            host: process.env.HOST || `localhost:${defaultPort}`,
+            port: defaultPort,
+            id: 'ffa-maze',
+            region: process.env.REGION || "USA",
+            gamemode: ['ffa', 'maze'],
+            player_cap: 80,
+            featured: false,
+            unlisted: false,
+            private: false,
+            properties: {
                 bot_cap: 20,
+            }
+        },
+        {
+            share_client_server: false,
+            host: process.env.HOST || `localhost:${defaultPort + 1}`,
+            port: defaultPort + 1,
+            id: 'siege-citadel',
+            region: process.env.REGION || "USA",
+            gamemode: ['siege_citadel'],
+            player_cap: 80,
+            featured: false,
+            unlisted: false,
+            private: false,
+            properties: {
+                bot_cap: 10,
+            }
+        },
+        {
+            share_client_server: false,
+            host: process.env.HOST || `localhost:${defaultPort + 2}`,
+            port: defaultPort + 2,
+            id: 'sandbox',
+            region: process.env.REGION || "USA",
+            gamemode: ['sandbox'],
+            player_cap: 80,
+            featured: false,
+            unlisted: false,
+            private: false,
+            properties: {
+                bot_cap: 0,
             }
         }
     ],

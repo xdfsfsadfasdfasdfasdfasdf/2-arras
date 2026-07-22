@@ -1098,11 +1098,20 @@ class LayeredBoss {
             }
         }
         if (turret) {
-            for (let i = 0; i < this.shape; i++) {
-                layer.TURRETS.push({
-                    POSITION: turret.POSITION.map(n => n ?? 360 / this.shape * (i + 0.5)),
-                    TYPE: turret.TYPE,
-                });
+            if (Array.isArray(turret)) {
+                for (let i = 0; i < turret.length; i++) {
+                    layer.TURRETS.push({
+                        POSITION: turret[i].POSITION.map(n => n ?? 360 / this.shape * (i + 0.5)),
+                        TYPE: turret[i].TYPE,
+                    });
+                }
+            } else {
+                for (let i = 0; i < this.shape; i++) {
+                    layer.TURRETS.push({
+                        POSITION: turret.POSITION.map(n => n ?? 360 / this.shape * (i + 0.5)),
+                        TYPE: turret.TYPE,
+                    });
+                }
             }
         }
 

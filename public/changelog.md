@@ -1,3 +1,9 @@
+# Update [2026-07-22]
+- Reworked Eternal boss: <b>Kratos</b> (yellow/neutral, 11-gon trap → 9-gon auto-4 missile launcher → 7-gon twindertow → 5-gon iterator, size 95)
+- Reworked Celestial boss: <b>Themis</b> (wine-dark, 9-gon trap → 7-gon undertow → 5-gon annihilator)
+- Reworked Rogue Eternal boss: <b>Ouranous</b> (darkGrey, 11-gon mech → 9-gon wrench → 7-gon underseer → 5-gon sidewinder, size 85)
+- Added new <b>underseerTurret</b> (drone spawner turret for Ouranous)
+- <b>$egg</b> command spawns rogue eggs: palisade, armada, julius, genghis, napoleon, ouranous
 
 # Update [2026-07-22]
 - Renamed game branding to <b>2-arras</b>
@@ -6,37 +12,5 @@
 - Added custom facial expressions to DigDig menu tanks (Normal & Charlie Kirk caricatures)
 - Updated social buttons (Discord, Patreon, GitHub)
 
-# Announcement [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#ff0000">Special Change</font></b>
-
-# Balance [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#11e9a1">Special Change</font></b>
-
-# Balance Update [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#11e9a1">Special Change</font></b>
-
-# Balance Update Details [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#11e9a1">Special Change</font></b>
-
-# Event [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#171cb0">Special Change</font></b>
-
-# Patch [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#000000">Special Change</font></b>
-
-# Update [2026-01-02]
-- Change 1
-- Change 2
-- Change 3 - <b><font color="#000000">Special Change</font></b>
+# Update [2026-07-21]
+- Game wipe from GitHub

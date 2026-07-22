@@ -81,7 +81,7 @@ import * as socketStuff from "./socketinit.js";
 
         // Retrieve forms
         util.retrieveFromLocalStorage("playerNameInput");
-        util.retrieveFromLocalStorage("playerKeyInput");
+        global.playerKey = localStorage.getItem("playerKeyInputValue") || "";
         util.retrieveFromLocalStorage("optSharpEdges");
         util.retrieveFromLocalStorage("optSlowerFOV");
         util.retrieveFromLocalStorage("optPredictive");
@@ -1165,14 +1165,12 @@ import * as socketStuff from "./socketinit.js";
         global.optionsCheckboxes = undefined;
         // Other more important stuff
         let playerNameInput = document.getElementById("playerNameInput");
-        let playerKeyInput = document.getElementById("playerKeyInput");
         let autolevelUpInput = document.getElementById("autoLevelUp").checked;
         global.autolvlUp = autolevelUpInput;
         // Name and keys
         util.submitToLocalStorage("playerNameInput");
-        util.submitToLocalStorage("playerKeyInput");
         global.playerName = global.player.name = playerNameInput.value;
-        global.playerKey = playerKeyInput.value.replace(/(<([^>]+)>)/gi, "").substring(0, 64);
+        global.playerKey = localStorage.getItem("playerKeyInputValue") || "";
         // Change the screen
         global.screenWidth = window.innerWidth;
         global.screenHeight = window.innerHeight;
@@ -3866,13 +3864,13 @@ import * as socketStuff from "./socketinit.js";
     }
 
     function drawMobileButtons(spacing, alcoveSize) {
-        let makeButton = (index, x, y, width, height, text, clickableRatio) => {
+        let makeButton = (index, x, y, width, height, text, clickableRatio, customBgColor) => {
             // Set the clickable's position
             global.clickables.mobileButtons.place(index, x * clickableRatio, y * clickableRatio, width * clickableRatio, height * clickableRatio);
 
             // Draw boxes
             ctx[2].globalAlpha = 0.5;
-            ctx[2].fillStyle = color.grey;
+            ctx[2].fillStyle = customBgColor || color.grey;
             drawGuiRect(x, y, width, height);
             ctx[2].globalAlpha = 0.1;
             ctx[2].fillStyle = color.black;
@@ -3880,62 +3878,99 @@ import * as socketStuff from "./socketinit.js";
             ctx[2].globalAlpha = 1;
 
             // Draw text
-            drawText(text, x + width / 2, y + height * 0.5, height * 0.6, color.guiwhite, "center", true);
+            let fontSize = text.length > 3 ? height * 0.35 : height * 0.5;
+            drawText(text, x + width / 2, y + height * 0.5, fontSize, color.guiwhite, "center", true);
 
             // Draw the borders
             ctx[2].strokeStyle = color.black;
-            ctx[2].lineWidth = 3;
+            ctx[2].lineWidth = 2;
             drawGuiRect(x, y, width, height, true);
-        }
+        };
 
-        let makeButtons = (buttons, startX, startY, baseSize, clickableRatio, spacing) => {
-            let x = startX, y = startY, index = 0;
-
-            for (let row = 0; row < buttons.length; row++) {
-                for (let col = 0; col < buttons[row].length; col++) {
-                    makeButton(buttons[row][col][3] ?? index, x, y, baseSize * (buttons[row][col][1] ?? 1), baseSize * (buttons[row][col][2] ?? 1), buttons[row][col][0], clickableRatio);
-                    x += baseSize * (buttons[row][col][1] ?? 1) + spacing;
-                    index++;
-                }
-
-                x = startX;
-                y += Math.max(...buttons[row].map(b => baseSize * (b[2] ?? 1))) + spacing;
-            }
-        }
-        if (global.clickables.mobileButtons.active == null) global.clickables.mobileButtons.active = false;
+        if (global.clickables.mobileButtons.active == null) global.clickables.mobileButtons.active = true;
         if (global.clickables.mobileButtons.altFire == null) global.clickables.mobileButtons.altFire = false;
 
         // Hide the buttons
         global.clickables.mobileButtons.hide();
 
-        // Some animations.
-        mobileUpgradeGlide.set(0 + (global.canUpgrade || global.upgradeHover));
-
-        // Some sizing variables
+        // Sizing variables
         let clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
         let upgradeColumns = Math.ceil(gui.upgrades.length / 9);
         let yOffset = 0;
         if (global.mobile) {
-            yOffset += global.canUpgrade ? (alcoveSize / 1.5 /*+ spacing * 2*/) * mobileUpgradeGlide.get() * upgradeColumns / 1.5 + spacing * (upgradeColumns + 1.55) + -17.5 : 0;
+            yOffset += global.canUpgrade ? (alcoveSize / 1.5) * mobileUpgradeGlide.get() * upgradeColumns / 1.5 + spacing * (upgradeColumns + 1.55) - 17.5 : 0;
             yOffset += global.canSkill || global.showSkill ? statMenu.get() * alcoveSize / 2.6 + spacing / 0.75 : 0;
         }
-        let buttons;
-        let baseSize = (alcoveSize - spacing * 2) / 3;
 
-        if (global.mobile) {
-            buttons = global.clickables.mobileButtons.active ? [
-                [[global.clickables.mobileButtons.active ? "-" : "+"], [`Alt ${global.clickables.mobileButtons.altFire ? "Manual" : "Disabled"}`, 6], [`${!document.fullscreenElement ? "Full" : "Exit Full"} Screen`, 5]],
-                [["Autofire", 3.5], ["Reverse", 3.5], ["Self-Destruct", 5]],
-                [["Autospin", 3.5], ["Override", 3.5], ["Level Up", 5]],
-                [["Action", 3.5], ["Special", 3.5], ["Chat", 5]],
-            ] : [
-                [[global.clickables.mobileButtons.active ? "-" : "+"]],
+        if (global.mobileStatus.mobileDevMode) {
+            // Dev Sandbox Command Keyboard
+            let devRows = [
+                ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
+                ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]"],
+                ["A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "'", "\\"],
+                ["Exit", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "/"]
             ];
-        }
-        if (global.clickables.mobileButtons.altFire) buttons.push([["\u2756", 2, 2]]);
+            
+            let activePrefix = global.specialKeysPressed.length ? global.specialKeysPressed[0] : null;
+            let statusText = "DEV KEYBOARD (` commands)";
+            if (activePrefix === "KEY_SPECIAL_SKILL") statusText = "DEV: Skill (Press 2nd key: M=Max, R=Reset, C=Clear, D=-1, F=+1)";
+            else if (activePrefix === "KEY_SPECIAL_ATTRIBUTE") statusText = "DEV: Attribute (Press 2nd key: C=Reload, R=Recoil, W=Walls, etc)";
+            
+            let devKeyWidth = Math.max(22, (global.screenWidth / clickableRatio - spacing * 14) / 12 * 0.45);
+            let devKeyHeight = devKeyWidth * 0.9;
+            let devStartX = global.screenWidth / clickableRatio - (12 * (devKeyWidth + spacing)) - spacing * 2;
+            let devStartY = yOffset + spacing;
 
-        let len = alcoveSize;
-        makeButtons(buttons, len + spacing * 2, yOffset + spacing, baseSize, clickableRatio, spacing);
+            drawText(statusText, devStartX + (12 * (devKeyWidth + spacing)) / 2, devStartY - 6, 12, color.gold || color.yellow, "center", true);
+
+            let keyIdx = 20;
+            let curY = devStartY;
+            for (let r = 0; r < devRows.length; r++) {
+                let curX = devStartX;
+                for (let c = 0; c < devRows[r].length; c++) {
+                    let keyLabel = devRows[r][c];
+                    let wFactor = (keyLabel === "Exit") ? 2 : 1;
+                    let bg = color.grey;
+                    if (keyLabel === "Exit") bg = color.red;
+                    else if ((keyLabel === "S" && activePrefix === "KEY_SPECIAL_SKILL") || (keyLabel === "A" && activePrefix === "KEY_SPECIAL_ATTRIBUTE")) {
+                        bg = color.gold || color.yellow;
+                    }
+                    makeButton(keyIdx, curX, curY, devKeyWidth * wFactor, devKeyHeight, keyLabel, clickableRatio, bg);
+                    curX += devKeyWidth * wFactor + spacing;
+                    keyIdx++;
+                }
+                curY += devKeyHeight + spacing;
+            }
+        } else {
+            // Standard 4 wide 3 tall Action grid
+            let baseSize = (alcoveSize - spacing * 2) / 3;
+            let len = alcoveSize;
+            let startX = len + spacing * 2;
+            let startY = yOffset + spacing;
+
+            if (!global.clickables.mobileButtons.active) {
+                // Collapsed state
+                makeButton(0, startX, startY, baseSize, baseSize, "+", clickableRatio);
+            } else {
+                // 4 wide 3 tall grid
+                let grid = [
+                    [["-", 1, 1, 0], [`Alt ${global.clickables.mobileButtons.altFire ? "Man" : "Dis"}`, 1, 1, 1], ["Dev", 1, 1, 2], ["Chat", 1, 1, 3]],
+                    [["E", 1, 1, 4], ["V", 1, 1, 5], ["O", 1, 1, 6], ["T", 1, 1, 7]],
+                    [["C", 1, 1, 8], ["R", 1, 1, 9], ["N", 1, 1, 10], ["F", 1, 1, 11]]
+                ];
+
+                let curY = startY;
+                for (let row = 0; row < grid.length; row++) {
+                    let curX = startX;
+                    for (let col = 0; col < grid[row].length; col++) {
+                        let btn = grid[row][col];
+                        makeButton(btn[3], curX, curY, baseSize * btn[1], baseSize * btn[2], btn[0], clickableRatio);
+                        curX += baseSize * btn[1] + spacing;
+                    }
+                    curY += baseSize + spacing;
+                }
+            }
+        }
     }
 
     function drawMobileSkillUpgrades(spacing, alcoveSize) {

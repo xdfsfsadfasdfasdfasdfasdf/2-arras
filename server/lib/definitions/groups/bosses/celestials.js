@@ -66,6 +66,7 @@ Class.menu_celestials = makeMenu("Celestials", {upgrades: [
     "hyperion",
     "ptah",
     "rhea",
+    "themis",
     "julius",
     "genghis",
     "napoleon",
@@ -444,4 +445,14 @@ napoleon.addLayer({turret: {
 napoleon.addLayer({turret: {
     POSITION: [10.5, 8, 0, null, 160, 0],
     TYPE: "napoleonUpperTurret",
+}}, true, 6);
+
+let themis = new LayeredBoss(null, "Themis", "celestial", 9, "#722F37", "baseTrapTurret", 6.5, 5.5);
+themis.addLayer({turret: {
+    POSITION: [8.5, 9, 0, null, 180, 0],
+    TYPE: "undertowTurret",
+}});
+themis.addLayer({turret: {
+    POSITION: [10.5, 8, 0, null, 160, 0],
+    TYPE: "annihilatorTurret",
 }}, true, 6);

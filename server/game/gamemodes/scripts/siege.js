@@ -93,6 +93,7 @@ class Siege {
             [ 25, "selene"],
 
             //celestials
+            [ 50, "themis"],
             [ 50, "paladin"],
             [ 50, "freyja"],
             [ 50, "zaphkiel"],
@@ -129,8 +130,10 @@ class Siege {
             [100, "kronos"],
             [100, "odin"],
             [100, "amun"],
+            [100, "kratos"],
+            [100, "ouranous"],
         ];
-        this.friendlyBossChoices = ["roguePalisade", "rogueArmada", "julius", "genghis", "napoleon"];
+        this.friendlyBossChoices = ["roguePalisade", "rogueArmada", "julius", "genghis", "napoleon", "ouranous"];
         this.bigFodderChoices = ["sentryGun", "sentrySwarm", "sentryTrap"];
         this.smallFodderChoices = ["crasher"];
         this.sentinelChoices = ["sentinelMinigun", "sentinelLauncher", "sentinelCrossbow"];

@@ -22,10 +22,18 @@ Class.eternal = {
     ON: [preset.on.retrograde_self_destruct]
 }
 
+Class.rogueEternal = {
+    PARENT: "eternal",
+    LABEL: "Rogue Eternal",
+    COLOR: "darkGrey",
+}
+
 Class.menu_eternals = makeMenu("Eternals", {upgrades: [
     "odin",
     "kronos",
     "amun",
+    "kratos",
+    "ouranous",
 ], color: "veryLightGrey", boxColor: "veryLightGrey", shape: 11.5})
 
 let kronos = new LayeredBoss(null, "Kronos", "eternal", 11, "veryLightGrey", "baseTrapTurret", 6, 5.5)
@@ -75,3 +83,31 @@ amun.addLayer({turret: {
     TYPE: "forkTurret",
 }}, true, 4)
 Class.amun.ALPHA = 0.3
+
+let kratos = new LayeredBoss(null, "Kratos", "eternal", 11, "yellow", "baseTrapTurret", 6, 5.5, false, undefined, 95);
+kratos.addLayer({turret: {
+    POSITION: [6.5, 9, 0, null, 160, 0],
+    TYPE: "auto4LauncherTurret",
+}});
+kratos.addLayer({turret: {
+    POSITION: [6.5, 9, 0, null, 160, 0],
+    TYPE: "twindertowTurret",
+}}, true, 4);
+kratos.addLayer({turret: {
+    POSITION: [8.5, 9, 0, null, 160, 0],
+    TYPE: "iteratorTurret",
+}}, true, 4);
+
+let ouranous = new LayeredBoss(null, "Ouranous", "rogueEternal", 11, "darkGrey", "baseMechTurret", 6, 5.5, false, undefined, 85);
+ouranous.addLayer({turret: {
+    POSITION: [6.5, 9, 0, null, 160, 0],
+    TYPE: "wrenchTurret",
+}});
+ouranous.addLayer({turret: {
+    POSITION: [6.5, 9, 0, null, 160, 0],
+    TYPE: "underseerTurret",
+}}, true, 4);
+ouranous.addLayer({turret: {
+    POSITION: [8.5, 9, 0, null, 160, 0],
+    TYPE: "sidewinderTurret",
+}}, true, 4);

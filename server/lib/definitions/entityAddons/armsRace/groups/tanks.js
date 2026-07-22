@@ -5303,6 +5303,61 @@ Class.weedwhacker_AR = makeGuard('marksman', "Weedwhacker")
 // Tier 5 (are we deadass)
 Class.custodian_AR = makeGuard('single', "Custodian")
 
+// Resolve non-shooting placeholder guns across Arms Race tanks
+for (const [key, def] of Object.entries(Class)) {
+    if (!def || typeof def !== 'object') continue;
+    if (!def.GUNS || def.GUNS.length === 0) continue;
+
+    let hasMissingProperties = false;
+    for (const gun of def.GUNS) {
+        if (!gun.PROPERTIES || (!gun.PROPERTIES.TYPE && !gun.PROPERTIES.SHOOT_SETTINGS)) {
+            hasMissingProperties = true;
+            break;
+        }
+    }
+
+    if (hasMissingProperties || (def.UPGRADE_TOOLTIP && def.UPGRADE_TOOLTIP.includes("will not shoot"))) {
+        let isHealer = def.PARENT === "genericHealer" || def.LABEL?.toLowerCase().includes("healer") || def.LABEL?.toLowerCase().includes("doctor") || def.LABEL?.toLowerCase().includes("medic");
+        let isDrone = def.STAT_NAMES?.BULLET_SPEED?.includes("Drone") || def.LABEL?.toLowerCase().includes("honcho") || def.LABEL?.toLowerCase().includes("dopeseer");
+        let isSwarm = def.STAT_NAMES?.BULLET_SPEED?.includes("Swarm");
+
+        delete def.UPGRADE_COLOR;
+        delete def.UPGRADE_TOOLTIP;
+
+        for (const gun of def.GUNS) {
+            if (!gun.PROPERTIES || (!gun.PROPERTIES.TYPE && !gun.PROPERTIES.SHOOT_SETTINGS)) {
+                if (isHealer) {
+                    gun.PROPERTIES = {
+                        SHOOT_SETTINGS: combineStats([g.basic, g.healer]),
+                        TYPE: "healerBullet"
+                    };
+                } else if (isDrone) {
+                    gun.PROPERTIES = {
+                        SHOOT_SETTINGS: combineStats([g.drone]),
+                        TYPE: "drone",
+                        AUTOFIRE: true,
+                        SYNCS_SKILLS: true,
+                        STAT_CALCULATOR: "drone",
+                        MAX_CHILDREN: 6,
+                        WAIT_TO_CYCLE: true
+                    };
+                } else if (isSwarm) {
+                    gun.PROPERTIES = {
+                        SHOOT_SETTINGS: combineStats([g.swarm]),
+                        TYPE: "swarm",
+                        STAT_CALCULATOR: "swarm"
+                    };
+                } else {
+                    gun.PROPERTIES = {
+                        SHOOT_SETTINGS: combineStats([g.basic]),
+                        TYPE: "bullet"
+                    };
+                }
+            }
+        }
+    }
+}
+
 // Class Tree
 if (!Config.arms_race == true) {return}
 Config.spawn_message = "You have spawned! Welcome to the game.\n"
@@ -8861,3 +8916,4 @@ Class.vulture.LABEL = "Taser"
 //Class.genericEntity.LABEL = "Nimrod"
 //Class.genericEntity.LABEL = "Spiral"
 }
+

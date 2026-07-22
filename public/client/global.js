@@ -270,7 +270,7 @@ const global = {
         clicked: false,
         hover: Region(1),
         skipUpgrades: Region(1),
-        mobileButtons: Region(20),
+        mobileButtons: Region(100),
         exitGame: Region(1),
         deathRespawn: Region(1),
         reconnect: Region(1),
@@ -345,6 +345,9 @@ const global = {
         showCrosshair: false,
         useBigJoysticks: false,
         showJoysticks: false,
+        mobileDevMode: false,
+        mobileGridCollapsed: false,
+        devKeyPrefix: null,
     },
     GUIStatus: {
         renderGUI: false,
