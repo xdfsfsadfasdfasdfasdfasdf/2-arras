@@ -106,15 +106,22 @@ server = http.createServer((req, res) => {
     switch (pathname) {
         case "/getServers.json": {
             // Serve a list of active servers (excluding hidden ones)
-            readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({
-                ip: server.ip,
-                players: server.players,
-                maxPlayers: server.maxPlayers,
-                id: server.id,
-                featured: server.featured,
-                region: server.region,
-                gameMode: server.gameMode,
-            })));
+            let requestHost = req.headers.host || Config.host;
+            readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => {
+                let serverIp = server.ip;
+                if (server.share_client_server || server.loadedViaMainServer || server.ip.startsWith("localhost")) {
+                    serverIp = requestHost;
+                }
+                return {
+                    ip: serverIp,
+                    players: server.players,
+                    maxPlayers: server.maxPlayers,
+                    id: server.id,
+                    featured: server.featured,
+                    region: server.region,
+                    gameMode: server.gameMode,
+                };
+            }));
         } break;
         case "/getTotalPlayers": {
             let countPlayers = 0;

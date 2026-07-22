@@ -63,9 +63,11 @@ global.loadServerSelector = (serverData, text) => {
                 location.hash = "#" + server.id;
                 global.locationHash = location.hash;
                 localStorage.setItem("lastServer", server.id);
-                tr.classList.add("selected"), (global.serverAdd = server.ip);
-                if (server.ip == "localhost")
-                  global.serverAdd = global.serverAdd + ":" + server.port;
+                tr.classList.add("selected");
+                global.serverAdd = server.ip;
+                if (server.ip === "localhost" && server.port) {
+                    global.serverAdd = global.serverAdd + ":" + server.port;
+                }
             };
             serversDocs.appendChild(tr);
             serverMap[server.id] = tr;

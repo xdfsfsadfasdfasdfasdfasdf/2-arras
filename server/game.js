@@ -149,9 +149,11 @@ class gameServer {
 
     // Get the game info
     getInfo(includegameManager = false) {
+        let formattedIp = this.host;
+        if (this.host === "localhost") formattedIp = `${this.host}:${this.port}`;
         return {
             hidden: this.serverProperties.hidden ?? false,
-            ip: this.host === "localhost" ? `${this.host}:${this.port}` : this.host,
+            ip: formattedIp,
             port: this.port,
             players: this.socketManager.clients.length,
             maxPlayers: this.webProperties.maxPlayers,
@@ -160,6 +162,8 @@ class gameServer {
             region: this.region,
             gameMode: this.name,
             gameManager: includegameManager ? this : false,
+            share_client_server: true,
+            loadedViaMainServer: true,
         }
     }
 
