@@ -270,6 +270,12 @@ Class.missile = {
     LABEL: "Missile",
     INDEPENDENT: true,
     BODY: { RANGE: 120 },
+    // Missiles steer toward the firing target and keep accelerating under
+    // their own thrust. Without these inherited settings, launcher variants
+    // behave exactly like ordinary bullets.
+    FACING_TYPE: "smoothToTarget",
+    MOTION_TYPE: "motor",
+    CONTROLLERS: ["alwaysFire", "mapTargetToGoal"],
     GUNS: [
         {
             POSITION: [14, 6, 1, 0, -2, 130, 0],

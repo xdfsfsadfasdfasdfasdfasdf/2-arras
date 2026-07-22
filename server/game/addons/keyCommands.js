@@ -909,32 +909,155 @@ function init() {
             }
         },
         {
-            name: "Operator access",
-            description: "Gives player operator access.",
+            name: "Promote player",
+            description: "Promote targeted player to next allowed status.",
             keys: [[["KEY_SPECIAL_PROMOTE", ";"]]],
             level: 1,
             operatorAccess: true,
-            run: ({ player }) => {
+            run: ({ socket, player }) => {
+                let ROLES = ["Player", "AC", "AS", "AO"];
+                let PERMISSION_MATRIX = {
+                    Player: { Player: false, AC: false, AS: true,  AO: true },
+                    AC:     { Player: false, AC: false, AS: true,  AO: true },
+                    AS:     { Player: false, AC: false, AS: false, AO: true },
+                    AO:     { Player: false, AC: false, AS: false, AO: true }
+                };
+
+                let actorRole = socket.status.operatorStatus || (socket.status.hasOperator ? "AO" : "Player");
+
+                let found = false;
                 selectedEntities(player, (o) => {
-                    if (o.isPlayer && o.socket) {
-                        if (o.hasOperator) {
-                            if (o.socket.permissions && o.socket.permissions.level > 1) {
-                                player.body.sendMessage("This player is already an operator!");
-                            } else {
-                                o.hasOperator = false;
-                                o.socket.talk("m", 8_000, "You are no longer an operator.");
-                                player.body.sendMessage(
-                                    "Operator access removed to " + `${o.name === "" ? "A unnamed Player" : o.name}` + "."
-                                );
-                            }
-                            return 1;
-                        }
-                        o.hasOperator = true;
-                        o.socket.status.hasOperator = true;
-                        o.socket.talk("m", 8_000, "You are now an operator.");
-                        player.body.sendMessage("Operator access given to " + `${o.name === "" ? "A unnamed Player" : o.name}` + ".");
+                    if (!o.isPlayer || !o.socket) return;
+                    found = true;
+                    let targetSocket = o.socket;
+                    let targetRole = targetSocket.status.operatorStatus || (targetSocket.status.hasOperator ? "AO" : "Player");
+
+                    if (!PERMISSION_MATRIX[targetRole]?.[actorRole]) {
+                        return socket.talk("m", 5_000, `You do not have permission to modify a ${targetRole}.`);
                     }
+
+                    let targetIdx = ROLES.indexOf(targetRole);
+                    let nextRole = null;
+                    for (let i = targetIdx + 1; i < ROLES.length; i++) {
+                        let candidate = ROLES[i];
+                        if (PERMISSION_MATRIX[candidate]?.[actorRole]) {
+                            nextRole = candidate;
+                            break;
+                        }
+                    }
+
+                    let targetName = o.name === "" ? "An unnamed player" : o.name;
+                    let actorName = player.body.name === "" ? "An unnamed player" : player.body.name;
+
+                    if (!nextRole) {
+                        return socket.talk("m", 5_000, `Cannot promote ${targetName} (${targetRole}) any further.`);
+                    }
+
+                    targetSocket.status.operatorStatus = nextRole;
+                    let hasOp = nextRole !== "Player";
+                    targetSocket.status.hasOperator = hasOp;
+                    o.hasOperator = hasOp;
+
+                    socket.talk("m", 5_000, `Promoted ${targetName} from ${targetRole} to ${nextRole}.`);
+                    targetSocket.talk("m", 5_000, `You have been promoted to ${nextRole} by ${actorName}.`);
                 });
+
+                if (!found) {
+                    socket.talk("m", 3_000, "No player selected at cursor.");
+                }
+            },
+        },
+        {
+            name: "Demote player",
+            description: "Demote targeted player to next lower allowed status.",
+            keys: [[["KEY_SPECIAL_DEMOTE", "'"]]],
+            level: 1,
+            operatorAccess: true,
+            run: ({ socket, player }) => {
+                let ROLES = ["Player", "AC", "AS", "AO"];
+                let PERMISSION_MATRIX = {
+                    Player: { Player: false, AC: false, AS: true,  AO: true },
+                    AC:     { Player: false, AC: false, AS: true,  AO: true },
+                    AS:     { Player: false, AC: false, AS: false, AO: true },
+                    AO:     { Player: false, AC: false, AS: false, AO: true }
+                };
+
+                let actorRole = socket.status.operatorStatus || (socket.status.hasOperator ? "AO" : "Player");
+
+                let found = false;
+                selectedEntities(player, (o) => {
+                    if (!o.isPlayer || !o.socket) return;
+                    found = true;
+                    let targetSocket = o.socket;
+                    let targetRole = targetSocket.status.operatorStatus || (targetSocket.status.hasOperator ? "AO" : "Player");
+
+                    if (!PERMISSION_MATRIX[targetRole]?.[actorRole]) {
+                        return socket.talk("m", 5_000, `You do not have permission to modify a ${targetRole}.`);
+                    }
+
+                    let targetIdx = ROLES.indexOf(targetRole);
+                    let nextRole = null;
+                    for (let i = targetIdx - 1; i >= 0; i--) {
+                        let candidate = ROLES[i];
+                        if (PERMISSION_MATRIX[candidate]?.[actorRole]) {
+                            nextRole = candidate;
+                            break;
+                        }
+                    }
+
+                    let targetName = o.name === "" ? "An unnamed player" : o.name;
+                    let actorName = player.body.name === "" ? "An unnamed player" : player.body.name;
+
+                    if (!nextRole) {
+                        return socket.talk("m", 5_000, `${targetName} is already at the lowest status (${targetRole}).`);
+                    }
+
+                    targetSocket.status.operatorStatus = nextRole;
+                    let hasOp = nextRole !== "Player";
+                    targetSocket.status.hasOperator = hasOp;
+                    o.hasOperator = hasOp;
+
+                    socket.talk("m", 5_000, `Demoted ${targetName} from ${targetRole} to ${nextRole}.`);
+                    targetSocket.talk("m", 5_000, `You have been demoted to ${nextRole} by ${actorName}.`);
+                });
+
+                if (!found) {
+                    socket.talk("m", 3_000, "No player selected at cursor.");
+                }
+            },
+        },
+        {
+            name: "Player list",
+            description: "Shows all non-bot players and their operator tags.",
+            keys: [[["KEY_SPECIAL_PLAYERLIST", "U"]]],
+            level: 1,
+            operatorAccess: true,
+            run: ({ socket, gameManager }) => {
+                let clients = gameManager?.socketManager?.clients || [];
+                let tagMap = {
+                    Player: "[P]",
+                    AC: "[C]",
+                    AS: "[S]",
+                    AO: "[O]"
+                };
+
+                let playerLines = [];
+                for (let s of clients) {
+                    if (s.player && s.player.body && !s.player.body.isDead() && !s.player.body.isBot) {
+                        let role = s.status.operatorStatus || (s.status.hasOperator ? "AO" : "Player");
+                        let tag = tagMap[role] || "[P]";
+                        let name = s.player.body.name === "" ? "An unnamed player" : s.player.body.name;
+                        playerLines.push(`${tag} ${name}`);
+                    }
+                }
+
+                let lines = [
+                    "Players:",
+                    ...playerLines,
+                    "",
+                    "tags: [P] player, [C] AC, [S] AS, [O] AO"
+                ];
+                socket.talk("Em", 10_000, JSON.stringify(lines));
             },
         },
         {

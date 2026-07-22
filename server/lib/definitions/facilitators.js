@@ -700,6 +700,8 @@ exports.makeTurret = (type, options = {}) => {
         } else if (options.ignoreFoods) {
             CONTROLLERS.push(["nearestDifferentMaster", { ignoreFood: true }]);
         } else CONTROLLERS.push("nearestDifferentMaster");
+    } else {
+        CONTROLLERS.push("doNothing");
     }
 
     let GUNS = type.GUNS;

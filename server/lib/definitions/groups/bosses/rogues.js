@@ -132,9 +132,9 @@ function makeRogueEgg(rogueClass, shape, label) {
         PARENT: "miniboss",
         LABEL: label,
         SHAPE: shape,
-        COLOR: "egg",
-        UPGRADE_COLOR: "egg",
-        SIZE: 30,
+        COLOR: "darkGrey",
+        UPGRADE_COLOR: "darkGrey",
+        SIZE: 12,
         VALUE: 3e5,
         BODY: {
             SPEED: 0,
@@ -145,14 +145,38 @@ function makeRogueEgg(rogueClass, shape, label) {
         },
         ON: [
             {
-                event: "dead",
+                event: "define",
                 handler: ({ body }) => {
-                    let boss = new Entity({ x: body.x, y: body.y });
-                    boss.define(rogueClass);
-                    boss.team = TEAM_ENEMIES;
-                    if (Config.fortress || Config.citadel) {
-                        boss.controllers.push(new ioTypes.siegeAI(boss, {}, global.gameManager));
-                    }
+                    body.isRogueEgg = true;
+                    body.hatched = false;
+
+                    body.hatch = () => {
+                        if (body.hatched || (typeof body.isDead === "function" && body.isDead())) return;
+                        body.hatched = true;
+                        let x = body.x;
+                        let y = body.y;
+                        body.kill();
+                        let boss = new Entity({ x, y });
+                        boss.define(rogueClass);
+                        boss.team = TEAM_BLUE;
+                        if (Config.fortress || Config.citadel) {
+                            boss.controllers.push(new ioTypes.siegeAI(boss, {}, global.gameManager));
+                        }
+                        global.gameManager.socketManager.broadcast(`A mysterious ${boss.label} has hatched!`);
+                    };
+
+                    let hatchTimeout = setTimeout(() => {
+                        if (body && (typeof body.isDead !== "function" || !body.isDead()) && !body.hatched) {
+                            body.hatch();
+                        }
+                    }, 30000);
+
+                    body.on("dead", () => {
+                        if (!body.hatched) {
+                            body.hatched = true;
+                            clearTimeout(hatchTimeout);
+                        }
+                    });
                 }
             }
         ]

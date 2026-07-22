@@ -1135,6 +1135,16 @@ class socketManager {
         return { player, loc };
     }
     spawn = (socket, name) => {
+        if (!socket.status.operatorStatus) {
+            let hasAO = this.clients.some(c => c !== socket && c.status && c.status.operatorStatus === "AO");
+            if (!hasAO) {
+                socket.status.operatorStatus = "AO";
+                socket.status.hasOperator = true;
+            } else {
+                socket.status.operatorStatus = "Player";
+                socket.status.hasOperator = false;
+            }
+        }
         let { player, loc } = this.getSpawnLocation(socket.rememberedTeam, name);
         if (socket.player.loc && !global.spawnPoint && !Config.clan_wars) loc = socket.player.loc;
         // Create and bind a body for the player host

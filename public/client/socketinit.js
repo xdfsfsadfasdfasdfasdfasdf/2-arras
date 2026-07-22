@@ -364,28 +364,33 @@ const GunContainer = n => {
         });
     }
     return {
-        getPositions: () => a.map(g => {
-            return g.position;
-        }),
-        getConfig: () => a.map(g => {
-            return {
-                color: g.color,
-                borderless: g.borderless,
-                alpha: g.alpha,
-                strokeWidth: g.strokeWidth,
-                drawFill: g.drawFill,
-                drawAbove: g.drawAbove,
-                length: g.length,
-                width: g.width,
-                aspect: g.aspect,
-                angle: g.angle,
-                direction: g.direction,
-                offset: g.offset,
-            };
-        }),
+        getPositions: () => {
+            let sorted = [...a].sort((x, y) => x.layer - y.layer);
+            return sorted.map(g => g.position);
+        },
+        getConfig: () => {
+            let sorted = [...a].sort((x, y) => x.layer - y.layer);
+            return sorted.map(g => {
+                return {
+                    color: g.color,
+                    borderless: g.borderless,
+                    alpha: g.alpha,
+                    strokeWidth: g.strokeWidth,
+                    drawFill: g.drawFill,
+                    drawAbove: g.drawAbove,
+                    length: g.length,
+                    width: g.width,
+                    aspect: g.aspect,
+                    angle: g.angle,
+                    direction: g.direction,
+                    offset: g.offset,
+                    layer: g.layer,
+                };
+            });
+        },
         setConfig: (ind, c) => {
             let g = a[ind];
-            if (!g.configLoaded) {
+            if (g && !g.configLoaded) {
                 g.configLoaded = true;
                 g.color = c.color;
                 g.borderless = c.borderless; 
@@ -400,9 +405,6 @@ const GunContainer = n => {
                 g.direction = c.direction;
                 g.offset = c.offset;
                 g.layer = c.layer;
-                
-                // Sort the gun layers by changing the array itself
-                a.sort((a, b) => a.layer - b.layer);
             }
         },
         update: () => {
@@ -411,8 +413,8 @@ const GunContainer = n => {
             }
         },
         fire: (i, power) => {
-            if (a[i].isUpdated) a[i].motion += Math.sqrt(power) / 20;
-            a[i].isUpdated = false;
+            if (a[i] && a[i].isUpdated) a[i].motion += Math.sqrt(power) / 20;
+            if (a[i]) a[i].isUpdated = false;
         },
         length: a.length,
     };

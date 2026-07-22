@@ -369,14 +369,21 @@ let commands = [
             };
             let eggClass = eggMap[target];
             if (!eggClass) {
-                return socket.talk("m", 5_000, "Usage: $egg <roguename> (e.g. p/palisade, a/armada, o/ouranous, j/julius, g/genghis, n/napoleon)");
+                if (target === "" || target === "random") {
+                    let rand = Math.random();
+                    if (rand < 0.001) eggClass = "ouranousEgg";
+                    else if (rand < 0.021) eggClass = ran.choose(["juliusEgg", "genghisEgg", "napoleonEgg"]);
+                    else eggClass = ran.choose(["roguePalisadeEgg", "rogueArmadaEgg"]);
+                } else {
+                    return socket.talk("m", 5_000, "Usage: $egg <roguename> (e.g. p/palisade, a/armada, o/ouranous, j/julius, g/genghis, n/napoleon, or random)");
+                }
             }
             let o = new Entity({
                 x: socket.player.body.x + 80 * Math.cos(socket.player.body.facing),
                 y: socket.player.body.y + 80 * Math.sin(socket.player.body.facing),
             });
             o.define(eggClass);
-            o.team = TEAM_ENEMIES;
+            o.team = TEAM_BLUE;
             socket.talk("m", 5_000, `Spawned ${o.label}!`);
         }
     },

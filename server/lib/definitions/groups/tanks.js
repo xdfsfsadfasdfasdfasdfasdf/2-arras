@@ -5467,7 +5467,7 @@ Class.worstTank = {
 };
 
 // Class Tree
-addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos', 'whirlwind']);
+addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos', 'whirlwind', 'flail', 'healer', 'single']);
     addUpgrades('basic', 2, ['smasher']);
         addUpgrades('smasher', 3, ['megaSmasher', 'spike', 'autoSmasher', 'landmine']);
         addUpgrades('healer', 3, ['medic', 'ambulance', 'surgeon', 'paramedic']);
@@ -5482,7 +5482,7 @@ addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director
 
     addUpgrades('sniper', 2, ['assassin', 'hunter', 'minigun', 'rifle', 'marksman']);
         addUpgrades('sniper', 3, ['bushwhacker']);
-        addUpgrades('assassin', 3, ['ranger', 'falcon', 'stalker', 'autoAssassin', 'single', 'deadeye']);
+        addUpgrades('assassin', 3, ['ranger', 'falcon', 'stalker', 'autoAssassin', 'deadeye']);
         addUpgrades('hunter', 3, ['predator', 'xHunter', 'poacher', 'ordnance', 'dual', 'nimrod']);
         addUpgrades('minigun', 3, ['streamliner', 'nailgun', 'cropDuster', 'barricade', 'vulture']);
         addUpgrades('rifle', 3, ['musket', 'crossbow', 'armsman', 'revolver']);
@@ -5562,7 +5562,6 @@ if (Config.retrograde) {
 };
 
 if (Config.teams == 1) {
-    addUpgrades('basic', 2, ['healer']);
     removeUpgrades('basic', 2, ['smasher']);
     removeUpgrades('director', 2, ['underseer']);
 

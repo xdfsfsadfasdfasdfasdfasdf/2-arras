@@ -120,7 +120,7 @@ class io_siegeAI extends IO {
 class io_doNothing extends IO {
     constructor(body) {
         super(body)
-        this.acceptsFromTop = false
+        this.acceptsFromTop = true
     }
     think() {
         return {
@@ -510,7 +510,7 @@ class io_nearestDifferentMaster extends IO {
         return finalTargets;
     }
     think(input) {
-        if (input.main || input.alt || this.body.master.autoOverride) {
+        if ((this.body.bond == null && input.main) || input.alt || this.body.master.autoOverride) {
             this.targetLock = undefined;
             return {};
         }
@@ -583,6 +583,12 @@ class io_nearestDifferentMaster extends IO {
                 } : undefined,
                 fire: true,
                 main: true
+            };
+        }
+        if (this.body.bond != null) {
+            return {
+                fire: false,
+                main: false,
             };
         }
         return {};

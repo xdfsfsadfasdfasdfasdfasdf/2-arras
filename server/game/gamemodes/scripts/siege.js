@@ -269,15 +269,44 @@ class Siege {
             if (!--this.remainingEnemies) {
                 global.gameManager.socketManager.broadcast(`Wave ${this.waveId + 1} has been defeated!`);
                 global.gameManager.socketManager.broadcast(`The next wave will start shortly.`);
+                this.hatchAllRogueEggs();
             }
         });
         return enemy;
+    }
+
+    rollRogueEggToSpawn() {
+        let rand = Math.random();
+        // 0.1% chance for eternal egg (ouranousEgg)
+        if (rand < 0.001) {
+            return "ouranousEgg";
+        }
+        // Rare: once every 40 to 60 waves (~2% chance) for rogue celestial eggs
+        if (rand < 0.001 + 0.02) {
+            return ran.choose(["juliusEgg", "genghisEgg", "napoleonEgg"]);
+        }
+        // Common: once every 3 to 5 waves (~25% chance) for Palisade / Armada eggs
+        if (rand < 0.001 + 0.02 + 0.25) {
+            return ran.choose(["roguePalisadeEgg", "rogueArmadaEgg"]);
+        }
+        return null;
+    }
+
+    hatchAllRogueEggs() {
+        for (let entity of entities.values()) {
+            if (entity.isRogueEgg && !entity.hatched && (typeof entity.isDead !== "function" || !entity.isDead())) {
+                entity.hatch();
+            }
+        }
     }
 
     spawnWave(waveId) {
         //yell at everyone
         global.gameManager.socketManager.broadcast(`Wave ${waveId + 1} has started!`);
         util.log(`Wave ${waveId + 1} has started!`)
+
+        // hatch any surviving rogue eggs from earlier
+        this.hatchAllRogueEggs();
 
         //spawn bosses
         for (let boss of this.waves[waveId]) {
@@ -295,6 +324,16 @@ class Siege {
             for (let i = 0; i < this.waveId / 2; i++) {
                 this.spawnEnemyWrapper(ran.choose(global.gameManager.room.spawnable["bossSpawnTile"]).randomInside(), ran.choose(this.smallFodderChoices));
             }
+        }
+
+        // Spawn rogue egg naturally
+        let rogueEggType = this.rollRogueEggToSpawn();
+        if (rogueEggType) {
+            let spot = ran.choose(global.gameManager.room.spawnable["bossSpawnTile"]).randomInside();
+            let egg = new Entity(spot);
+            egg.define(rogueEggType);
+            egg.team = TEAM_BLUE;
+            global.gameManager.socketManager.broadcast(`A mysterious ${egg.label} has appeared!`);
         }
 
         // Update sanctuary tiers
