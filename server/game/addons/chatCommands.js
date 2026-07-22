@@ -42,16 +42,12 @@ let commands = [
                 socket.key = code;
                 socket.status.verified = true;
                 if (socket.player && socket.player.body) {
-                    if (entry.class) {
-                        socket.player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                        socket.player.body.define(entry.class);
-                    }
                     if (entry.nameColor) {
                         socket.player.body.nameColor = entry.nameColor;
                         socket.talk("z", entry.nameColor);
                     }
                 }
-                socket.talk("m", 5_000, `Authenticated successfully! Perks granted for level ${entry.level} (${entry.class || "authorized"}).`);
+                socket.talk("m", 5_000, `Authenticated successfully! Perks granted for level ${entry.level}.`);
             } else {
                 socket.talk("m", 5_000, "Invalid authentication code.");
             }

@@ -149,8 +149,20 @@ class gameServer {
 
     // Get the game info
     getInfo(includegameManager = false) {
+        // Each worker owns its own port. Config.HOST may contain the main
+        // server's port (or no port at all), so derive the advertised worker
+        // endpoint from its hostname and actual listener port.
         let formattedIp = this.host;
-        if (this.host === "localhost") formattedIp = `${this.host}:${this.port}`;
+        if (this.parentPort) {
+            try {
+                const hostname = new URL(`ws://${this.host}`).hostname;
+                formattedIp = `${hostname.includes(":") ? `[${hostname}]` : hostname}:${this.port}`;
+            } catch {
+                formattedIp = `${this.host.split(":")[0]}:${this.port}`;
+            }
+        } else if (this.host === "localhost") {
+            formattedIp = `${this.host}:${this.port}`;
+        }
         return {
             hidden: this.serverProperties.hidden ?? false,
             ip: formattedIp,
@@ -162,8 +174,11 @@ class gameServer {
             region: this.region,
             gameMode: this.name,
             gameManager: includegameManager ? this : false,
-            share_client_server: true,
-            loadedViaMainServer: true,
+            // Worker-backed servers own a separate WebSocket endpoint. Marking
+            // them as main-server clients makes the selector route every entry
+            // to the first server instead.
+            share_client_server: !this.parentPort,
+            loadedViaMainServer: !this.parentPort,
         }
     }
 

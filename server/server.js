@@ -112,8 +112,18 @@ server = http.createServer((req, res) => {
             let requestHost = req.headers.host || Config.host;
             readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => {
                 let serverIp = server.ip;
-                if (server.share_client_server || server.loadedViaMainServer || server.ip.startsWith("localhost")) {
+                if (server.share_client_server || server.loadedViaMainServer) {
                     serverIp = requestHost;
+                } else if (serverIp.startsWith("localhost")) {
+                    // When the browser reaches the main server from another
+                    // machine, localhost would point back to that browser.
+                    // Keep the worker port while using the request hostname.
+                    try {
+                        let hostname = new URL(`http://${requestHost}`).hostname;
+                        serverIp = `${hostname.includes(":") ? `[${hostname}]` : hostname}:${server.port}`;
+                    } catch {
+                        serverIp = `${requestHost.split(":")[0]}:${server.port}`;
+                    }
                 }
                 return {
                     ip: serverIp,
