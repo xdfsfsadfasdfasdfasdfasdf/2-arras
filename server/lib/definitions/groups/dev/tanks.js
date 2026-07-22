@@ -1,4 +1,4 @@
-const {combineStats, LayeredBoss, makeAura, makeAuto, makeMenu, makeRadialAuto, makeTurret, weaponMirror} = require('../../facilitators.js')
+const {combineStats, LayeredBoss, makeAura, makeAuto, makeFlank, makeMenu, makeRadialAuto, makeTurret, weaponArray, weaponMirror} = require('../../facilitators.js')
 const {base, basePolygonDamage, basePolygonHealth, dfltskl, statnames} = require('../../constants.js')
 const g = require('../../gunvals.js')
 
@@ -254,12 +254,128 @@ Class.menu_dominators = makeMenu("Dominators", {upgrades: ["destroyer", "gunner"
 Class.menu_sanctuaries = makeMenu("Sanctuaries", {upgrades: ["1", "2", "3", "4", "5", "6"].map(x => "sanctuaryTier" + x), props: [{TYPE: "dominationBody", POSITION: {SIZE: 22}}, {TYPE: "healerHat", POSITION:  {SIZE: 13, LAYER: 1}}]})
 
 Class.menu_motherships = makeMenu("Motherships", {upgrades: ["mothership", "flagship", "turkey"], shape: 16, tooltip: "Giant Enemy Tanks that you attack the weak points of for massive damage."})
+Class.quadCyclone = makeFlank("cyclone", 4, "Quad Cyclone")
+Class.beeman = {
+    PARENT: "genericTank",
+    LABEL: "Beeman",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: {
+        SPEED: base.SPEED * 0.9,
+        FOV: base.FOV * 1.1,
+    },
+    GUNS: weaponArray({
+        POSITION: [6, 12, 1.2, 8, 0, 0, 0],
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.drone, g.swarm, { reload: 0.5 }]),
+            TYPE: "swarm",
+            AUTOFIRE: true,
+            SYNCS_SKILLS: true,
+            STAT_CALCULATOR: "swarm",
+        }
+    }, 6)
+}
+Class.theAmalgamation = {
+    PARENT: "genericTank",
+    LABEL: "The Amalgamation",
+    DANGER: 10,
+    SIZE: 30,
+    BODY: {
+        SPEED: base.SPEED * 0.6,
+        HEALTH: 500,
+    },
+    GUNS: [
+        ...weaponArray({
+            POSITION: [18, 8, 1, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer]),
+                TYPE: "bullet"
+            }
+        }, 5),
+        ...weaponArray({
+            POSITION: [14, 6, 1, 0, 0, 36, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner]),
+                TYPE: "bullet"
+            }
+        }, 5)
+    ],
+    TURRETS: [
+        {
+            POSITION: [12, 0, 0, 0, 360, 1],
+            TYPE: "autoTankGun"
+        }
+    ]
+}
+Class.theConglomerate = {
+    PARENT: "genericTank",
+    LABEL: "The Conglomerate",
+    DANGER: 10,
+    SIZE: 25,
+    TURRETS: weaponArray({
+        POSITION: [9, 8, 0, 0, 360, 1],
+        TYPE: "autoTankGun"
+    }, 8)
+}
+Class.schoolShooter = {
+    PARENT: "genericTank",
+    LABEL: "School Shooter",
+    DANGER: 8,
+    BODY: {
+        SPEED: base.SPEED * 1.5,
+    },
+    GUNS: [
+        {
+            POSITION: [18, 10, 1, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, { reload: 0.3, speed: 1.5 }]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+}
+Class.average4tdmScore = {
+    PARENT: "genericTank",
+    LABEL: "Average 4TDM Score",
+    DANGER: 1,
+    BODY: {
+        SPEED: base.SPEED * 0.1,
+    },
+    GUNS: [
+        {
+            POSITION: [18, 8, 1, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, { reload: 5, damage: 0.1 }]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+}
+Class.averageL39Hunt = {
+    PARENT: "genericTank",
+    LABEL: "Average L-39 Hunt",
+    DANGER: 7,
+    BODY: {
+        SPEED: base.SPEED * 2,
+        FOV: base.FOV * 2,
+    },
+    GUNS: [
+        {
+            POSITION: [24, 8, 1, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, { reload: 0.5, speed: 2 }]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+}
+
 Class.menu_fun = makeMenu("Fun", {upgrades: [
     "alas",
     "arrasPolice",
-    //"average4tdmScore",
-    //"averageL39Hunt",
-    //"beeman",
+    "average4tdmScore",
+    "averageL39Hunt",
+    "beeman",
     "bigBalls",
     "cxATMG",
     "damoclone",
@@ -269,16 +385,17 @@ Class.menu_fun = makeMenu("Fun", {upgrades: [
     "meDoingYourMom",
     "meOnMyWayToDoYourMom",
     "protector",
-    //"quadCyclone",
+    "quadCyclone",
     "riptide",
-    //"schoolShooter",
+    "schoolShooter",
     "smasher3",
     "tetraGunner",
-    //"theAmalgamation",
-    //"theConglomerate",
+    "theAmalgamation",
+    "theConglomerate",
     "tracker3",
     "wifeBeater",
     "worstTank",
 ], tooltip: "Tanks that, let's be honest, aren't used for a good reason.\n" + "DISCLAIMER: Some of the content in here may be in poor taste. Blame the arras.io devs, not us."})
 Class.menu_bosses = makeMenu("Bosses", {upgrades: ["sentries", "elites", "mysticals", "nesters", "rogues", "rammers", "terrestrials", "celestials", "eternals", "devBosses"].map(x => "menu_" + x), rerootTree: "menu_bosses"})
 Class.menu_addons = makeMenu("Addons", {tooltip: "Content that is (usually) not part of Open Source Arras but was added by someone else."})
+

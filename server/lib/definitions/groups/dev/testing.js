@@ -1674,19 +1674,75 @@ Class.genericDigDig = {
 }
 Class.digDigSmile = {
     PARENT: "genericDigDig",
-    PROPS: []
+    LABEL: "Digger (Smile)",
+    PROPS: [
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 3.5, X: 5, Y: 7, LAYER: 1 }
+        },
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 3.5, X: 5, Y: -7, LAYER: 1 }
+        },
+        {
+            TYPE: ["digDigSmileMouth", { COLOR: "black" }],
+            POSITION: { SIZE: 8, X: 4, Y: 0, LAYER: 1 }
+        }
+    ]
 }
 Class.digDigSmile_kirk = {
     PARENT: "genericDigDig",
-    PROPS: []
+    LABEL: "Digger (Kirk Smile)",
+    PROPS: [
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 1.5, X: 2, Y: 2.5, LAYER: 1 }
+        },
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 1.5, X: 2, Y: -2.5, LAYER: 1 }
+        },
+        {
+            TYPE: ["digDigSmileMouth", { COLOR: "black" }],
+            POSITION: { SIZE: 3.5, X: 1.5, Y: 0, LAYER: 1 }
+        }
+    ]
 }
 Class.digDigFrown = {
     PARENT: "genericDigDig",
-    PROPS: []
+    LABEL: "Digger (Frown)",
+    PROPS: [
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 3.5, X: 5, Y: 7, LAYER: 1 }
+        },
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 3.5, X: 5, Y: -7, LAYER: 1 }
+        },
+        {
+            TYPE: ["digDigFrownMouth", { COLOR: "black" }],
+            POSITION: { SIZE: 8, X: 4, Y: 0, LAYER: 1 }
+        }
+    ]
 }
 Class.digDigFrown_kirk = {
     PARENT: "genericDigDig",
-    PROPS: []
+    LABEL: "Digger (Kirk Frown)",
+    PROPS: [
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 1.5, X: 2, Y: 2.5, LAYER: 1 }
+        },
+        {
+            TYPE: ["circleHat", { COLOR: "black" }],
+            POSITION: { SIZE: 1.5, X: 2, Y: -2.5, LAYER: 1 }
+        },
+        {
+            TYPE: ["digDigFrownMouth", { COLOR: "black" }],
+            POSITION: { SIZE: 3.5, X: 1.5, Y: 0, LAYER: 1 }
+        }
+    ]
 }
 
 global.convertExportsToClass(exports);

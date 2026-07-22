@@ -77,6 +77,9 @@ h1 {
 	margin: 0;
 	text-align: center;
 	font: bold 40px/1.5 Ubuntu;
+	background: linear-gradient(135deg, #9966ff 0%, #66ebff 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 }
 
 body.mobile .icon {
@@ -143,7 +146,7 @@ h3 {
 }
 
 .horizontalSelector span.active {
-	background: #8abc3f;
+	background: #9966ff;
 	color: #ffffff;
 	border-radius: 5px;
 	cursor: default;
@@ -183,7 +186,7 @@ body.mobile .serverSelector {
 }
 
 .serverSelector tr.selected {
-	color: #8abc3f;
+	color: #9966ff;
 	cursor: default;
 }
 
@@ -474,7 +477,7 @@ body.mobile .startMenuHolder.changelogHolder {
 }
 
 .menuTab.achieve {
-	background: #8abc3f;
+	background: #9966ff;
 }
 
 .menuTab>a {
@@ -785,25 +788,27 @@ body.mobile .startMenuSlidingContent {
 	color: white;
 	text-align: center;
 	text-shadow: 0 0 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.2);
-	background: #A9D86D;
+	background: linear-gradient(135deg, #9966ff 0%, #66ebff 100%);
 	border: 0;
-	border-bottom: 2px solid #8abc3f;
+	border-bottom: 2px solid #7a46e0;
 	cursor: pointer;
-	box-shadow: inset 0 -2px #8abc3f;
+	box-shadow: inset 0 -2px #7a46e0;
 	border-radius: 5px;
-	font: 16px Ubuntu;
+	font: bold 17px Ubuntu;
+	transition: all 0.2s ease;
 }
 
 #startButton:hover {
 	margin-top: 2px;
 	height: 38px;
-	border-bottom: 0px solid #8abc3f;
+	border-bottom: 0px solid #7a46e0;
+	filter: brightness(1.1);
 }
 
 #startButton:active {
 	margin-top: 2px;
 	height: 38px;
-	background: #8abc3f;
+	background: #7a46e0;
 	border-bottom: 0px;
 	outline: none;
 	box-shadow: none;
@@ -1045,20 +1050,20 @@ body.mobile .startMenuSlidingContent {
 
 .container input:checked~.checkmark,
 .container input:checked~.radio {
-	background-color: #8abc3f;
-	border: 1px solid #8abc3f;
+	background-color: #9966ff;
+	border: 1px solid #9966ff;
 }
 
 .container:hover input:checked~.checkmark,
 .container:hover input:checked~.radio {
-	background-color: #7FA843;
-	border: 1px solid #7FA843;
+	background-color: #7a46e0;
+	border: 1px solid #7a46e0;
 }
 
 .container input:disabled:checked~.checkmark,
 .container input:disabled:checked~.radio {
-	background-color: #7FA843;
-	border: 1px solid #7FA843;
+	background-color: #7a46e0;
+	border: 1px solid #7a46e0;
 }
 
 .container .checkmark:after {

@@ -207,7 +207,7 @@ import * as socketStuff from "./socketinit.js";
                 global.version = ve.ver;
                 if (ve.dev_build) {
                     global.dev_build = true;
-                    global.createTabMenu(`This server is running a development build of Open Source Arras. Please report any issues you encounter! (${global.version})`, "warning");
+                    global.createTabMenu(`This server is running a development build of 2-arras. Please report any issues you encounter! (${global.version})`, "warning");
                 }
                 // Addon info handler
                 let keyValue = localStorage.getItem('playerKeyInputValue');
@@ -300,7 +300,7 @@ import * as socketStuff from "./socketinit.js";
         // OSA info
         let i_div = document.createElement("div");
         i_div.classList.add("optionsHeader");
-        i_div.textContent = `Open Source Arras ${global.version}` + `${global.dev_build ? " (dev build)" : ""}`;
+        i_div.textContent = `2-arras ${global.version}` + `${global.dev_build ? " (dev build)" : ""}`;
         mainDoc.appendChild(i_div);
 
         // Addon stuff
@@ -344,7 +344,7 @@ import * as socketStuff from "./socketinit.js";
                 authorValue.textContent += `${i !== 0 ? ", " : ""}${auth}`;
             }
             author.appendChild(authorValue);
-            targetVer.textContent = `Made for Open Source Arras ${e["osa-version"].target}`;
+            targetVer.textContent = `Made for 2-arras ${e["osa-version"].target}`;
 
             divDoc.appendChild(name);
             divDoc.appendChild(author);
@@ -3522,7 +3522,7 @@ import * as socketStuff from "./socketinit.js";
         let ping = global.metrics.latency.reduce((b, a) => b + a, 1) / global.metrics.latency.length - 1;
         let xloc = global.player.renderx / 30;
         let yloc = global.player.rendery / 30;
-        let watermarkText = "Open Source Arras";
+        let watermarkText = "2-arras";
         let versionLength = (measureText(global.version ?? "v?", 32)) / 2;
         let length = Math.max(measureText(watermarkText, 32)) / 16;
         let gradientTransition = global.showDebug ? 4.1 : 2;
