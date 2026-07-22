@@ -1,24 +1,26 @@
+const defaultPort = parseInt(process.env.PORT, 10) || 3000;
+
 module.exports = {
     // Development
     dev_build: true, // Whether this version is unstable and should be clearly marked as such.
 
     // Client
     main_menu: 'index.html', // Where the main menu is located (in the /public folder).
-    host: 'localhost:5432', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
-    port: 5432, // Which port to run the web server on.
+    host: process.env.HOST || `localhost:${defaultPort}`, // Game server domain.
+    port: defaultPort, // Which port to run the web server on (will auto-fallback if busy).
 
     // Server
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     startup_logs: true, // Enable startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
 
-    servers: [ // Single-port server configuration for port 5432
+    servers: [ // Single-port server configuration with dynamic port support
         {
             share_client_server: true, // Only one server at a time can have this enabled.
-            // Required for single-port environments where all HTTP and WebSocket traffic flows through port 5432.
+            // Required for single-port environments where all HTTP and WebSocket traffic flows through the main server port.
 
-            host: 'localhost:5432', // Server host location.
-            port: 5432, // The port on the server.
+            host: process.env.HOST || `localhost:${defaultPort}`, // Server host location.
+            port: defaultPort, // The port on the server.
             id: 'la', // (<host>/#<id>)
 
             region: "Local", // The region the server is on.

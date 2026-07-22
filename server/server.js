@@ -295,22 +295,53 @@ global.onServerLoaded = () => {
     }
 };
 
-// Start the HTTP Server & Load Game Servers
-server.listen(Config.port, () => {
-    Config.servers.forEach(server => {
+// Start the HTTP Server & Load Game Servers with dynamic port selection
+let currentAttemptPort = parseInt(process.env.PORT, 10) || Config.port || 3000;
+
+function tryListen(portToTry) {
+    server.listen(portToTry);
+}
+
+server.on("listening", () => {
+    const boundPort = server.address().port;
+    Config.port = boundPort;
+    let hostDomain = (Config.host && Config.host.split(":")[0]) || "localhost";
+    Config.host = `${hostDomain}:${boundPort}`;
+
+    Config.servers.forEach(s => {
+        if (s.share_client_server) {
+            s.port = boundPort;
+            let sDomain = (s.host && s.host.split(":")[0]) || "localhost";
+            s.host = `${sDomain}:${boundPort}`;
+        }
         // Load all of the servers.
         loadGameServer(
-            server.share_client_server,
-            server.host,
-            server.port,
-            server.gamemode,
-            server.region,
-            { id: server.id, maxPlayers: server.player_cap },
-            server.properties,
-            server.featured
+            s.share_client_server,
+            s.host,
+            s.port,
+            s.gamemode,
+            s.region,
+            { id: s.id, maxPlayers: s.player_cap },
+            s.properties,
+            s.featured
         );
-    })
+    });
 });
+
+server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+        console.warn(`Port ${currentAttemptPort} is in use. Trying port ${currentAttemptPort + 1}...`);
+        currentAttemptPort++;
+        setTimeout(() => {
+            tryListen(currentAttemptPort);
+        }, 100);
+    } else {
+        console.error("Server failed to start:", err);
+        process.exit(1);
+    }
+});
+
+tryListen(currentAttemptPort);
 
 // Upgrade HTTP connections to WebSocket connections if applicable
 server.on("upgrade", (req, socket, head) => {
