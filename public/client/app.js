@@ -3716,7 +3716,7 @@ import * as socketStuff from "./socketinit.js";
             let height = len;
 
             // Animation processing
-            global.columnCount = Math.max(global.mobile ? 9 : 3, Math.floor(gui.upgrades.length ** 0.55));
+            global.columnCount = global.mobile ? 11 : 5;
             if (!global.canUpgrade) {
                 upgradeMenu.force(-global.columnCount * 3)
                 global.canUpgrade = true;
@@ -3949,7 +3949,7 @@ import * as socketStuff from "./socketinit.js";
 
         // Sizing variables
         let clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
-        let upgradeColumns = Math.ceil(gui.upgrades.length / 9);
+        let upgradeColumns = Math.ceil(gui.upgrades.length / (global.columnCount || (global.mobile ? 11 : 5)));
         let yOffset = 0;
         if (global.mobile) {
             yOffset += global.canUpgrade ? (alcoveSize / 1.5) * mobileUpgradeGlide.get() * upgradeColumns / 1.5 + spacing * (upgradeColumns + 1.55) - 17.5 : 0;
@@ -3970,8 +3970,8 @@ import * as socketStuff from "./socketinit.js";
             if (activePrefix === "KEY_SPECIAL_SKILL") statusText = "DEV: Skill (Press 2nd key: M=Max, R=Reset, C=Clear, D=-1, F=+1)";
             else if (activePrefix === "KEY_SPECIAL_ATTRIBUTE") statusText = "DEV: Attribute (Press 2nd key: C=Reload, R=Recoil, W=Walls, etc)";
             
-            let devKeyWidth = Math.max(22, (global.screenWidth / clickableRatio - spacing * 14) / 12 * 0.45);
-            let devKeyHeight = devKeyWidth * 0.9;
+            let devKeyWidth = Math.max(14, (global.screenWidth / clickableRatio - spacing * 14) / 12 * 0.28);
+            let devKeyHeight = devKeyWidth * 0.8;
             let devStartX = spacing + alcoveSize + spacing;
             let devStartY = yOffset + spacing;
 
@@ -4008,7 +4008,7 @@ import * as socketStuff from "./socketinit.js";
             } else {
                 // 4 wide 3 tall grid
                 let grid = [
-                    [["-", 1, 1, 0], [`Alt ${global.clickables.mobileButtons.altFire ? "Man" : "Dis"}`, 1, 1, 1], ["Dev", 1, 1, 2], ["Chat", 1, 1, 3]],
+                    [["Full", 1, 1, 0], [`Alt ${global.clickables.mobileButtons.altFire ? "Man" : "Dis"}`, 1, 1, 1], ["Dev", 1, 1, 2], ["Chat", 1, 1, 3]],
                     [["E", 1, 1, 4], ["V", 1, 1, 5], ["O", 1, 1, 6], ["T", 1, 1, 7]],
                     [["C", 1, 1, 8], ["R", 1, 1, 9], ["N", 1, 1, 10], ["F", 1, 1, 11]]
                 ];

@@ -1008,7 +1008,17 @@ class Canvas {
                         // Standard 4 wide 3 tall Action grid buttons
                         switch (buttonIndex) {
                             case 0:
-                                global.clickables.mobileButtons.active = !global.clickables.mobileButtons.active;
+                                if (!global.clickables.mobileButtons.active) {
+                                    global.clickables.mobileButtons.active = true;
+                                } else {
+                                    if (!document.fullscreenElement) {
+                                        if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+                                        else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+                                    } else {
+                                        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+                                        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                                    }
+                                }
                                 break;
                             case 1:
                                 global.clickables.mobileButtons.altFire = !global.clickables.mobileButtons.altFire;

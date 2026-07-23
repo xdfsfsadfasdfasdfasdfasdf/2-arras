@@ -206,11 +206,7 @@ Class.banHammer = {
 }
 
 // Tank Menu(s)
-if (Config.siege) {
-    unavailable_tanks = ['smasher', 'underseer']
-} else {
-    unavailable_tanks = ['healer']
-}
+unavailable_tanks = ['smasher', 'underseer', 'healer']
 Class.menu_tanks = makeMenu("Tanks", {upgrades: [Config.spawn_class, "menu_unused", "menu_dailyTanks", "menu_mapEntities", "menu_motherships", "menu_fun", "arenaCloser", ...unavailable_tanks]})
 
 Class.menu_unused = makeMenu("Unused", {upgrades: ["1", "2", "3"].map(x => "menu_unused_T" + x), tooltip: "Tanks that were fully created and likely intended to be added, but never were."})

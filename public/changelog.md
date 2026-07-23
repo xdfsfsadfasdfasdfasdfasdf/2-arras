@@ -1,13 +1,13 @@
 # Update [2026-07-23]
-- Fixed chat not working on mobile: virtual keyboard Enter key is now correctly detected, autocorrect/autocapitalize disabled on chat input
-- Added a **Send** button that appears below the chat box on mobile so messages can be submitted by tap
-- Fixed bug where chat dismiss code referenced the container div instead of the input element
-- Fixed class tree on mobile: tapping **✕ (close)**, **+ (zoom in)**, and **− (zoom out)** buttons now works via touch
-- Fixed class tree drag on mobile: touching and dragging the tree now pans it with momentum (same as mouse)
-- Added native search overlay for the class tree on mobile: tapping the search bar opens a proper text input field
-- Added automated tank tier system: tiers are computed from branching depth (Tier 4 = leaf, Tier 3 branches to Tier 4, Tier 2 to Tier 3, Tier 1 to Tier 2)
-- Class tree now orders tanks by tier left-to-right (lower tier = more branching potential = appears first)
-- Upgrade buttons now ordered by tier: Tier 1 upgrades appear before Tier 2, Tier 3, and Tier 4
+- <b>Tank restrictions</b>: Removed gamemode tank restrictions (e.g. Smasher, Underseer, and Prophet are no longer blocked in Siege mode)
+- <b>Basic branching</b>: Added direct branches from Basic to <b>Single</b>, <b>Flail</b>, and <b>Healer</b>
+- <b>Mobile layout</b>: Updated tank upgrade grid columns to 11 on mobile and 5 on PC
+- <b>Mobile control grid</b>: Replaced "-" button in expanded control grid with <b>Full</b> button to toggle native fullscreen mode
+- <b>Mobile dev keyboard</b>: Reduced size and padding of mobile sandbox dev keyboard buttons for a more compact layout
+- <b>Mobile chat</b>: Fixed virtual keyboard Enter key detection, autocorrect/autocapitalize disabled on chat input
+- <b>Mobile chat</b>: Added purple <b>Send</b> button UI on mobile devices for touch submission without physical keyboards
+- <b>Mobile class tree</b>: Fixed Close (✕), Zoom (+ / −), touch drag panning, and native search overlay for mobile screens
+- <b>Tier system</b>: Automated tank tier ordering for class tree layout and upgrade menu buttons
 
 # Update [2026-07-22]
 - Fixed decorative barrels/trapezoids on tanks like Assassin and Single incorrectly triggering recoil/shooting animations
