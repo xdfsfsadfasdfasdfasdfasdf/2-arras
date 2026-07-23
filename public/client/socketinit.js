@@ -709,9 +709,11 @@ const convert = {
         }
         if (indices.upgrades) {
             gui.upgrades = [];
+            gui.sortedUpgrades = null;
             for (let i = 0, len = get.next(); i < len; i++) {
                 gui.upgrades.push(get.next().split("_"));
                 gui.upgrades[i][2] = util.requestEntityImage(gui.upgrades[i][2], gui.color);
+                gui.upgrades[i][3] = i;
             }
         }
         if (indices.statsdata) {

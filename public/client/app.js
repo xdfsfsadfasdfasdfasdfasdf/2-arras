@@ -26,13 +26,16 @@ import * as socketStuff from "./socketinit.js";
     });
 
     global.clearUpgrades = (clearNow = false) => {
-        if (clearNow) gui.upgrades = [];
-        else {
+        if (clearNow) {
+            gui.upgrades = [];
+            gui.sortedUpgrades = null;
+        } else {
             global.pullUpgradeMenu = true;
             let loop = setInterval(() => {
                 if (upgradeMenu.get() < (-global.columnCount * 3) * 0.9999) {
                     global.pullUpgradeMenu = false;
                     gui.upgrades = [];
+                    gui.sortedUpgrades = null;
                     clearInterval(loop);
                 }
             }, 10)
@@ -1325,31 +1328,34 @@ import * as socketStuff from "./socketinit.js";
 
 
     // --- Automated tier computation ---
-    // Tier 4: leaf (no further upgrades)
-    // Tier 3: branches to ≥1 Tier 4
-    // Tier 2: branches to ≥1 Tier 3
-    // Tier 1: branches to ≥1 Tier 2
-    // Lower tier number = more branching potential = appears first/left
+    // Tier 0: leaf nodes (no further upgrades)
+    // Tier 1: tanks that only branch into Tier 0s
+    // Tier 2: if tank branches to at least one Tier 1
+    // Tier 3: if tank branches to at least one Tier 2
+    // and so on (myTier = 1 + max child tier)
+    // Higher tier numbers appear to the left in class tree & first in upgrade HUD
     const tierCache = new Map();
-    function computeTankTier(index) {
+    function computeTankTier(index, visited = new Set()) {
         const idx = parseInt(index);
+        if (isNaN(idx)) return 0;
         if (tierCache.has(idx)) return tierCache.get(idx);
         const mockup = global.mockups[idx];
-        if (!mockup) { tierCache.set(idx, 4); return 4; }
-        // To avoid infinite cycles (circular upgrade references), mark as in-progress
-        tierCache.set(idx, 4); // optimistic default while recursing
+        if (!mockup) return 0; // Return 0 without caching if mockup is not yet loaded
         if (!mockup.upgrades || mockup.upgrades.length === 0) {
-            tierCache.set(idx, 4);
-            return 4;
+            tierCache.set(idx, 0);
+            return 0;
         }
-        // Find the minimum tier among all direct upgrades
-        let minChildTier = 4;
+        if (visited.has(idx)) {
+            return 0; // Return 0 on cycle detection
+        }
+        visited.add(idx);
+        let maxChildTier = 0;
         for (let upg of mockup.upgrades) {
-            const childTier = computeTankTier(upg.index);
-            if (childTier < minChildTier) minChildTier = childTier;
+            const childTier = computeTankTier(upg.index, visited);
+            if (childTier > maxChildTier) maxChildTier = childTier;
         }
-        // This tank's tier is one less than its best child's tier (clamped to 1)
-        const myTier = Math.max(1, minChildTier - 1);
+        visited.delete(idx);
+        const myTier = maxChildTier + 1;
         tierCache.set(idx, myTier);
         return myTier;
     }
@@ -1370,15 +1376,15 @@ import * as socketStuff from "./socketinit.js";
                 noUpgrades = [];
             for (let i = 0; i < upgrades.length; i++) {
                 let upgrade = upgrades[i];
-                if (global.mockups[upgrade.index].upgrades.length) {
+                if (global.mockups[upgrade.index]?.upgrades?.length) {
                     hasUpgrades.push(upgrade);
                 } else {
                     noUpgrades.push(upgrade);
                 }
             }
-            // Sort by automated tier: lower tier (more branching) appears first/left
-            hasUpgrades.sort((a, b) => computeTankTier(a.index) - computeTankTier(b.index));
-            noUpgrades.sort((a, b) => computeTankTier(a.index) - computeTankTier(b.index));
+            // Sort by automated tier: higher tier appears first/left
+            hasUpgrades.sort((a, b) => computeTankTier(b.index) - computeTankTier(a.index));
+            noUpgrades.sort((a, b) => computeTankTier(b.index) - computeTankTier(a.index));
             for (let i = 0; i < hasUpgrades.length; i++) {
                 let upgrade = hasUpgrades[i],
                     spacing = 2 * Math.max(1, upgrade.tier - tier),
@@ -3729,13 +3735,13 @@ import * as socketStuff from "./socketinit.js";
             upgradeSpin = Date.now() * 0.0005;
             upgradeSpin = upgradeSpin - (Math.floor(upgradeSpin / Math.PI / 2) * Math.PI * 2);
 
-            // Sort upgrades by automated tier (lower tier = more branching potential = appears first)
+            // Sort upgrades by automated tier (higher tier appears first)
             const sortedUpgrades = [...gui.upgrades].sort((a, b) => {
                 const mockupA = a[2]; // requestEntityImage result
                 const mockupB = b[2];
-                const tierA = (mockupA && mockupA.index != null) ? computeTankTier(mockupA.index) : 4;
-                const tierB = (mockupB && mockupB.index != null) ? computeTankTier(mockupB.index) : 4;
-                return tierA - tierB;
+                const tierA = (mockupA && mockupA.index != null) ? computeTankTier(mockupA.index) : 0;
+                const tierB = (mockupB && mockupB.index != null) ? computeTankTier(mockupB.index) : 0;
+                return tierB - tierA;
             });
             // Expose sorted order so canvas.js click/key handlers can resolve visual index -> server branch id
             gui.sortedUpgrades = sortedUpgrades;

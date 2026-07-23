@@ -26,6 +26,7 @@ Class.rogueEternal = {
     PARENT: "eternal",
     LABEL: "Rogue Eternal",
     COLOR: "darkGrey",
+    CONTROLLERS: ["nearestDifferentMaster", ["minion", {orbit: 240}], "followTopPlayer"],
 }
 
 Class.menu_eternals = makeMenu("Eternals", {upgrades: [

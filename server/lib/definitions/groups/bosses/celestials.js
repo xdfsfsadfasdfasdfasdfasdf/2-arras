@@ -32,6 +32,7 @@ Class.rogueCelestial = {
     PARENT: "celestial",
     LABEL: "Rogue Celestial",
     COLOR: "darkGrey",
+    CONTROLLERS: ["nearestDifferentMaster", ["minion", {turnwiserange: 360}], "followTopPlayer"],
 }
 
 Class.menu_celestials = makeMenu("Celestials", {upgrades: [

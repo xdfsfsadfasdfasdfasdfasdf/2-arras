@@ -368,7 +368,10 @@ class Canvas {
             if (global.canUpgrade) {
                 const i = upgradeMap[event.code];
                 const upgList = gui.sortedUpgrades || gui.upgrades;
-                if (i !== undefined && upgList[i]) this.socket.talk('U', i, parseInt(upgList[i][0]));
+                if (i !== undefined && upgList[i]) {
+                    const originalIndex = upgList[i][3] !== undefined ? upgList[i][3] : i;
+                    this.socket.talk('U', originalIndex, parseInt(upgList[i][0]));
+                }
             }
         }
     }
@@ -641,7 +644,8 @@ class Canvas {
                 } else 
                 if (upgradeIndex !== -1 && upgradeIndex < (gui.sortedUpgrades || gui.upgrades).length && !global.dailyTankAd.renderUI) {
                     const upgList = gui.sortedUpgrades || gui.upgrades;
-                    this.socket.talk('U', upgradeIndex, parseInt(upgList[upgradeIndex][0]));
+                    const originalIndex = upgList[upgradeIndex][3] !== undefined ? upgList[upgradeIndex][3] : upgradeIndex;
+                    this.socket.talk('U', originalIndex, parseInt(upgList[upgradeIndex][0]));
                 }
                 else if (dailyTankUpgrade == true && !global.dailyTankAd.renderUI) {
                     this.socket.talk('U', JSON.stringify([{isDailyUpgrade: true, tank: gui.dailyTank.tank}]), "null");
@@ -1078,7 +1082,8 @@ class Canvas {
                         let upgradeIndex = global.clickables.upgrade.check(mpos);
                         if (upgradeIndex !== -1) {
                             const upgList = gui.sortedUpgrades || gui.upgrades;
-                            this.socket.talk("U", upgradeIndex, parseInt(upgList[upgradeIndex][0]));
+                            const originalIndex = upgList[upgradeIndex][3] !== undefined ? upgList[upgradeIndex][3] : upgradeIndex;
+                            this.socket.talk("U", originalIndex, parseInt(upgList[upgradeIndex][0]));
                         }
                         else {
                             let onLeft = mpos.x < this.cv.width / 2;

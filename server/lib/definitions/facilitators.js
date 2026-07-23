@@ -1501,28 +1501,45 @@ exports.makePolychoron = function (info) {
 
 // tgs
 exports.addUpgrades = (type, tier, upgrades = [], options = {}) => {
-    name = ensureIsClass(type)
-    upgradeList = upgrades.map(x => x + (options.suffix ??= ''))
-    startValue = options.start ?? -1
+    const target = ensureIsClass(type);
+    if (typeof tier !== 'number') {
+        options = upgrades || {};
+        upgrades = tier || [];
+        const existingKey = Object.keys(target).find(k => k.startsWith('UPGRADES_TIER_') && Array.isArray(target[k]));
+        tier = existingKey ? parseInt(existingKey.replace('UPGRADES_TIER_', '')) : 3;
+    }
+    const upgradeList = upgrades.map(x => x + (options.suffix ?? ''));
+    const startValue = options.start ?? -1;
 
-    if (name[`UPGRADES_TIER_${tier}`] == undefined) {
-        return name[`UPGRADES_TIER_${tier}`] = upgradeList
+    if (target[`UPGRADES_TIER_${tier}`] == undefined) {
+        return (target[`UPGRADES_TIER_${tier}`] = upgradeList);
     }
     if (startValue !== -1) {
-        return name[`UPGRADES_TIER_${tier}`].splice(startValue, 0, ...upgradeList)
+        return target[`UPGRADES_TIER_${tier}`].splice(startValue, 0, ...upgradeList);
     }
-    name[`UPGRADES_TIER_${tier}`].push(...upgradeList)
-}
+    target[`UPGRADES_TIER_${tier}`].push(...upgradeList);
+};
 exports.removeUpgrades = (type, tier, upgrades = []) => {
-    typeUpgrades = Class[type][`UPGRADES_TIER_${tier}`]
+    let target;
+    if (typeof tier !== 'number') {
+        upgrades = tier || [];
+        target = ensureIsClass(type);
+        const existingKey = target ? Object.keys(target).find(k => k.startsWith('UPGRADES_TIER_') && Array.isArray(target[k])) : null;
+        tier = existingKey ? parseInt(existingKey.replace('UPGRADES_TIER_', '')) : 3;
+    } else {
+        target = ensureIsClass(type);
+    }
+    const typeUpgrades = target ? target[`UPGRADES_TIER_${tier}`] : undefined;
     if (typeUpgrades == undefined) return;
     for (let i = typeUpgrades.length - 1; i >= 0; i--) {
-        let string = typeUpgrades[i];
-        for (const upgrade of upgrades) if (string === upgrade) {
-            typeUpgrades.splice(i, 1)
+        const string = typeUpgrades[i];
+        for (const upgrade of upgrades) {
+            if (string === upgrade) {
+                typeUpgrades.splice(i, 1);
+            }
         }
     }
-}
+};
 
 exports.makeSnake = (type, count = 2, name = -1, options = {}) => {
     type = ensureIsClass(type);

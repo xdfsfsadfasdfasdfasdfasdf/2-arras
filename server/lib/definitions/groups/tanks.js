@@ -1590,35 +1590,10 @@ Class.bigCheese = {
         }
     ]
 };
-Class.biggerCheese = {
-    PARENT: 'genericTank',
-    LABEL: "Bigger Cheese",
-    DANGER: 7,
-    STAT_NAMES: statnames.drone,
-    BODY: Class.director.BODY,
-    GUNS: [
-        {
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 21,
-                ASPECT: 1.3,
-                X: 2
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.bigCheese]),
-                TYPE: 'drone',
-                AUTOFIRE: true,
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: 'drone',
-                MAX_CHILDREN: 1,
-                WAIT_TO_CYCLE: true
-            }
-        }
-    ]
-};
+
 Class.bigMama = {
     PARENT: 'genericFlail',
-    LABEL: "BIG MAMA",
+    LABEL: "Wreck",
     DANGER: 7,
     TURRETS: [{
         POSITION: [6, 10, 0, 0, 190, 0],
@@ -1627,6 +1602,7 @@ Class.bigMama = {
         }]
     }]
 };
+
 Class.blizzard = makeWhirlwind('genericTank', { dualLayer: true, hat: "pentagonHat_spin", hat2: "pentagonHat_spinReverse", satellites: 5, label: "Blizzard", danger: 7 });
 Class.blower = makeGunner('destroyer', "Blower", { rear: true });
 Class.blunderbuss = {
@@ -2985,7 +2961,7 @@ Class.infestor = {
 };
 Class.itHurtsDontTouchIt = {
     PARENT: 'genericFlail',
-    LABEL: "It hurts dont touch it",
+    LABEL: "Bulldozer",
     DANGER: 7,
     TURRETS: [{
         POSITION: [6, 10, 0, 0, 190, 0],
@@ -5495,99 +5471,91 @@ Class.worstTank = {
 };
 
 // Class Tree
-addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos', 'flail', 'healer', 'single']);
-addUpgrades('basic', 2, ['smasher']);
-addUpgrades('smasher', 3, ['megaSmasher', 'spike', 'autoSmasher', 'landmine']);
-addUpgrades('healer', 3, ['medic', 'ambulance', 'surgeon', 'paramedic']);
+addUpgrades('basic', ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos', 'flail', 'healer', 'single']);
+addUpgrades('basic', ['smasher']);
+addUpgrades('smasher', ['megaSmasher', 'spike', 'autoSmasher', 'landmine']);
+addUpgrades('healer', ['medic', 'ambulance', 'surgeon', 'paramedic']);
 
-addUpgrades('twin', 2, ['doubleTwin', 'tripleShot', 'gunner', 'hexaTank', 'helix']);
-addUpgrades('twin', 3, ['dual', 'bulwark', 'musket']);
-addUpgrades('doubleTwin', 3, ['tripleTwin', 'hewnDouble', 'autoDouble', 'bentDouble']);
-addUpgrades('tripleShot', 3, ['pentaShot', 'spreadshot', 'bentHybrid', 'bentDouble', 'triplet', 'triplex']);
-addUpgrades('gunner', 3, ['autoGunner', 'nailgun', 'auto4', 'machineGunner', 'gunnerTrapper', 'cyclone', 'overgunner']);
-addUpgrades('hexaTank', 3, ['octoTank', 'cyclone', 'hexaTrapper']);
-addUpgrades('helix', 3, ['triplex', 'quadruplex']);
+addUpgrades('twin', ['doubleTwin', 'tripleShot', 'gunner', 'hexaTank', 'helix']);
+addUpgrades('twin', ['dual', 'bulwark', 'musket']);
+addUpgrades('doubleTwin', ['tripleTwin', 'hewnDouble', 'autoDouble', 'bentDouble']);
+addUpgrades('tripleShot', ['pentaShot', 'spreadshot', 'bentHybrid', 'bentDouble', 'triplet', 'triplex']);
+addUpgrades('gunner', ['autoGunner', 'nailgun', 'auto4', 'machineGunner', 'gunnerTrapper', 'cyclone', 'overgunner']);
+addUpgrades('hexaTank', ['octoTank', 'cyclone', 'hexaTrapper']);
+addUpgrades('helix', ['triplex', 'quadruplex']);
 
-addUpgrades('sniper', 2, ['assassin', 'hunter', 'minigun', 'rifle', 'marksman']);
-addUpgrades('sniper', 3, ['bushwhacker']);
-addUpgrades('assassin', 3, ['ranger', 'falcon', 'stalker', 'autoAssassin', 'single', 'deadeye']);
-addUpgrades('hunter', 3, ['predator', 'xHunter', 'poacher', 'ordnance', 'dual', 'nimrod']);
-addUpgrades('minigun', 3, ['streamliner', 'nailgun', 'cropDuster', 'barricade', 'vulture']);
-addUpgrades('rifle', 3, ['musket', 'crossbow', 'armsman', 'revolver']);
-addUpgrades('marksman', 3, ['deadeye', 'nimrod', 'revolver', 'fork']);
+addUpgrades('sniper', ['assassin', 'hunter', 'minigun', 'rifle', 'marksman']);
+addUpgrades('sniper', ['bushwhacker']);
+addUpgrades('assassin', ['ranger', 'falcon', 'stalker', 'autoAssassin', 'single', 'deadeye']);
+addUpgrades('hunter', ['predator', 'xHunter', 'poacher', 'ordnance', 'dual', 'nimrod']);
+addUpgrades('minigun', ['streamliner', 'nailgun', 'cropDuster', 'barricade', 'vulture']);
+addUpgrades('rifle', ['musket', 'crossbow', 'armsman', 'revolver']);
+addUpgrades('marksman', ['deadeye', 'nimrod', 'revolver', 'fork']);
 
-addUpgrades('machineGun', 2, ['artillery', 'minigun', 'gunner', 'sprayer']);
-addUpgrades('artillery', 3, ['mortar', 'ordnance', 'beekeeper', 'fieldGun']);
-//addUpgrades('minigun', 3, []);
-//addUpgrades('gunner', 3, []);
-addUpgrades('sprayer', 3, ['redistributor', 'phoenix', 'atomizer', 'focal']);
-addUpgrades('blaster', 3, ['triBlaster', 'splasher', 'flamethrower', 'halfNHalf', 'subverter']);
-addUpgrades('gatlingGun', 3, ['focal', 'accurator', 'halfNHalf']);
-addUpgrades('doubleMachine', 3, ['tripleMachine', 'halfNHalf']);
+addUpgrades('machineGun', ['artillery', 'minigun', 'gunner', 'sprayer']);
+addUpgrades('artillery', ['mortar', 'ordnance', 'beekeeper', 'fieldGun']);
 
-addUpgrades('flankGuard', 2, ['hexaTank', 'triAngle', 'auto3', 'trapGuard', 'triTrapper']);
-addUpgrades('flankGuard', 3, ['tripleTwin', 'quadruplex']);
-//addUpgrades('hexaTank', 3, []);
-addUpgrades('triAngle', 3, ['fighter', 'booster', 'falcon', 'bomber', 'autoTriAngle', 'surfer', 'eagle', 'phoenix', 'vulture']);
-addUpgrades('auto3', 3, ['auto5', 'mega3', 'auto4', 'banshee']);
-addUpgrades('trapGuard', 3, ['bushwhacker', 'gunnerTrapper', 'bomber', 'conqueror', 'bulwark']);
-addUpgrades('triTrapper', 3, ['fortress', 'hexaTrapper', 'septaTrapper', 'architect']);
+addUpgrades('sprayer', ['redistributor', 'phoenix', 'atomizer', 'focal']);
+addUpgrades('blaster', ['triBlaster', 'splasher', 'flamethrower', 'halfNHalf', 'subverter']);
+addUpgrades('gatlingGun', ['focal', 'accurator', 'halfNHalf']);
+addUpgrades('doubleMachine', ['tripleMachine', 'halfNHalf']);
 
-addUpgrades('director', 2, ['overseer', 'cruiser', 'underseer', 'spawner']);
-addUpgrades('director', 3, ['manager', 'bigCheese']);
-addUpgrades('overseer', 3, ['overlord', 'overtrapper', 'overgunner', 'banshee', 'autoOverseer', 'overdrive', 'commander']);
-addUpgrades('cruiser', 3, ['carrier', 'battleship', 'fortress', 'autoCruiser', 'commander']);
-addUpgrades('underseer', 3, ['necromancer', 'maleficitor', 'infestor']);
-addUpgrades('spawner', 3, ['factory', 'autoSpawner']);
+addUpgrades('flankGuard', ['hexaTank', 'triAngle', 'auto3', 'trapGuard', 'triTrapper']);
+addUpgrades('flankGuard', ['tripleTwin', 'quadruplex']);
 
-addUpgrades('pounder', 2, ['destroyer', 'builder', 'artillery', 'launcher']);
-addUpgrades('pounder', 3, ['shotgun', 'eagle']);
-addUpgrades('destroyer', 3, ['conqueror', 'annihilator', 'hybrid', 'construct']);
-addUpgrades('builder', 3, ['construct', 'autoBuilder', 'engineer', 'boomer', 'assembler', 'architect', 'conqueror']);
-//addUpgrades('artillery', 3, []);
-addUpgrades('launcher', 3, ['skimmer', 'twister', 'swarmer', 'sidewinder', 'fieldGun']);
+addUpgrades('triAngle', ['fighter', 'booster', 'falcon', 'bomber', 'autoTriAngle', 'surfer', 'eagle', 'phoenix', 'vulture']);
+addUpgrades('auto3', ['auto5', 'mega3', 'auto4', 'banshee']);
+addUpgrades('trapGuard', ['bushwhacker', 'gunnerTrapper', 'bomber', 'conqueror', 'bulwark']);
+addUpgrades('triTrapper', ['fortress', 'hexaTrapper', 'septaTrapper', 'architect']);
 
-addUpgrades('trapper', 2, ['builder', 'triTrapper', 'trapGuard']);
-addUpgrades('trapper', 3, ['barricade', 'overtrapper']);
-//addUpgrades('builder', 3, []);
-//addUpgrades('triTrapper', 3, []);
-//addUpgrades('trapGuard', 3, []);
-addUpgrades('autoTrapper', 3, ['autoBuilder', 'hexaTrapper']);
+addUpgrades('director', ['overseer', 'cruiser', 'underseer', 'spawner']);
+addUpgrades('director', ['manager', 'bigCheese']);
+addUpgrades('overseer', ['overlord', 'overtrapper', 'overgunner', 'banshee', 'autoOverseer', 'overdrive', 'commander']);
+addUpgrades('cruiser', ['carrier', 'battleship', 'fortress', 'autoCruiser', 'commander']);
+addUpgrades('underseer', ['necromancer', 'maleficitor', 'infestor']);
+addUpgrades('spawner', ['factory', 'autoSpawner']);
 
-addUpgrades('desmos', 2, ['helix']);
-addUpgrades('volute', 3, ['sidewinder']);
-//addUpgrades('helix', 3, []);
-addUpgrades('spiral', 3, ['coil', 'python']);
-addUpgrades('undertow', 3, []);
-addUpgrades('repeater', 3, ['iterator', 'duplicator']);
+addUpgrades('pounder', ['destroyer', 'builder', 'artillery', 'launcher']);
+addUpgrades('pounder', ['shotgun', 'eagle']);
+addUpgrades('destroyer', ['conqueror', 'annihilator', 'hybrid', 'construct']);
+addUpgrades('builder', ['construct', 'autoBuilder', 'engineer', 'boomer', 'assembler', 'architect', 'conqueror']);
 
-addUpgrades('flail', 2, ['doubleFlail', 'mace', 'flangle']);
-addUpgrades('doubleFlail', 3, ['tripleFlail']);
-addUpgrades('mace', 3, ['bigMama', 'itHurtsDontTouchIt', 'flace']);
-addUpgrades('flangle', 3, ['flooster', 'flace']);
+addUpgrades('launcher', ['skimmer', 'twister', 'swarmer', 'sidewinder', 'fieldGun']);
 
-addUpgrades('whirlwind', 2, ['tornado', 'hurricane']);
-addUpgrades('whirlwind', 3, ['hexaWhirl', 'munition', 'whirl3', 'whirlGuard', 'prophet', 'vortex']);
-addUpgrades('tornado', 3, ['megaTornado', 'tempest', 'thunderbolt']);
-addUpgrades('hurricane', 3, ['typhoon', 'blizzard']);
+addUpgrades('trapper', ['builder', 'triTrapper', 'trapGuard']);
+addUpgrades('trapper', ['barricade', 'overtrapper']);
 
-addUpgrades('assassin', 3, ['buttbuttin']);
-addUpgrades('destroyer', 3, ['blower']);
-addUpgrades('gunner', 3, ['battery', 'buttbuttin', 'blower']);
-addUpgrades('hexaTank', 3, ['deathStar']);
-addUpgrades('minigun', 3, ['subverter']);
-addUpgrades('pounder', 3, ['subverter', 'deathStar']);
-addUpgrades('smasher', 3, ['bonker']);
-addUpgrades('bigCheese', 4, ['biggerCheese']);
+addUpgrades('autoTrapper', ['autoBuilder', 'hexaTrapper']);
+
+addUpgrades('desmos', ['helix']);
+addUpgrades('volute', ['sidewinder']);
+addUpgrades('spiral', ['coil', 'python']);
+
+addUpgrades('repeater', ['iterator', 'duplicator']);
+
+addUpgrades('flail', ['doubleFlail', 'mace', 'flangle']);
+addUpgrades('doubleFlail', ['tripleFlail']);
+addUpgrades('mace', ['bigMama', 'itHurtsDontTouchIt', 'flace']);
+addUpgrades('flangle', ['flooster', 'flace']);
+
+addUpgrades('whirlwind', ['tornado', 'hurricane']);
+addUpgrades('whirlwind', ['hexaWhirl', 'munition', 'whirl3', 'whirlGuard', 'prophet', 'vortex']);
+addUpgrades('tornado', ['megaTornado', 'tempest', 'thunderbolt']);
+addUpgrades('hurricane', ['typhoon', 'blizzard']);
+
+addUpgrades('assassin', ['buttbuttin']);
+addUpgrades('destroyer', ['blower']);
+addUpgrades('gunner', ['battery', 'buttbuttin', 'blower']);
+addUpgrades('hexaTank', ['deathStar']);
+addUpgrades('minigun', ['subverter']);
+addUpgrades('pounder', ['subverter', 'deathStar']);
+addUpgrades('smasher', ['bonker']);
 
 
-addUpgrades('machineGun', 2, ['blaster', 'gatlingGun', 'doubleMachine']);
+addUpgrades('machineGun', ['blaster', 'gatlingGun', 'doubleMachine']);
 
-addUpgrades('flankGuard', 3, ['tripleMachine']);
-addUpgrades('sprayer', 3, ['splasher']);
-addUpgrades('tripleShot', 3, ['triBlaster']);
+addUpgrades('flankGuard', ['tripleMachine']);
+addUpgrades('sprayer', ['splasher']);
+addUpgrades('tripleShot', ['triBlaster']);
 
-
-
-addUpgrades('basic', 2, ['healer']);
 

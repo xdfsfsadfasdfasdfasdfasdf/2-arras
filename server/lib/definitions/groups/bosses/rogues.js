@@ -20,7 +20,7 @@ Class.roguePalisade = {
     SIZE: 30,
     VALUE: 5e5,
     SKILL: [2, 6, 6, 6, 2, 0, 0, 9, 0, 0],
-    CONTROLLERS: ['nearestDifferentMaster', 'onlyAcceptInArc'],
+    CONTROLLERS: ['nearestDifferentMaster', 'onlyAcceptInArc', 'followTopPlayer'],
     BODY: {
         FOV: 1.4,
         SPEED: 0.05 * base.SPEED,
@@ -54,6 +54,7 @@ Class.rogueArmada = {
     SIZE: 28,
     VALUE: 5e5,
     SKILL: [2, 6, 6, 6, 2, 0, 0, 9, 0, 0],
+    CONTROLLERS: ['nearestDifferentMaster', 'followTopPlayer'],
     BODY: {
         FOV: 1.3,
         SPEED: base.SPEED * 0.1,
@@ -150,26 +151,25 @@ function makeRogueEgg(rogueClass, shape, label) {
                     body.isRogueEgg = true;
                     body.hatched = false;
 
+                    let hatchTimeout = setTimeout(() => {
+                        if (body && (typeof body.isDead !== "function" || !body.isDead()) && !body.hatched) {
+                            body.hatch();
+                        }
+                    }, 30000);
+
                     body.hatch = () => {
                         if (body.hatched || (typeof body.isDead === "function" && body.isDead())) return;
                         body.hatched = true;
+                        if (hatchTimeout) clearTimeout(hatchTimeout);
                         let x = body.x;
                         let y = body.y;
                         body.kill();
                         let boss = new Entity({ x, y });
                         boss.define(rogueClass);
                         boss.team = TEAM_BLUE;
-                        if (Config.fortress || Config.citadel) {
-                            boss.controllers.push(new ioTypes.siegeAI(boss, {}, global.gameManager));
-                        }
+                        boss.controllers.push(new ioTypes.followTopPlayer(boss, {}, global.gameManager));
                         global.gameManager.socketManager.broadcast(`A mysterious ${boss.label} has hatched!`);
                     };
-
-                    let hatchTimeout = setTimeout(() => {
-                        if (body && (typeof body.isDead !== "function" || !body.isDead()) && !body.hatched) {
-                            body.hatch();
-                        }
-                    }, 30000);
 
                     body.on("dead", () => {
                         if (!body.hatched) {

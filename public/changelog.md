@@ -10,7 +10,9 @@
 - <b>Mobile chat</b>: Fixed virtual keyboard Enter key detection, autocorrect/autocapitalize disabled on chat input
 - <b>Mobile chat</b>: Added purple <b>Send</b> button UI on mobile devices for touch submission without physical keyboards
 - <b>Mobile class tree</b>: Fixed Close (✕), Zoom (+ / −), touch drag panning, and native search overlay for mobile screens
-- <b>Tier system</b>: Automated tank tier ordering for class tree layout and upgrade menu buttons
+- <b>Tier system & HUD ordering</b>: Updated automated tank tier calculation (`myTier = 1 + Math.max(...childTiers)`), ordering class tree branches and HUD upgrade cards by tier (higher tiered tanks to the left/first)
+- <b>Upgrade selection fix</b>: Fixed a bug where clicking a HUD upgrade card upgraded into the wrong tank by invalidating stale sorted upgrade state when new upgrades arrive
+- <b>Facilitators overload</b>: Updated `addUpgrades` and `removeUpgrades` to support calls without an explicit numeric tier argument
 
 # Update [2026-07-22]
 - Fixed decorative barrels/trapezoids on tanks like Assassin and Single incorrectly triggering recoil/shooting animations

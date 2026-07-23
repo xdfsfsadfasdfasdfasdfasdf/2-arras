@@ -1223,6 +1223,57 @@ class io_scaleWithMaster extends IO {
     }
 }
 
+class io_followTopPlayer extends IO {
+    constructor(body, opts = {}, gameManager) {
+        super(body);
+        this.gameManager = gameManager || global.gameManager;
+        this.enabled = true;
+        this.topPlayer = null;
+        this.tick = ran.irandom(10);
+    }
+    findTopPlayer() {
+        let bestPlayer = null;
+        let highestScore = -1;
+        for (let entity of entities.values()) {
+            if (
+                (entity.isPlayer || entity.isBot) &&
+                entity.health.amount > 0 &&
+                (typeof entity.isDead !== "function" || !entity.isDead()) &&
+                entity.master === entity &&
+                !entity.godmode &&
+                !entity.passive
+            ) {
+                let score = entity.skill ? entity.skill.score : 0;
+                if (score > highestScore) {
+                    highestScore = score;
+                    bestPlayer = entity;
+                }
+            }
+        }
+        return bestPlayer;
+    }
+    think(input) {
+        if (!this.enabled) return;
+        this.tick++;
+        if (this.tick > 10 || !this.topPlayer || (typeof this.topPlayer.isDead === "function" && this.topPlayer.isDead()) || this.topPlayer.health.amount <= 0) {
+            this.tick = 0;
+            this.topPlayer = this.findTopPlayer();
+        }
+        if (this.topPlayer) {
+            return {
+                goal: {
+                    x: this.topPlayer.x,
+                    y: this.topPlayer.y,
+                }
+            };
+        } else if (this.gameManager && this.gameManager.room) {
+            return {
+                goal: this.gameManager.room.center
+            };
+        }
+    }
+}
+
 let ioTypes = {
     //misc
     zoom: io_zoom,
@@ -1248,6 +1299,7 @@ let ioTypes = {
     canRepel: io_canRepel,
     mapTargetToGoal: io_mapTargetToGoal,
     siegeAI: io_siegeAI,
+    followTopPlayer: io_followTopPlayer,
     moveInCircles: io_moveInCircles,
     boomerang: io_boomerang,
     formulaTarget: io_formulaTarget,
