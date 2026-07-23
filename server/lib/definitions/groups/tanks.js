@@ -1590,6 +1590,32 @@ Class.bigCheese = {
         }
     ]
 };
+Class.biggerCheese = {
+    PARENT: 'genericTank',
+    LABEL: "Bigger Cheese",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: Class.director.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 21,
+                ASPECT: 1.3,
+                X: 2
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.bigCheese]),
+                TYPE: 'drone',
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                MAX_CHILDREN: 1,
+                WAIT_TO_CYCLE: true
+            }
+        }
+    ]
+};
 Class.bigMama = {
     PARENT: 'genericFlail',
     LABEL: "BIG MAMA",
@@ -5552,7 +5578,7 @@ addUpgrades('hexaTank', 3, ['deathStar']);
 addUpgrades('minigun', 3, ['subverter']);
 addUpgrades('pounder', 3, ['subverter', 'deathStar']);
 addUpgrades('smasher', 3, ['bonker']);
-
+addUpgrades('bigCheese', 4, ['biggerCheese']);
 
 
 addUpgrades('machineGun', 2, ['blaster', 'gatlingGun', 'doubleMachine']);

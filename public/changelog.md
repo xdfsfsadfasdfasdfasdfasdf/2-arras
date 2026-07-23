@@ -1,4 +1,5 @@
 # Update [2026-07-23]
+- <b>New Tank</b>: Added <b>Bigger Cheese</b> as a Tier 4 upgrade branching from Big Cheese
 - <b>Tank restrictions</b>: Removed gamemode tank restrictions (e.g. Smasher, Underseer, and Prophet are no longer blocked in Siege mode)
 - <b>Basic branching</b>: Added direct branches from Basic to <b>Single</b>, <b>Flail</b>, and <b>Healer</b>
 - <b>Mobile layout</b>: Updated tank upgrade grid columns to 11 on mobile and 5 on PC
