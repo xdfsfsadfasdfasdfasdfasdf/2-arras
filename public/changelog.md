@@ -1,4 +1,6 @@
 # Update [2026-07-23]
+- <b>Tank Definitions</b>: Implemented full tank definitions and weapon shoot settings for all ~68 placeholder tanks (including <b>Mega Hunter</b>, <b>Big Chip</b>, <b>Ballista</b>, <b>Crackshot</b>, <b>Hepta Shot</b>, <b>Carnivore</b>, <b>X-Predator</b>, <b>Y-Hunter</b>, etc.)
+- <b>Upgrade Tiles</b>: Removed black placeholder upgrade tiles across Arms Race tanks so all upgrade tiles now render with standard colors
 - <b>New Tank</b>: Added <b>Bigger Cheese</b> as a Tier 4 upgrade branching from Big Cheese
 - <b>Tank restrictions</b>: Removed gamemode tank restrictions (e.g. Smasher, Underseer, and Prophet are no longer blocked in Siege mode)
 - <b>Basic branching</b>: Added direct branches from Basic to <b>Single</b>, <b>Flail</b>, and <b>Healer</b>

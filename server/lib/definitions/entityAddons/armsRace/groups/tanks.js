@@ -73,6 +73,29 @@ g.quint = {
     spray: 0.9,
     resist: 0.95
 }
+g.sprayer = {
+    reload: 0.8,
+    shudder: 1.5,
+    spray: 1.5,
+    damage: 0.8
+}
+g.medic = {
+    reload: 1.2,
+    speed: 1.3,
+    health: 1.2
+}
+g.pentaShot = {
+    reload: 1.1,
+    shudder: 0.8,
+    health: 0.9,
+    pen: 0.8,
+    spray: 0.5
+}
+g.wark = {
+    reload: 1.2,
+    recoil: 0.8,
+    shudder: 1.2
+}
 
 // Functions
 const makeUnder = (type, name = -1, options = {}) => {
@@ -271,7 +294,6 @@ Class.diesel_AR = {
     PARENT: "genericTank",
     LABEL: "Diesel",
     DANGER: 6,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -279,6 +301,10 @@ Class.diesel_AR = {
                 WIDTH: 12,
                 ASPECT: 1.6,
                 X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.pounder, { reload: 1.1, damage: 1.1 }]),
+                TYPE: "bullet"
             }
         }
     ]
@@ -328,7 +354,6 @@ Class.honcho_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -336,6 +361,15 @@ Class.honcho_AR = {
                 WIDTH: 14,
                 ASPECT: 1.3,
                 X: 2
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, { speed: 1.2, reload: 0.9 }]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 4,
+                WAIT_TO_CYCLE: true
             }
         }
     ]
@@ -556,7 +590,6 @@ Class.baltimore_AR = {
     LABEL: "Baltimore",
     DANGER: 7,
     STAT_NAMES: statnames.swarm,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponMirror({
         POSITION: {
             LENGTH: 12.,
@@ -564,7 +597,14 @@ Class.baltimore_AR = {
             ASPECT: 0.75,
             X: 3,
             Y: 4.6
-        }
+        },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, { reload: 0.8 }]),
+                TYPE: "swarm",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "swarm"
+            }
     }, {delayIncrement: 0.5})
 }
 Class.banger_AR = {
@@ -775,12 +815,15 @@ Class.charger_AR = {
     PARENT: "genericTank",
     LABEL: "Charger",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 18,
                 WIDTH: 12
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.rifle]),
+                TYPE: "bullet"
             }
         },
         {
@@ -808,13 +851,16 @@ Class.cluster_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 19.5,
                 WIDTH: 16,
                 ASPECT: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster]),
+                TYPE: "bullet"
             }
         },
         {
@@ -907,7 +953,6 @@ Class.courser_AR = {
     },
     CONTROLLERS: ['zoom'],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -1022,13 +1067,17 @@ Class.dieselTrapper_AR = {
     LABEL: "Diesel Trapper",
     DANGER: 7,
     STAT_NAMES: statnames.trap,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 17,
                 WIDTH: 11,
                 ASPECT: 1.6
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.machineGun]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -1046,7 +1095,6 @@ Class.discharger_AR = {
     PARENT: "genericTank",
     LABEL: "Discharger",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         ...weaponMirror([{
             POSITION: {
@@ -1054,6 +1102,10 @@ Class.discharger_AR = {
                 WIDTH: 3.5,
                 Y: -5.5,
                 ANGLE: -7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery]),
+                TYPE: "bullet"
             }
         },
         {
@@ -1084,7 +1136,6 @@ Class.dopeseer_AR = {
         SPEED: 0.9 * base.SPEED,
         FOV: 1.1 * base.FOV,
     },
-    ...preset.todo_placeholder_guns,
     GUNS: weaponMirror([
         {
             POSITION: {
@@ -1093,6 +1144,15 @@ Class.dopeseer_AR = {
                 ASPECT: 1.2,
                 X: 8.,
                 ANGLE: 90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, { speed: 2 }]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 4,
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -1136,12 +1196,15 @@ Class.encircler_AR = {
     LABEL: "Encircler",
     DANGER: 7,
     STAT_NAMES: statnames.mixed,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 21,
                 WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.spam]),
+                TYPE: "bullet"
             }
         },
         {
@@ -1328,12 +1391,15 @@ Class.foamer_AR = {
     PARENT: "genericTank",
     LABEL: "Foamer",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 25,
                 WIDTH: 9
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.pelleter]),
+                TYPE: "bullet"
             }
         },
         {
@@ -1388,7 +1454,6 @@ Class.foreman_AR = {
         FOV: 1.1 * base.FOV,
     },
     MAX_CHILDREN: 6,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 12,
@@ -1396,7 +1461,16 @@ Class.foreman_AR = {
             ASPECT: 1.3,
             X: 2,
             ANGLE: 90,
-        }
+        },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.spawner]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 4,
+                WAIT_TO_CYCLE: true
+            }
     }, 2)
 }
 Class.forger_AR = {
@@ -1450,12 +1524,20 @@ Class.foundry_AR = {
         SPEED: base.SPEED * 0.8,
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 15,
                 WIDTH: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner]),
+                TYPE: "minion",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 4,
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -1478,13 +1560,16 @@ Class.frother_AR = {
     LABEL: "Frother",
     DANGER: 7,
     STAT_NAMES: statnames.trap,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 18,
                 WIDTH: 5,
                 ASPECT: 1.4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.sprayer]),
+                TYPE: "bullet"
             }
         },
         {
@@ -1551,7 +1636,6 @@ Class.hangar_AR = {
         SPEED: base.SPEED * 0.8,
         FOV: base.FOV * 1.2
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         ...weaponMirror({
             POSITION: {
@@ -1560,6 +1644,15 @@ Class.hangar_AR = {
                 ASPECT: 0.6,
                 X: 3,
                 Y: 5.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.carrier]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 6,
+                WAIT_TO_CYCLE: true
             }
         }, {delayIncrement: 0.5}),
         {
@@ -1597,7 +1690,7 @@ Class.hexaseer_AR = {
         FOV: base.FOV * 1.1,
     },
     SHAPE: 6.5,
-    //...preset.todo_placeholder_guns,
+    //
     GUNS: weaponMirror({
         POSITION: {
             LENGTH: 6,
@@ -1707,13 +1800,21 @@ Class.inception_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 19.2,
                 WIDTH: 13,
                 ASPECT: 0.7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.overseer]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 6,
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -1742,13 +1843,19 @@ Class.issuer_AR = {
         SPEED: base.SPEED * 0.8,
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 4.5,
                 WIDTH: 10,
                 X: 10.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.carrier]),
+                TYPE: "swarm",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "swarm"
             }
         },
         {
@@ -1779,7 +1886,6 @@ Class.jalopy_AR = {
     PARENT: "genericTank",
     LABEL: "Jalopy",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -1788,6 +1894,10 @@ Class.jalopy_AR = {
                 ASPECT: 1.8,
                 X: 6,
                 ANGLE: 0
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.pounder]),
+                TYPE: "bullet"
             }
         }
     ]
@@ -1800,7 +1910,6 @@ Class.junkie_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -1808,6 +1917,15 @@ Class.junkie_AR = {
                 WIDTH: 14,
                 ASPECT: 1.3,
                 X: 2
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, { speed: 2.5 }]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 6,
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -1829,7 +1947,6 @@ Class.laborer_AR = {
         SPEED: base.SPEED * 0.8,
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -1837,6 +1954,15 @@ Class.laborer_AR = {
                 WIDTH: 10,
                 ASPECT: 1.2,
                 X: 10.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner]),
+                TYPE: "minion",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                MAX_CHILDREN: 4,
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -1876,13 +2002,17 @@ Class.machineMech_AR = {
     PARENT: "genericTank",
     LABEL: "Machine Mech",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 15,
                 WIDTH: 9,
                 ASPECT: 1.4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.machineGun]),
+                TYPE: "mechTrap_AR",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -1923,31 +2053,28 @@ Class.megaHunter_AR = {
     LABEL: "Mega Hunter",
     DANGER: 7,
     BODY: {
-        SPEED: base.SPEED * 0.9,
         FOV: base.FOV * 1.25
     },
-    CONTROLLERS: ["zoom"],
-    //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
+    CONTROLLERS: [["zoom", { distance: 400 }]],
     GUNS: [
         {
             POSITION: {
                 LENGTH: 24,
-                WIDTH: 12
+                WIDTH: 10
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.pounder, g.hunter, g.hunterSecondary]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.hunterSecondary, g.pounder]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: {
                 LENGTH: 21,
-                WIDTH: 15,
+                WIDTH: 13,
                 DELAY: 0.25
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.pounder, g.hunter]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.pounder]),
                 TYPE: "bullet"
             }
         }
@@ -2053,7 +2180,6 @@ Class.mosey_AR = {
     LABEL: "Mosey",
     DANGER: 7,
     STAT_NAMES: statnames.swarm,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponMirror([
         {
             POSITION: {
@@ -2062,6 +2188,11 @@ Class.mosey_AR = {
                 ASPECT: 0.6,
                 X: 5,
                 Y: 4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.pounder]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -2087,7 +2218,7 @@ Class.mummifier_AR = {
     },
     SHAPE: 4,
     MAX_CHILDREN: 6,
-    //...preset.todo_placeholder_guns,
+    //
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 12,
@@ -2173,7 +2304,7 @@ Class.pentaseer_AR = {
         FOV: base.FOV * 1.1,
     },
     SHAPE: 5,
-    //...preset.todo_placeholder_guns,
+    //
     GUNS: weaponMirror({
         POSITION: {
             LENGTH: 6,
@@ -2229,13 +2360,17 @@ Class.pitcher_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 19.2,
                 WIDTH: 13,
                 ASPECT: 0.7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap]),
+                TYPE: "setTrap",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -2271,7 +2406,6 @@ Class.prober_AR = {
     },
     CONTROLLERS: ['zoom'],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -2350,13 +2484,17 @@ Class.projector_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 17,
                 WIDTH: 14,
                 ASPECT: -0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.construct]),
+                TYPE: "setTrap",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -2594,12 +2732,15 @@ Class.scientist_AR = {
     PARENT: "genericHealer",
     LABEL: "Scientist",
     STAT_NAMES: statnames.trap,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 16,
                 WIDTH: 7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sniper]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -2644,7 +2785,6 @@ Class.soother_AR = {
     PARENT: "genericHealer",
     LABEL: "Soother",
     STAT_NAMES: statnames.drone,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -2652,6 +2792,10 @@ Class.soother_AR = {
                 WIDTH: 10,
                 ASPECT: 1.3,
                 X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.flankGuard]),
+                TYPE: "healerBullet"
             }
         }
     ]
@@ -2661,7 +2805,6 @@ Class.splitShot_AR = {
     PARENT: "genericTank",
     LABEL: "Split Shot",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         ...weaponMirror([{
             POSITION: {
@@ -2679,12 +2822,20 @@ Class.splitShot_AR = {
                 X: 4,
                 Y: 0.5,
                 ANGLE: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                TYPE: "bullet"
             }
         }], {delayIncrement: 0.5}),
         {
             POSITION: {
                 LENGTH: 22,
                 WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.single]),
+                TYPE: "bullet"
             }
         }
     ]
@@ -2730,12 +2881,16 @@ Class.stall_AR = {
     PARENT: "genericTank",
     LABEL: "Stall",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 23,
                 WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.barricade]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -2944,13 +3099,16 @@ Class.widget_AR = {
     BODY: {
         FOV: base.FOV * 1.2
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 21,
                 WIDTH: 8,
                 ASPECT: 1.4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.autoTurret]),
+                TYPE: "bullet"
             }
         },
         {
@@ -3150,7 +3308,6 @@ Class.accountant_AR = {
 Class.actuary_AR = {
     PARENT: "genericHealer",
     LABEL: "Actuary",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -3158,6 +3315,10 @@ Class.actuary_AR = {
                 WIDTH: 7,
                 ASPECT: -0.4,
                 X: 9.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.pounder]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -3200,7 +3361,6 @@ Class.antidote_AR = {
     PARENT: "genericHealer",
     LABEL: "Antidote",
     STAT_NAMES: statnames.swarm,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponMirror([
         {
             POSITION: {
@@ -3209,6 +3369,10 @@ Class.antidote_AR = {
                 ASPECT: -0.4,
                 X: 9.5,
                 Y: 4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.twin]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -3227,7 +3391,34 @@ Class.autoDoubleFlank_AR = makeAuto('doubleFlankTwin_AR', "Auto-Double Flank")
 Class.autoHexaTrapper_AR = makeAuto('hexaTrapper', "Auto-Hexa Trapper", {...preset.makeAuto.triple, clearTurrets: true})
 Class.autoTriple_AR = makeAuto('tripleTwin', "Auto-Triple")
 Class.avian_AR = makeBird('single', "Avian")
-Class.ballista_AR = {PARENT: 'PLACEHOLDER', LABEL: "Ballista"}
+Class.ballista_AR = {
+    PARENT: "genericTank",
+    LABEL: "Ballista",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.35,
+        SPEED: base.SPEED * 0.85
+    },
+    CONTROLLERS: [["zoom", { distance: 500 }]],
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 26,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, g.railgun]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 12
+            }
+        }
+    ]
+}
 Class.basic3_AR = makeRadialAuto('singleAutoTankGun_AR', {isTurret: true, danger: 8, label: "Basic-3"})
 Class.bentCatcher_AR = makeOver('waarrk_AR', "Bent Catcher", preset.makeOver.hybrid)
 Class.bentDoubleGunner_AR = makeFlank({
@@ -3368,13 +3559,16 @@ Class.cleft_AR = makeFlank({
 Class.clerk_AR = {
     PARENT: "genericHealer",
     LABEL: "Clerk",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 19.2,
                 WIDTH: 12,
                 ASPECT: 0.7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.minigun]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -3421,7 +3615,29 @@ Class.coordinator_AR = {
         }
     ]
 }
-Class.crackshot_AR = {PARENT: 'PLACEHOLDER', LABEL: "Crackshot"}
+Class.crackshot_AR = {
+    PARENT: "genericTank",
+    LABEL: "Crackshot",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.4,
+        SPEED: base.SPEED * 0.85
+    },
+    CONTROLLERS: [["zoom", { distance: 550 }]],
+    GUNS: weaponMirror([
+        {
+            POSITION: {
+                LENGTH: 24,
+                WIDTH: 6,
+                Y: 3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.marksman, g.twin]),
+                TYPE: "bullet"
+            }
+        }
+    ], { delayIncrement: 0.5 })
+}
 Class.cyclops_AR = {
     PARENT: "genericTank",
     LABEL: "Cyclops",
@@ -3455,13 +3671,38 @@ Class.cyclops_AR = {
         }
     ]
 }
-Class.dauber_AR = {PARENT: 'PLACEHOLDER', LABEL: "Dauber"}
+Class.dauber_AR = {
+    PARENT: "genericTank",
+    LABEL: "Dauber",
+    DANGER: 8,
+    STAT_NAMES: statnames.trap,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 9
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 11,
+                ASPECT: 1.4,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.machineGun]),
+                TYPE: "setTrap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ]
+}
 Class.deficiency_AR = makeBird('pentaShot', "Deficiency")
 Class.doctor_AR = {
     PARENT: "genericHealer",
     LABEL: "Doctor",
     STAT_NAMES: statnames.drone,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -3469,6 +3710,10 @@ Class.doctor_AR = {
                 WIDTH: 14,
                 ASPECT: 1.3,
                 X: 2
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.medic]),
+                TYPE: "healerBullet"
             }
         }
     ]
@@ -3512,7 +3757,6 @@ Class.doubleFlankHelix_AR = {
     LABEL: "Double Flank Helix",
     DANGER: 8,
     STAT_NAMES: statnames.desmos,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponArray([
         {
             POSITION: {
@@ -3718,10 +3962,74 @@ Class.duster_AR = {
 Class.executor_AR = makeGuard('assassin', "Executor")
 Class.fault_AR = makeBird('waarrk_AR', "Fault")
 Class.flexedDouble_AR = makeFlank('pentaShot', 2, "Flexed Double", {extraStats: [g.doubleTwin]})
-Class.flexedGunner_AR = {PARENT: 'PLACEHOLDER', LABEL: "Flexed Gunner"}
+Class.flexedGunner_AR = {
+    PARENT: "genericTank",
+    LABEL: "Flexed Gunner",
+    DANGER: 8,
+    GUNS: weaponArray([
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 2.5,
+                Y: -2.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.flankGuard]),
+                TYPE: "bullet"
+            }
+        }, { delayIncrement: 0.5 }),
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 11
+            }
+        }
+    ], 2)
+}
 Class.flexedHybrid_AR = makeOver('pentaShot', "Flexed Hybrid", preset.makeOver.hybrid)
-Class.flexedMinigun_AR = {PARENT: 'PLACEHOLDER', LABEL: "Flexed Minigun"}
-Class.fungus_AR = {PARENT: 'PLACEHOLDER', LABEL: "Fungus"}
+Class.flexedMinigun_AR = {
+    PARENT: "genericTank",
+    LABEL: "Flexed Minigun",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.2
+    },
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.flankGuard]),
+                TYPE: "bullet"
+            }
+        }
+    ], 2)
+}
+Class.fungus_AR = {
+    PARENT: "genericTank",
+    LABEL: "Fungus",
+    DANGER: 8,
+    STAT_NAMES: statnames.swarm,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 8,
+                ASPECT: 0.6,
+                X: 6
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.carrier]),
+                TYPE: "swarm",
+                STAT_CALCULATOR: "swarm",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true
+            }
+        }
+    ], 4)
+}
 Class.gadgetGun_AR = {
     PARENT: "genericTank",
     LABEL: "Gadget Gun",
@@ -3752,7 +4060,6 @@ Class.guardrail_AR = makeFlank('hutch_AR', 2, "Guardrail", {extraStats: [g.doubl
 Class.guru_AR = {
     PARENT: "genericHealer",
     LABEL: "Guru",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -3762,6 +4069,14 @@ Class.guru_AR = {
                 X: 9.5,
                 Y: -5,
                 ANGLE: -7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.healer]),
+                TYPE: "healerBullet",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -3828,7 +4143,62 @@ Class.healer3_AR = {
         }
     ]
 }
-Class.heptaShot_AR = {PARENT: 'PLACEHOLDER', LABEL: "Hepta Shot"}
+Class.heptaShot_AR = {
+    PARENT: "genericTank",
+    LABEL: "Hepta Shot",
+    DANGER: 8,
+    GUNS: [
+        ...weaponMirror([{
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 7,
+                Y: 4,
+                ANGLE: 45,
+                DELAY: 4 / 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.pentaShot]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 17,
+                WIDTH: 7,
+                Y: 3,
+                ANGLE: 30,
+                DELAY: 3 / 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.pentaShot]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 7,
+                Y: 2,
+                ANGLE: 15,
+                DELAY: 2 / 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.pentaShot]),
+                TYPE: "bullet"
+            }
+        }]),
+        {
+            POSITION: {
+                LENGTH: 23,
+                WIDTH: 7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.pentaShot]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+}
 Class.hewnFlankDouble_AR = {
     PARENT: "genericTank",
     LABEL: "Hewn Flank Double",
@@ -3930,7 +4300,27 @@ Class.hewnGunner_AR = {
         ], {delayIncrement: 0.25}), 2)
     ]
 }
-Class.hewnHelix_AR = {PARENT: 'PLACEHOLDER', LABEL: "Hewn Helix"}
+Class.hewnHelix_AR = {
+    PARENT: "genericTank",
+    LABEL: "Hewn Helix",
+    DANGER: 8,
+    STAT_NAMES: statnames.desmos,
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8,
+                Y: -5.5,
+                ANGLE: 155
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                TYPE: "bullet"
+            }
+        }, { delayIncrement: 0.5 }),
+        ...Class.doubleHelix_AR.GUNS
+    ]
+}
 Class.hewnTriple_AR = {
     PARENT: "genericTank",
     LABEL: "Hewn Triple",
@@ -4067,7 +4457,6 @@ Class.hipwatch_AR = {
 Class.injection_AR = {
     PARENT: "genericHealer",
     LABEL: "Injection",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -4075,6 +4464,10 @@ Class.injection_AR = {
                 WIDTH: 6,
                 ASPECT: -0.4,
                 X: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.destroyer]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -4132,7 +4525,6 @@ Class.inspector_AR = {
 Class.intern_AR = {
     PARENT: "genericHealer",
     LABEL: "Intern",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -4140,6 +4532,10 @@ Class.intern_AR = {
                 WIDTH: 9,
                 ASPECT: -0.4,
                 X: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.single]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -4155,13 +4551,16 @@ Class.medicare_AR = {
     PARENT: "genericHealer",
     LABEL: "Medicare",
     STAT_NAMES: statnames.drone,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 4.5,
                 WIDTH: 8,
                 X: 10.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.triplet]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -4253,12 +4652,15 @@ Class.nitwit_AR = makeBird('triplet', "Nitwit")
 Class.ointment_AR = {
     PARENT: "genericHealer",
     LABEL: "Ointment",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 20,
                 WIDTH: 13
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sprayer]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -4413,13 +4815,20 @@ Class.professor_AR = {
     PARENT: "genericHealer",
     LABEL: "Professor",
     STAT_NAMES: statnames.mixed,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 16,
                 WIDTH: 9,
                 ANGLE: 180
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.healer]),
+                TYPE: "healerBullet",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -4631,13 +5040,16 @@ Class.scuffler_AR = {
     PARENT: 'genericTank',
     LABEL: "Scuffler",
     DANGER: 8,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 16,
                 WIDTH: 11,
                 ANGLE: 90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard]),
+                TYPE: "bullet"
             }
         },
         {
@@ -4645,6 +5057,10 @@ Class.scuffler_AR = {
                 LENGTH: 16,
                 WIDTH: 11,
                 ANGLE: -90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard]),
+                TYPE: "bullet"
             }
         },
         ...Class.doubleTwin.GUNS
@@ -4759,7 +5175,6 @@ Class.subduer_AR = {
     },
     CONTROLLERS: ["zoom"],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -4796,7 +5211,6 @@ Class.ternion_AR = makeFlank('single', 3, "Ternion", {extraStats: [g.flankGuard]
 Class.therapist_AR = {
     PARENT: "genericHealer",
     LABEL: "Therapist",
-    ...preset.todo_placeholder_guns,
     GUNS: weaponMirror([
         {
             POSITION: {
@@ -4805,6 +5219,10 @@ Class.therapist_AR = {
                 ASPECT: -0.4,
                 X: 9.5,
                 Y: 7.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.streamliner]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -5048,7 +5466,6 @@ Class.vulcan_AR = {
     PARENT: "genericTank",
     LABEL: "Vulcan",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [ // Each gun will be stacked to mimic a "back-forth" firing pattern, isn't present right now
         {
             POSITION: {
@@ -5123,7 +5540,37 @@ Class.vulcan_AR = {
         }
     ]
 }
-Class.waarararrk_AR = {PARENT: 'PLACEHOLDER', LABEL: "Waarararrk"}
+Class.waarararrk_AR = {
+    PARENT: "genericTank",
+    LABEL: "Waarararrk",
+    DANGER: 8,
+    STAT_NAMES: statnames.trap,
+    GUNS: weaponArray([
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 7,
+                Y: 5.5,
+                ANGLE: 5
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 3.5,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 14,
+                Y: 5.5,
+                ANGLE: 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.twin, g.wark]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ], 2)
+}
 Class.waarrkwaarrk_AR = makeFlank('waarrk_AR', 2, "Waarrkwaarrk", {extraStats: [g.doubleTwin]})
 Class.warkwarkwark_AR = makeFlank('wark_AR', 3, "Warkwarkwark", {extraStats: [g.doubleTwin, g.tripleTwin]})
 Class.warkwawawark_AR = {
@@ -5131,13 +5578,17 @@ Class.warkwawawark_AR = {
     LABEL: "Warkwawarkrk",
     DANGER: 8,
     STAT_NAMES: statnames.trap,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 15,
                 WIDTH: 8,
                 ANGLE: 90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.twin, g.wark]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
             }
         },
         {
@@ -5244,406 +5695,77 @@ Class.warkwawarkrk_AR = {
     PARENT: "genericTank",
     LABEL: "Warkwawarkrk",
     DANGER: 8,
-    STAT_NAMES: statnames.trap,
-    GUNS: [
-        ...weaponMirror([
-            {
-                POSITION: {
-                    LENGTH: 15,
-                    WIDTH: 8,
-                    Y: -5.5,
-                    ANGLE: 155,
-                }
-            },
-            {
-                POSITION: {
-                    LENGTH: 3.25,
-                    WIDTH: 8,
-                    ASPECT: 1.7,
-                    X: 14,
-                    Y: -5.5,
-                    ANGLE: 155,
-                },
-                PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.trap, g.twin, g.twin, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
-                    TYPE: "trap",
-                    STAT_CALCULATOR: "trap"
-                }
+    STAT_NAMES: statnames.desmos,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 8,
+                ANGLE: 90
             }
-        ], {delayIncrement: 0.5}),
-        ...weaponArray(weaponMirror([
-            {
-                POSITION: {
-                    LENGTH: 15,
-                    WIDTH: 8,
-                    Y: 5.5,
-                    ANGLE: 5
-                }
+        },
+        {
+            POSITION: {
+                LENGTH: 3.25,
+                WIDTH: 8,
+                ASPECT: 1.7,
+                X: 14,
+                ANGLE: 90
             },
-            {
-                POSITION: {
-                    LENGTH: 3.25,
-                    WIDTH: 8,
-                    ASPECT: 1.7,
-                    X: 14,
-                    Y: 5.5,
-                    ANGLE: 5
-                },
-                PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.trap, g.twin, g.doubleTwin, g.hewnDouble]),
-                    TYPE: "trap",
-                    STAT_CALCULATOR: "trap"
-                }
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.flankGuard]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
             }
-        ], {delayIncrement: 0.5}), 2)
-    ]
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 6,
+                ASPECT: -1.5,
+                Y: -5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.doubleTwin, g.desmos]),
+                TYPE: ["bullet", { CONTROLLERS: ['snake'] }]
+            },
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 6,
+                ASPECT: -1.5,
+                Y: 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.doubleTwin, g.desmos]),
+                TYPE: ["bullet", { CONTROLLERS: [['snake', { invert: true }]] }]
+            },
+        },
+        {
+            POSITION: {
+                LENGTH: 16.5,
+                WIDTH: 2,
+                ASPECT: -9.25
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 5,
+                ASPECT: -4,
+                X: -9.5,
+                Y: -7,
+                ANGLE: 90
+            }
+        }, { delayIncrement: 0.5 })
+    ], 2)
 }
 Class.weedwhacker_AR = makeGuard('marksman', "Weedwhacker")
 
 // Tier 5 (are we deadass)
 Class.custodian_AR = makeGuard('single', "Custodian")
 
-// Class Tree
-if (!Config.arms_race == true) {return}
-Config.spawn_message = "You have spawned! Welcome to the game.\n"
-                     + "You will be invulnerable until you move or shoot.\n"
-                     + "It looks like this server is using the Arms Race addon. It is currently in an alpha state with many missing features.\n"
-                     + "Please report any bugs you encounter!"
-
-let tier4 = 3;
-if (!free_tier_4) {
-    tier4 = 4;
-    Config.level_cap = 60;
-    Config.level_cap_cheat = 60;
-}
-
-function makeAutoBranch(type, tier, whitelist = [], blacklist = []) {
-    const upgrades = [...Class[type][`UPGRADES_TIER_${tier}`]].map(x => x.endsWith('_AR') ? x.slice(0, -3) : x)
-    const cleanUpgrades = upgrades.filter(x => {return !blacklist.includes(x) && !/^auto/i.test(x) || whitelist.includes(x)})
-
-    const megaTripleAuto = ['megaAuto', 'tripleAuto'].map(x => x + type.charAt(0).toUpperCase() + type.slice(1))
- 
-    return [...megaTripleAuto.map(x => x.endsWith('_AR') ? x.slice(0, -3) : x), ...cleanUpgrades.map(x => 'auto' + x.charAt(0).toUpperCase() + x.slice(1))]
-}
-
-removeUpgrades('director', 3, ['bigCheese'])
-removeUpgrades('healer', 3, ['ambulance', 'surgeon', 'paramedic'])
-removeUpgrades('trapper', 3, ['barricade'])
-removeUpgrades('twin', 3, ['bulwark'])
-
-addUpgrades('basic', 1, [])
-    addUpgrades('basic', 2, [])
-        addUpgrades('basic', 3, [])
-
-        addUpgrades('smasher', 3, ['banger', 'drifter'], preset.ARsuffix)
-            addUpgrades('megaSmasher', tier4, [], preset.ARsuffix)
-            addUpgrades('spike', tier4, [], preset.ARsuffix)
-            addUpgrades('autoSmasher', tier4, [], preset.ARsuffix)
-            addUpgrades('landmine', tier4, [], preset.ARsuffix)
-            addUpgrades('bonker', tier4, [], preset.ARsuffix)
-            addUpgrades('banger_AR', tier4, [], preset.ARsuffix)
-            addUpgrades('drifter_AR', tier4, [], preset.ARsuffix)
-
-        addUpgrades('healer', 3, ['scientist', 'nurse', 'triHealer', 'analyzer', 'psychiatrist', 'soother', 'recalibrator'], preset.ARsuffix)
-            addUpgrades('healer', tier4, ['renovater', 'physician'], preset.ARsuffix)
-            addUpgrades('medic', tier4, ['intern', 'ointment', 'injection', 'actuary'], preset.ARsuffix)
-            addUpgrades('scientist_AR', tier4, ['surgeon', 'professor_AR', 'chemist_AR'])
-            addUpgrades('nurse_AR', tier4, ['paramedic', 'therapist_AR', 'clinician_AR'])
-            addUpgrades('triHealer_AR', tier4, ['ambulance', 'healer3_AR', 'hexaHealer_AR', 'chemist_AR'])
-            addUpgrades('analyzer_AR', tier4, ['accountant', 'clerk', 'guru'], preset.ARsuffix)
-            addUpgrades('psychiatrist_AR', tier4, ['therapist', 'guru', 'actuary'], preset.ARsuffix)
-            addUpgrades('soother_AR', tier4, ['doctor', 'antidote', 'medicare'], preset.ARsuffix)
-            addUpgrades('recalibrator_AR', tier4, [], preset.ARsuffix)
-
-    addUpgrades('twin', 2, ['wark'], preset.ARsuffix)
-        addUpgrades('twin', 3, [])
-            addUpgrades('twin', tier4, ['duo'], preset.ARsuffix)
-            //addUpgrades('dual', tier4, [/*'threefold', 'doubleDual', 'ravisher', 'vulture', 'nimrod', 'autoDual', 'bifold', 'dyadic'*/], preset.ARsuffix)
-            //addUpgrades('musket', tier4, [/*'doubleMusket', 'flintlock', 'arbalest', 'matchlock', 'autoMusket', 'duelist', 'bifold'*/], preset.ARsuffix)
-
-        addUpgrades('doubleTwin', 3, ['doubleFlankTwin', 'doubleGunner', 'doubleHelix', 'warkwark'], preset.ARsuffix)
-            addUpgrades('doubleTwin', tier4, ['doubleDual', 'doubleMusket', 'overdoubleTwin', 'underdoubleTwin'], preset.ARsuffix)
-            addUpgrades('tripleTwin', tier4, ['quadTwin', 'autoTriple', 'bentTriple', 'hewnTriple', 'tripleFlankTwin', 'tripleGunner', 'tripleHelix', 'warkwarkwark'], preset.ARsuffix)
-            addUpgrades('hewnDouble', tier4, ['hewnTriple', 'autoHewnDouble', 'cleft', 'skewnDouble', 'hewnFlankDouble', 'hewnGunner', 'hewnHelix', 'warkwawarkrk'], preset.ARsuffix)
-            addUpgrades('autoDouble', tier4, ['megaAutoDouble', 'tripleAutoDouble', 'autoTriple', 'autoHewnDouble', 'autoBentDouble', 'autoDoubleFlank', 'autoDoubleGunner', 'autoDoubleHelix', 'autoWarkwark'], preset.ARsuffix)
-            addUpgrades('bentDouble', tier4, ['bentTriple', 'flexedDouble', 'autoBentDouble', 'doubleTriplet', 'doubleTriplex', 'cleft', 'doubleSpreadshot', 'bentFlankDouble', 'bentDoubleGunner', 'bentDoubleMinigun', 'splitDouble', 'waarrkwaarrk'], preset.ARsuffix)
-            addUpgrades('doubleFlankTwin_AR', tier4, ['quadTwin', 'tripleFlankTwin', 'hewnFlankDouble', 'autoDoubleFlank', 'bentFlankDouble', 'doubleFlankGunner', 'doubleFlankHelix', 'hipwatch', 'scuffler', 'warkwawawark'], preset.ARsuffix)
-            addUpgrades('doubleGunner_AR', tier4, ['tripleGunner', 'hewnGunner', 'autoDoubleGunner', 'bentDoubleGunner', 'doubleFlankGunner', 'doubleNailgun', 'doubleMachineGunner', 'overdoubleGunner', 'underdoubleGunner', 'doubleBattery', 'doubleRimfire', 'doubleVolley', 'doubleEqualizer'], preset.ARsuffix)
-            addUpgrades('doubleHelix_AR', tier4, ['tripleHelix', 'hewnHelix', 'autoDoubleHelix', 'doubleTriplex', 'doubleFlankHelix', 'doubleCoil', 'doubleDuplicator'], preset.ARsuffix)
-            addUpgrades('warkwark_AR', tier4, ['warkwarkwark', 'warkwawarkrk', 'autoWarkwark', 'waarrkwaarrk', 'warkwawawark', 'doubleEqualizer', 'guardrail', 'sealer', 'setup'], preset.ARsuffix)
-
-        addUpgrades('tripleShot', 3, ['splitShot', 'autoTripleShot', 'bentGunner', 'bentMinigun', 'defect', 'waarrk'], preset.ARsuffix)
-            //addUpgrades('tripleShot', tier4, [/*'threefold', 'flintlock'*/], preset.ARsuffix)
-            //addUpgrades('pentaShot', tier4, ['heptaShot', 'flexedDouble', 'flexedHybrid', 'quintuplet', 'crackshot', 'autoPentaShot', 'flexedGunner', 'flexedMinigun', 'deficiency', 'waarararrk'], preset.ARsuffix)
-            //addUpgrades('spreadshot', tier4, ['doubleSpreadshot', 'smearer', 'autoSpreadshot', 'dauber', 'ballista', 'bozo', 'fungus'], preset.ARsuffix)
-            //addUpgrades('bentHybrid', tier4, ['overshot'/*, 'bentSynthesis'*/, 'undershot'/*, 'hatcher', 'bentHybriddrive', 'bentCrossbreed'*/, 'flexedHybrid', 'smearer', 'splitHybrid', 'autoBentHybrid', 'spambrid', 'junker', 'triprid', 'triprix', 'bentCatcher'], preset.ARsuffix)
-            //addUpgrades('bentDouble', tier4, [], preset.ARsuffix)
-            //addUpgrades('triplet', tier4, [], preset.ARsuffix)
-            //addUpgrades('triplex', tier4, ['triprix', 'doubleTriplex', 'autoTriplex', 'nerd'], preset.ARsuffix)
-            //addUpgrades('splitShot_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('bentGunner_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('bentMinigun_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('defect_AR', tier4, ['deficiency', 'bozo', 'nitwit', 'nerd', 'dork', 'donkey'/*, 'mangle', 'loon', 'klutz', 'jerker'*/, 'fault', 'autoDefect'], preset.ARsuffix)
-            //addUpgrades('waarrk_AR', tier4, [], preset.ARsuffix)
-
-        addUpgrades('gunner', 3, ['rimfire', 'volley', 'doubleGunner', 'bentGunner', 'equalizer', 'undergunner'], preset.ARsuffix)
-            //addUpgrades('gunner', tier4, [/*'dam'*/], preset.ARsuffix)
-            //addUpgrades('nailgun', tier4, [], preset.ARsuffix)
-            //addUpgrades('auto4', tier4, [], preset.ARsuffix)
-            //addUpgrades('machineGunner', tier4, [], preset.ARsuffix)
-            //addUpgrades('gunnerTrapper', tier4, [], preset.ARsuffix)
-            //addUpgrades('cyclone', tier4, ['autoCyclone'], preset.ARsuffix)
-            //addUpgrades('overgunner', tier4, [], preset.ARsuffix)
-            //addUpgrades('battery', tier4, [], preset.ARsuffix)
-            //addUpgrades('buttbuttin', tier4, [], preset.ARsuffix)
-            //addUpgrades('blower', tier4, [], preset.ARsuffix)
-            //addUpgrades('rimfire_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('volley_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('doubleGunner_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('bentGunner_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('equalizer_AR', tier4, [], preset.ARsuffix)
-
-        addUpgrades('hexaTank', 3, ['autoHexaTank', 'mingler', 'combo'], preset.ARsuffix)
-            //addUpgrades('hexaTank', tier4, [/*'tripleFlankTwin'*/], preset.ARsuffix)
-            //addUpgrades('octoTank', tier4, ['autoOctoTank'], preset.ARsuffix)
-            //addUpgrades('cyclone', tier4, [], preset.ARsuffix)
-            //addUpgrades('hexaTrapper', tier4, ['autoHexaTrapper'], preset.ARsuffix)
-            //addUpgrades('deathStar', tier4, ['autoDeathStar'], preset.ARsuffix)
-            //addUpgrades('mingler_AR', tier4, ['autoMingler'], preset.ARsuffix)
-            //addUpgrades('combo_AR', tier4, ['autoCombo'], preset.ARsuffix)
-
-        addUpgrades('helix', 3, ['coil', 'twindertow_AR', 'duplicator', 'doubleHelix_AR', 'hybrix_AR', 'autoHelix_AR'])
-            //addUpgrades('triplex', tier4, [], preset.ARsuffix)
-            //addUpgrades('quadruplex', tier4, ['autoQuadruplex'], preset.ARsuffix)
-            //addUpgrades('coil', tier4, ['doubleCoil', 'autoCoil'], preset.ARsuffix)
-            //addUpgrades('duplicator', tier4, ['doubleDuplicator', 'autoDuplicator'], preset.ARsuffix)
-            //addUpgrades('doubleHelix_AR', tier4, [], preset.ARsuffix)
-
-        addUpgrades('wark_AR', 3, ['warkwark_AR', 'waarrk_AR', 'equalizer_AR', 'hexaTrapper', 'hutch_AR', 'cog_AR', 'expeller_AR', 'bulwark', 'coalesce_AR', 'autoWark_AR'])
-            addUpgrades('wark_AR', tier4, [/*'megaWark'*/], preset.ARsuffix)
-            //addUpgrades('warkwark_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('waarrk_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('equalizer_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('hexaTrapper', tier4, [], preset.ARsuffix)
-            //addUpgrades('hutch_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('cog_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('expeller_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('bulwark', tier4, [/*'parapet', 'partition', 'thrasher', 'dam', 'striker', 'bentBulwark', 'autoBulwark', 'stockade', 'fencer', 'impeder', 'quadwark'*/], preset.ARsuffix)
-            //addUpgrades('coalesce_AR', tier4, [], preset.ARsuffix)
-
-    addUpgrades('sniper', 2, [])
-        addUpgrades('sniper', 3, ['railgun'], preset.ARsuffix)
-            addUpgrades('sniper', tier4, ['sharpshooter'], preset.ARsuffix)
-            addUpgrades('railgun_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('bushwhacker', tier4, ['executor'/*, 'anchor'*/, 'butcher', 'tommy', 'ransacker'/*, 'raider', 'molder', 'thrasher'*/, 'autoBushwhacker'/*, 'blowgun', 'lockup', 'watchman', 'triBushwhacker'*/], preset.ARsuffix)
-
-        addUpgrades('assassin', 3, ['hitman', 'sniper3', 'enforcer', 'courser'], preset.ARsuffix)
-            //addUpgrades('assassin', tier4, ['executor'/*, 'finger'*/], preset.ARsuffix)
-            //addUpgrades('ranger', tier4, [], preset.ARsuffix)
-            //addUpgrades('falcon', tier4, [], preset.ARsuffix)
-            //addUpgrades('stalker', tier4, [], preset.ARsuffix)
-            //addUpgrades('single', tier4, ['duo', 'sharpshooter', 'gadgetGun', 'ternion', 'coordinator', 'bruiser', 'tricker'/*, 'vinculum'*/, 'mono', 'avian', 'spy', 'autoSingle', 'cyclops', 'orifice', 'assistant'/*, 'basic3'*/, 'pistol', 'subduer'], preset.ARsuffix)
-            //addUpgrades('deadeye', tier4, [], preset.ARsuffix)
-            //addUpgrades('buttbuttin', tier4, [], preset.ARsuffix)
-            //addUpgrades('hitman_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('sniper3_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('enforcer_AR', tier4, [], preset.ARsuffix)
-            //addUpgrades('courser_AR', tier4, [], preset.ARsuffix)
-
-        addUpgrades('hunter', 3, ['autoHunter', 'megaHunter', 'prober', 'courser'], preset.ARsuffix)
-
-        addUpgrades('minigun', 3, ['zipper', 'bentMinigun', 'autoMinigun', 'widget', 'piercer'], preset.ARsuffix)
-
-        addUpgrades('rifle', 3, ['autoRifle', 'enforcer', 'prober'], preset.ARsuffix)
-
-        addUpgrades('marksman', 3, ['piercer', 'beadle', 'autoMarksman'], preset.ARsuffix)
-
-    addUpgrades('machineGun', 2, ['diesel', 'machineTrapper'], preset.ARsuffix)
-        addUpgrades('machineGun', 3, [])
-            addUpgrades('machineGun', tier4, ['gadgetGun'], preset.ARsuffix)
-
-        addUpgrades('artillery', 3, ['queller', 'forger', 'force', 'autoArtillery', 'foctillery', 'discharger'], preset.ARsuffix)
-
-        //addUpgrades('minigun', 3, [], preset.ARsuffix)
-
-        //addUpgrades('gunner', 3, [], preset.ARsuffix)
-
-        addUpgrades('sprayer', 3, ['frother', 'foamer', 'faucet', 'shower', 'autoSprayer', 'springer'], preset.ARsuffix)
-
-        addUpgrades('diesel_AR', 3, ['jalopy_AR', 'machineGunner', 'dieselTrapper_AR', 'polluter_AR', 'autoDiesel_AR'])
-
-        addUpgrades('machineTrapper_AR', 3, ['dieselTrapper_AR', 'barricade', 'equalizer_AR', 'frother_AR', 'machineGuard_AR', 'encircler_AR', 'machineMech_AR', 'triMachine_AR', 'expeller_AR', 'autoMachineTrapper_AR', 'deviation_AR'])
-
-    addUpgrades('flankGuard', 2, [])
-        addUpgrades('flankGuard', 3, [])
-            addUpgrades('flankGuard', tier4, ['ternion'], preset.ARsuffix)
-
-        //addUpgrades('hexaTank', 3, [], preset.ARsuffix)
-
-        addUpgrades('triAngle', 3, ['cockatiel', 'integrator', 'defect', 'quadAngle'], preset.ARsuffix)
-            //addUpgrades('triAngle', tier4, ['raven', 'shoebill'], preset.ARsuffix)
-            //addUpgrades('booster', tier4, ['rocket'], preset.ARsuffix)
-
-        addUpgrades('auto3', 3, ['sniper3', 'crowbar', 'autoAuto3', 'combo'], preset.ARsuffix)
-            //addUpgrades('auto5', tier4, ['autoAuto5'], preset.ARsuffix)
-            //addUpgrades('mega3', tier4, ['autoMega3'], preset.ARsuffix)
-            //addUpgrades('auto4', tier4, ['autoAuto4'], preset.ARsuffix)
-            //addUpgrades('banshee', tier4, ['autoBanshee'], preset.ARsuffix)
-            //addUpgrades('sniper3_AR', tier4, ['autoSniper3'], preset.ARsuffix)
-            //addUpgrades('crowbar_AR', tier4, ['autoCrowbar'], preset.ARsuffix)
-            //addUpgrades('autoAuto3_AR', tier4, makeAutoBranch('auto3', 3, ['auto5', 'auto4']), preset.ARsuffix)
-            //addUpgrades('combo_AR', tier4, ['autoCombo'], preset.ARsuffix)
-
-        addUpgrades('trapGuard', 3, ['peashooter', 'incarcerator', 'mechGuard', 'autoTrapGuard', 'machineGuard', 'triTrapGuard'], preset.ARsuffix)
-            //addUpgrades('autoTrapGuard_AR', tier4, [...makeAutoBranch('trapGuard', 3, [], ['triTrapGuard']), 'hexaTrapGuard'], preset.ARsuffix)
-
-        addUpgrades('triTrapper', 3, ['triPen_AR', 'triMech_AR', 'triMachine_AR', 'triTrapGuard_AR', 'prodigy'])
-            //addUpgrades('triTrapper', tier4, ['triMegaTrapper', 'warkwarkwark'], preset.ARsuffix)
-
-    addUpgrades('director', 2, ['directordrive', 'honcho', 'doper'], preset.ARsuffix)
-        addUpgrades('director', 3, [])
-            addUpgrades('director', tier4, ['coordinator'], preset.ARsuffix)
-            addUpgrades('manager', tier4, [], preset.ARsuffix)
-
-        addUpgrades('overseer', 3, ['captain', 'foreman', 'dopeseer'], preset.ARsuffix)
-            addUpgrades('overseer', tier4, ['inspector', 'overdoubleTwin'], preset.ARsuffix)
-
-        addUpgrades('cruiser', 3, ['productionist', 'cruiserdrive', 'hangar', 'zipper', 'faucet', 'baltimore', 'mosey'], preset.ARsuffix)
-
-        addUpgrades('underseer', 3, ['angleseer_AR', 'pentaseer_AR', 'hexaseer_AR', 'undertrapper_AR', 'undergunner_AR', 'mummifier_AR', 'prodigy', 'autoUnderseer_AR', 'underdrive_AR', 'dealer_AR'])
-
-        addUpgrades('spawner', 3, ['megaSpawner', 'productionist', 'spawnerdrive', 'captain', 'hangar', 'laborer', 'foundry', 'issuer'], preset.ARsuffix)
-
-        addUpgrades('directordrive_AR', 3, ['directorstorm_AR', 'overdrive', 'cruiserdrive_AR', 'underdrive_AR', 'spawnerdrive_AR', 'autoDirectordrive_AR', 'honchodrive_AR', 'doperdrive_AR'])
-
-        addUpgrades('honcho_AR', 3, ['foreman_AR', 'baltimore_AR', 'mummifier_AR', 'foundry_AR', 'bigCheese', 'autoHoncho_AR', 'honchodrive_AR', 'junkie_AR'])
-
-        addUpgrades('doper_AR', 3, ['brisker', 'dopeseer', 'mosey', 'dealer', 'issuer', 'junkie', 'doperdrive', 'autoDoper'], preset.ARsuffix)
-
-    addUpgrades('pounder', 2, [])
-        addUpgrades('pounder', 3, [])
-            addUpgrades('pounder', tier4, ['bruiser'], preset.ARsuffix)
-
-        addUpgrades('destroyer', 3, ['megaTrapper', 'queller', 'autoDestroyer', 'hurler', 'slinker'], preset.ARsuffix)
-
-        addUpgrades('builder', 3, ['forger', 'stall', 'fashioner', 'charger'], preset.ARsuffix)
-
-        //addUpgrades('artillery', 3, [], preset.ARsuffix)
-
-        addUpgrades('launcher', 3, ['rocketeer', 'pitcher_AR', 'cluster_AR', 'projector_AR', 'heaver_AR', 'autoLauncher_AR', 'hurler_AR', 'inception_AR'])
-
-    addUpgrades('trapper', 2, ['pen', 'mech', 'machineTrapper', 'wark'], preset.ARsuffix)
-        addUpgrades('trapper', 3, ['undertrapper', 'megaTrapper'], preset.ARsuffix)
-            addUpgrades('trapper', tier4, ['tricker'], preset.ARsuffix)
-
-    addUpgrades('desmos', 2, ['volute'], {start: 0})
-    addUpgrades('desmos', 2, ['spiral', 'undertow', 'repeater'])
-        addUpgrades('desmos', 3, [])
-            addUpgrades('desmos', tier4, [], preset.ARsuffix)
-
-        //addUpgrades('helix', 3, [])
-
-        addUpgrades('undertow', 3, ['twindertow'], preset.ARsuffix)
-
-if (Config.retrograde) {
-    addUpgrades('twin', 2, [])
-
-        addUpgrades('tripleShot', 3, [])
-            //addUpgrades('pentaShot', tier4, ['pentaBlaster'], {start: 1, ...preset.ARsuffix})
-            //addUpgrades('bentHybrid', tier4, ['twistedHybrid'], {start: 1, ...preset.ARsuffix})
-            //addUpgrades('bentDouble', tier4, ['twistedDouble'], preset.ARsuffix)
-            //addUpgrades('triplet', tier4, ['twistlet'], preset.ARsuffix)
-            //addUpgrades('triBlaster', tier4, ['pentaBlaster', 'twistedHybrid', 'twistedDouble', 'twistlet', 'autoTriBlaster', 'bentSubverter'], preset.ARsuffix)
-
-        addUpgrades('gunner', 3, [], preset.ARsuffix)
-
-    addUpgrades('machineGun', 2, [])
-
-        addUpgrades('artillery', 3, ['doubleArtillery'], preset.ARsuffix)
-
-        addUpgrades('minigun', 3, ['doubleMinigun'], preset.ARsuffix)
-
-        //addUpgrades('gunner', 3, [], preset.ARsuffix)
-
-        addUpgrades('sprayer', 3, ['doubleSprayer'], preset.ARsuffix)
-            //addUpgrades('autoSprayer_AR', tier4, ['autoDoubleSprayer'], preset.ARsuffix)
-            //addUpgrades('doubleSprayer_AR', tier4, [], preset.ARsuffix)
-
-        addUpgrades('blaster', 3, ['volley', 'blasterTrapper', 'doubleBlaster', 'ripoff', 'autoBlaster'], preset.ARsuffix)
-
-        addUpgrades('gatlingGun', 3, ['gatlingTrapper', 'doubleGatling', 'gator', 'autoGatlingGun'], preset.ARsuffix)
-
-        addUpgrades('doubleMachine', 3, ['doubleArtillery', 'doubleMinigun', 'doubleGunner', 'doubleSprayer', 'doubleBlaster', 'doubleGatling', 'doubleDiesel', 'triMachine', 'autoDoubleMachine'], preset.ARsuffix)
-            //addUpgrades('tripleMachine', tier4, ['tripleSprayer', 'autoTripleMachine'], preset.ARsuffix)
-            //addUpgrades('doubleSprayer_AR', tier4, ['tripleSprayer', 'autoDoubleSprayer'], preset.ARsuffix)
-            //addUpgrades('autoDoubleMachine_AR', tier4, makeAutoBranch('doubleMachine', 3), preset.ARsuffix)
-
-        addUpgrades('diesel_AR', 3, ['doubleDiesel'], preset.ARsuffix)
-
-        addUpgrades('machineTrapper_AR', 3, ['blasterTrapper', 'gatlingTrapper'], preset.ARsuffix)
-}
-
-// Autos
-addUpgrades('autoArtillery_AR', tier4, makeAutoBranch('artillery', 3), preset.ARsuffix)
-addUpgrades('autoAssassin', tier4, makeAutoBranch('assassin', 3), preset.ARsuffix)
-addUpgrades('autoBlaster_AR', tier4, makeAutoBranch('blaster', 3), preset.ARsuffix)
-addUpgrades('autoGatlingGun_AR', tier4, makeAutoBranch('gatlingGun', 3), preset.ARsuffix)
-addUpgrades('autoGunner', tier4, makeAutoBranch('gunner', 3, ['auto4']), preset.ARsuffix)
-addUpgrades('autoHelix_AR', tier4, makeAutoBranch('helix', 3), preset.ARsuffix)
-addUpgrades('autoHexaTank_AR', tier4, makeAutoBranch('hexaTank', 3, []/*, ['hexaTrapper']*/), preset.ARsuffix)
-addUpgrades('autoHunter_AR', tier4, makeAutoBranch('hunter', 3), preset.ARsuffix)
-addUpgrades('autoMarksman_AR', tier4, makeAutoBranch('marksman', 3), preset.ARsuffix)
-addUpgrades('autoMinigun_AR', tier4, makeAutoBranch('minigun', 3), preset.ARsuffix)
-addUpgrades('autoRifle_AR', tier4, makeAutoBranch('rifle', 3), preset.ARsuffix)
-addUpgrades('autoSprayer_AR', tier4, makeAutoBranch('sprayer', 3), preset.ARsuffix)
-addUpgrades('autoTripleShot_AR', tier4, makeAutoBranch('tripleShot', 3), preset.ARsuffix)
-addUpgrades('autoWark_AR', tier4, makeAutoBranch('wark_AR', 3), preset.ARsuffix)
-
-/*
-if (use_original_tree) {
-removeUpgrades('basic', 1, ['desmos'])
-    removeUpgrades('basic', 2, [])
-        addUpgrades('basic', 3, ['single'])
-            removeUpgrades('single', tier4, Class.single[`UPGRADES_TIER_${tier4}`])
-            addUpgrades('single', tier4, ['duo', 'sharpshooter', 'gadgetGun', 'ternion', 'coordinator', 'bruiser', 'tricker', 'mono', 'avian', 'custodian', 'assistant', 'autoSingle'], preset.ARsuffix)
-        removeUpgrades('healer', 3, ['recalibrator_AR'])
-
-    removeUpgrades('twin', 2, ['helix'])
-        removeUpgrades('doubleTwin', 3, ['doubleHelix_AR'])
-            removeUpgrades('tripleTwin', tier4, ['tripleHelix_AR'])
-            removeUpgrades('autoDouble', tier4, ['autoDoubleHelix_AR'])
-        removeUpgrades('tripleShot', 3, ['triplex'])
-
-    removeUpgrades('sniper', 2, ['marksman'])
-        removeUpgrades('assassin', 3, ['single', 'deadeye'])
-        removeUpgrades('hunter', 3, ['xHunter', 'nimrod'])
-        removeUpgrades('rifle', 3, ['revolver'])
-
-    removeUpgrades('machineGun', 2, ['sprayer'])
-        addUpgrades('machineGun', 3, ['sprayer'])
-            addUpgrades('sprayer', tier4, ['duster_AR', 'frother_AR', 'scatterer_AR', 'foamer_AR', 'shower_AR', 'autoSprayer_AR', 'phoenix'])
-
-        removeUpgrades('sprayer', 3, Class.sprayer.UPGRADES_TIER_3)
-
-    //removeUpgrades('flankGuard', 2, [])
-        removeUpgrades('flankGuard', 3, ['quadruplex'])
-        removeUpgrades('triAngle', 3, ['phoenix', 'vulture'])
-
-    //removeUpgrades('director', 2, [])
-        removeUpgrades('overseer', 3, ['overtrapper', 'overgunner'])
-        removeUpgrades('underseer', 3, ['infestor'])
-
-    //removeUpgrades('pounder', 2, [])
-        removeUpgrades('pounder', 3, ['deathStar'])
-        removeUpgrades('builder', 3, ['assembler'])
-} else {
-*/
-addUpgrades('menu_unused', 0, ['4', '5'].map(x => 'menu_unused_T' + x + '_AR'))
-Class.menu_unused_T4_AR = makeMenu("Unused (Tier 4)", {upgrades: ["duster_AR"/*, "jimmy_AR", "jumpSmasher"*/], boxLabel: "Tier 4 (Lv.60)"})
-Class.menu_unused_T5_AR = makeMenu("Unused (Tier 5)", {upgrades: ["custodian_AR"], boxLabel: "Tier 5 (Lv.75)"})
-//}
-
-return;
 
 // Functions
 const makeBattle = (type, name = -1, options = {}) => {
@@ -5715,7 +5837,7 @@ const makeBattle = (type, name = -1, options = {}) => {
     }
     return output
 }
-const makeFore = (type, name = -1, options = {}) => { // PLACEHOLDER FUNCTION!!!
+const makeFore = (type, name = -1, options = {}) => {
     type = ensureIsClass(type);
     let output = dereference(type);
 
@@ -5730,7 +5852,13 @@ const makeFore = (type, name = -1, options = {}) => { // PLACEHOLDER FUNCTION!!!
 
     let spawners = [];
     let spawnerProperties = {
-
+        SHOOT_SETTINGS: combineStats([g.drone, { speed: 1.2, reload: 0.9 }]),
+        TYPE: "drone",
+        AUTOFIRE: true,
+        SYNCS_SKILLS: true,
+        STAT_CALCULATOR: "drone",
+        MAX_CHILDREN: maxChildren,
+        WAIT_TO_CYCLE: true
     }
     if (count % 2 == 1) {
         spawners.push({
@@ -5766,9 +5894,6 @@ const makeFore = (type, name = -1, options = {}) => { // PLACEHOLDER FUNCTION!!!
     if (type.UPGRADE_LABEL !== undefined) {
         output.UPGRADE_LABEL = output.LABEL;
     }
-
-    output.UPGRADE_COLOR = "black";
-    output.UPGRADE_TOOLTIP = "The guns of this tank have not had their SHOOT_SETTINGS defined yet and will not shoot.";
     return output
 }
 const makeMummy = (type, name = -1, options = {}) => {
@@ -6053,12 +6178,15 @@ Class.operator_AR = {
     PARENT: "genericTank",
     LABEL: "Operator",
     DANGER: 7,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 21,
                 WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner]),
+                TYPE: "bullet"
             }
         },
         {
@@ -6106,9 +6234,8 @@ Class.rotaryGun_AR = {
 // Tier 4
 Class.PLACEHOLDER_healerOverseer_AR = {
     PARENT: "genericHealer",
-    LABEL: "",
+    LABEL: "Healer Overseer",
     STAT_NAMES: statnames.drone,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 6,
@@ -6116,7 +6243,15 @@ Class.PLACEHOLDER_healerOverseer_AR = {
             ASPECT: 1.2,
             X: 8,
             ANGLE: 90
-        }
+        },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.healer]),
+                TYPE: "healerBullet",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
+            }
     }, 2)
 }
 Class.PLACEHOLDER_healerSprayer_AR = {
@@ -6164,7 +6299,7 @@ Class.PLACEHOLDER_healerSprayer_AR = {
 }
 Class.PLACEHOLDER_healerUnderseer_AR = {
     PARENT: "genericHealer",
-    LABEL: "",
+    LABEL: "Healer Underseer",
     NECRO: [4],
     STAT_NAMES: statnames.drone,
     BODY: {
@@ -6173,7 +6308,6 @@ Class.PLACEHOLDER_healerUnderseer_AR = {
     },
     SHAPE: 4,
     MAX_CHILDREN: 14,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 6,
@@ -6181,7 +6315,15 @@ Class.PLACEHOLDER_healerUnderseer_AR = {
             ASPECT: 1.2,
             X: 7.4,
             ANGLE: 90
-        }
+        },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.sunchip, g.healer]),
+                TYPE: "healerBullet",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "necro",
+                WAIT_TO_CYCLE: true
+            }
     }, 2)
 }
 Class.PLACEHOLDER_whirlBanshee_AR = makeWhirlwind("banshee", {label: ""})
@@ -6276,7 +6418,34 @@ Class.autoTriple_AR = makeAuto("tripleTwin", "Auto-Triple")
 Class.autoVortex_AR = makeWhirlwind(makeAuto("launcher", "", preset.makeAuto.blank), {label: "Auto-Vortex"})
 Class.autoWhirl3_AR = makeWhirlwind(makeAuto("auto3", "", preset.makeAuto.blank), {label: "Auto-Whirl-3"})
 Class.autoWhirlGuard_AR = makeWhirlwind(makeAuto("trapGuard", "", preset.makeAuto.blank), {label: "Auto-Whirl Guard"})
-Class.ballista_AR = {PARENT: 'PLACEHOLDER', LABEL: "Ballista"}
+Class.ballista_AR = {
+    PARENT: "genericTank",
+    LABEL: "Ballista",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.35,
+        SPEED: base.SPEED * 0.85
+    },
+    CONTROLLERS: [["zoom", { distance: 500 }]],
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 26,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, g.railgun]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 12
+            }
+        }
+    ]
+}
 Class.battledrive_AR = makeDrive('battleship', {...preset.makeDrive.swarm, doNotDiscriminate: true, label: "Battledrive"})
 Class.bentTriple_AR = {
     PARENT: "genericTank",
@@ -6319,7 +6488,6 @@ Class.bigChip_AR = {
         FOV: base.FOV * 1.1,
     },
     SHAPE: 4,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 14,
@@ -6353,7 +6521,6 @@ Class.carnivore_AR = {
     },
     CONTROLLERS: ["zoom"],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -6502,8 +6669,56 @@ Class.coordinator_AR = {
         }
     ]
 }
-Class.crackshot_AR = {PARENT: 'PLACEHOLDER', LABEL: "Crackshot"}
-Class.dauber_AR = {PARENT: 'PLACEHOLDER', LABEL: "Dauber"}
+Class.crackshot_AR = {
+    PARENT: "genericTank",
+    LABEL: "Crackshot",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.4,
+        SPEED: base.SPEED * 0.85
+    },
+    CONTROLLERS: [["zoom", { distance: 550 }]],
+    GUNS: weaponMirror([
+        {
+            POSITION: {
+                LENGTH: 24,
+                WIDTH: 6,
+                Y: 3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.marksman, g.twin]),
+                TYPE: "bullet"
+            }
+        }
+    ], { delayIncrement: 0.5 })
+}
+Class.dauber_AR = {
+    PARENT: "genericTank",
+    LABEL: "Dauber",
+    DANGER: 8,
+    STAT_NAMES: statnames.trap,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 9
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 11,
+                ASPECT: 1.4,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.machineGun]),
+                TYPE: "setTrap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ]
+}
 Class.decaTank_AR = {
     PARENT: "genericTank",
     LABEL: "Deca Tank",
@@ -6624,9 +6839,73 @@ Class.doubleSplasher_AR = makeFlank('splasher', 2, "Double Splasher", {extraStat
 Class.doubleSpringer_AR = makeFlank('springer_AR', 2, "Double Springer", {extraStats: [g.flankGuard]})
 Class.doubleSubverter_AR = makeFlank('subverter', 2, "Double Subverter", {extraStats: [g.flankGuard]})
 Class.downpourer_AR = makeDrive("director", {label: "Downpourer", type: "genericEntity", size: 12, hatType: "downpourerSquare_AR"}) // fix later
-Class.flexedGunner_AR = {PARENT: 'PLACEHOLDER', LABEL: "Flexed Gunner"}
-Class.flexedMinigun_AR = {PARENT: 'PLACEHOLDER', LABEL: "Flexed Minigun"}
-Class.fungus_AR = {PARENT: 'PLACEHOLDER', LABEL: "Fungus"}
+Class.flexedGunner_AR = {
+    PARENT: "genericTank",
+    LABEL: "Flexed Gunner",
+    DANGER: 8,
+    GUNS: weaponArray([
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 2.5,
+                Y: -2.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.flankGuard]),
+                TYPE: "bullet"
+            }
+        }, { delayIncrement: 0.5 }),
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 11
+            }
+        }
+    ], 2)
+}
+Class.flexedMinigun_AR = {
+    PARENT: "genericTank",
+    LABEL: "Flexed Minigun",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.2
+    },
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.flankGuard]),
+                TYPE: "bullet"
+            }
+        }
+    ], 2)
+}
+Class.fungus_AR = {
+    PARENT: "genericTank",
+    LABEL: "Fungus",
+    DANGER: 8,
+    STAT_NAMES: statnames.swarm,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 8,
+                ASPECT: 0.6,
+                X: 6
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.carrier]),
+                TYPE: "swarm",
+                STAT_CALCULATOR: "swarm",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true
+            }
+        }
+    ], 4)
+}
 Class.garter_AR = makeSnake('bonker', 5, "Garter")
 Class.geneticist_AR = {
     PARENT: "genericHealer",
@@ -6816,7 +7095,6 @@ Class.kraw_AR = {
     PARENT: "genericHealer",
     LABEL: "Kraw",
     STAT_NAMES: statnames.trap,
-    ...preset.todo_placeholder_guns,
     GUNS: weaponMirror([
         {
             POSITION: {
@@ -7096,7 +7374,6 @@ Class.scribble_AR = {
     PARENT: "genericHealer",
     LABEL: "Scribble",
     STAT_NAMES: statnames.mixed,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -7104,6 +7381,10 @@ Class.scribble_AR = {
                 WIDTH: 6,
                 ASPECT: -0.4,
                 X: 12
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.pelleter]),
+                TYPE: "healerBullet"
             }
         },
         {
@@ -7207,7 +7488,6 @@ Class.spiker_AR = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -7215,6 +7495,14 @@ Class.spiker_AR = {
                 WIDTH: 10,
                 ASPECT: 1.3,
                 X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.healer, { speed: 2 }]),
+                TYPE: "healerBullet",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -7474,7 +7762,37 @@ Class.ultraTornado_AR = {
     })()
 }
 Class.vortex_AR = makeDrive("director", {label: "Vortex", type: "vortexAutoTurret_AR", size: 12, hatType: "vortexSquare_AR"})
-Class.waarararrk_AR = {PARENT: 'PLACEHOLDER', LABEL: "Waarararrk"}
+Class.waarararrk_AR = {
+    PARENT: "genericTank",
+    LABEL: "Waarararrk",
+    DANGER: 8,
+    STAT_NAMES: statnames.trap,
+    GUNS: weaponArray([
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 7,
+                Y: 5.5,
+                ANGLE: 5
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 3.5,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 14,
+                Y: 5.5,
+                ANGLE: 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.twin, g.wark]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ], 2)
+}
 Class.warkwarkwark_AR = {
     PARENT: "genericTank",
     LABEL: "Warkwarkwark",
@@ -7583,12 +7901,15 @@ Class.xCourser_AR = {
     PARENT: "genericTank",
     LABEL: "X-Courser",
     DANGER: 8,
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
                 LENGTH: 27,
                 WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.predator]),
+                TYPE: "bullet"
             }
         },
         {
@@ -7623,7 +7944,6 @@ Class.xNimrod_AR = {
     },
     CONTROLLERS: [["zoom", { distance: 550 }]],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -7680,7 +8000,6 @@ Class.xPredator_AR = {
     },
     CONTROLLERS: [["zoom", { distance: 550 }]],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -7733,7 +8052,6 @@ Class.yHunter_AR = {
     },
     CONTROLLERS: [["zoom", { distance: 775 }]],
     //TOOLTIP: "Hold right click to zoom.",
-    ...preset.todo_placeholder_guns,
     GUNS: [
         {
             POSITION: {
@@ -8400,12 +8718,12 @@ return
 
             Class.doubleTwin.UPGRADES_TIER_4 = ["doubleDual", "doubleMusket", "overdoubleTwin", "underdoubleTwin"].map(x => x + "_AR")
             Class.tripleTwin.UPGRADES_TIER_4 = ["quadTwin", "hewnTriple", "autoTriple", "bentTriple", "tripleFlankTwin", "tripleGunner", "tripleHelix", "warkwarkwark"].map(x => x + "_AR")
-            Class.hewnDouble.UPGRADES_TIER_4 = ["hewnTriple", "skewnDouble", "autoHewnDouble", "cleft", "hewnFlankDouble", "hewnGunner"/*, "hewnHelix"*/, "warkwawarkrk"].map(x => x + "_AR")
+            Class.hewnDouble.UPGRADES_TIER_4 = ["hewnTriple", "skewnDouble", "autoHewnDouble", "cleft", "hewnFlankDouble", "hewnGunner", "hewnHelix", "warkwawarkrk"].map(x => x + "_AR")
             Class.autoDouble.UPGRADES_TIER_4 = ["megaAutoDouble", "tripleAutoDouble", "autoTriple", "autoHewnDouble", "autoBentDouble", "autoDoubleFlank", "autoDoubleGunner", "autoDoubleHelix", "autoWarkwark"].map(x => x + "_AR")
-            Class.bentDouble.UPGRADES_TIER_4 = ["bentTriple", "flexedDouble", "autoBentDouble", "doubleTriplet", "doubleTriplex", "cleft"/*, "doubleSpreadshot", "bentFlankDouble", "bentDoubleGunner", "bentDoubleMinigun", "splitDouble", "waarrkwaarrk"*/].map(x => x + "_AR")
-            Class.doubleFlankTwin_AR.UPGRADES_TIER_4 = ["quadTwin", "tripleFlankTwin", "hewnFlankDouble", "autoDoubleFlank"/*, "bentFlankDouble", "doubleFlankGunner*/, "doubleFlankHelix", "hipwatch"/*, "scuffler", "warkwawawark"*/].map(x => x + "_AR")
+            Class.bentDouble.UPGRADES_TIER_4 = ["bentTriple", "flexedDouble", "autoBentDouble", "doubleTriplet", "doubleTriplex", "cleft", "splitDouble"/*, "doubleSpreadshot", "bentFlankDouble", "bentDoubleGunner", "bentDoubleMinigun", "waarrkwaarrk"*/].map(x => x + "_AR")
+            Class.doubleFlankTwin_AR.UPGRADES_TIER_4 = ["quadTwin", "tripleFlankTwin", "hewnFlankDouble", "autoDoubleFlank"/*, "bentFlankDouble", "doubleFlankGunner*/, "doubleFlankHelix", "hipwatch", "scuffler"/*, "warkwawawark"*/].map(x => x + "_AR")
             Class.doubleGunner_AR.UPGRADES_TIER_4 = ["tripleGunner", "hewnGunner", "autoDoubleGunner"/*, "bentDoubleGunner", "doubleFlankGunner", "doubleNailgun", "doubleMachineGunner", "overdoubleGunner", "doubleBattery", "doubleRimfire"*/, "doubleVolley"/*, "doubleEqualizer"*/].map(x => x + "_AR")
-            Class.doubleHelix_AR.UPGRADES_TIER_4 = ["tripleHelix"/*, "hewnHelix"*/, "autoDoubleHelix", "doubleTriplex", "doubleFlankHelix"].map(x => x + "_AR")
+            Class.doubleHelix_AR.UPGRADES_TIER_4 = ["tripleHelix", "hewnHelix", "autoDoubleHelix", "doubleTriplex", "doubleFlankHelix"].map(x => x + "_AR")
             Class.warkwark_AR.UPGRADES_TIER_4 = ["warkwarkwark", "warkwawarkrk", "autoWarkwark"/*, "waarrkwaarrk", "warkwawawark", "doubleEqualizer", "guardrail", "sealer", "setup"*/].map(x => x + "_AR")
 
             Class.tripleShot.UPGRADES_TIER_4 = [/*"threefold", "flintlock"*/].map(x => x + "_AR")
@@ -8415,7 +8733,7 @@ return
             //Class.bentDouble.UPGRADES_TIER_4
             Class.triplet.UPGRADES_TIER_4 = ["quintuplet", "triprid", "doubleTriplet", "autoTriplet"/*, "lasher", "minilet"*/, "nitwit"/*, "warklet"*/].map(x => x + "_AR")
             Class.triplex.UPGRADES_TIER_4 = ["quintuplex", "triprix", "doubleTriplex", "autoTriplex", "nitwix"].map(x => x + "_AR")
-            Class.splitShot_AR.UPGRADES_TIER_4 = [/*"slitShot", "crackshot", */"splitHybrid"/*, "splitDouble"*/, "autoSplitShot"/*, "hackshot"*/, "dork"/*, "splinterShot*/].map(x => x + "_AR")
+            Class.splitShot_AR.UPGRADES_TIER_4 = [/*"slitShot", "crackshot", */"splitHybrid", "splitDouble", "autoSplitShot"/*, "hackshot"*/, "dork"/*, "splinterShot*/].map(x => x + "_AR")
             Class.autoTripleShot_AR.UPGRADES_TIER_4 = ["megaAutoTripleShot", "tripleAutoTripleShot", "autoPentaShot", "autoSpreadshot", "autoBentHybrid", "autoBentDouble", "autoTriplet", "autoTriplex", "autoSplitShot", "autoBentGunner", "autoBentMinigun", "autoDefect", "autoWaarrk"].map(x => x + "_AR")
             Class.bentGunner_AR.UPGRADES_TIER_4 = [/*"flexedGunner", */"spambrid"/*, "bentDoubleGunner"*/, "autoBentGunner"/*, "dagger", "bentVolley"*/, "donkey"].map(x => x + "_AR")
             Class.bentMinigun_AR.UPGRADES_TIER_4 = [/*"flexedMinigun", "bentDoubleMinigun", */"junker"/*, "hackshot", "minilet", "bentStreamliner", "bentBarricade", "bentSubverter", "jerker", "sizzler"*/, "autoBentMinigun"/*, "bentWidget"*/].map(x => x + "_AR")
@@ -8868,3 +9186,345 @@ Class.vulture.LABEL = "Taser"
 //Class.genericEntity.LABEL = "Nimrod"
 //Class.genericEntity.LABEL = "Spiral"
 }
+
+
+// Class Tree
+if (!Config.arms_race == true) {return}
+Config.spawn_message = "You have spawned! Welcome to the game.\n"
+                     + "You will be invulnerable until you move or shoot.\n"
+                     + "It looks like this server is using the Arms Race addon. It is currently in an alpha state with many missing features.\n"
+                     + "Please report any bugs you encounter!"
+
+let tier4 = 3;
+if (!free_tier_4) {
+    tier4 = 4;
+    Config.level_cap = 60;
+    Config.level_cap_cheat = 60;
+}
+
+function makeAutoBranch(type, tier, whitelist = [], blacklist = []) {
+    const upgrades = [...Class[type][`UPGRADES_TIER_${tier}`]].map(x => x.endsWith('_AR') ? x.slice(0, -3) : x)
+    const cleanUpgrades = upgrades.filter(x => {return !blacklist.includes(x) && !/^auto/i.test(x) || whitelist.includes(x)})
+
+    const megaTripleAuto = ['megaAuto', 'tripleAuto'].map(x => x + type.charAt(0).toUpperCase() + type.slice(1))
+ 
+    return [...megaTripleAuto.map(x => x.endsWith('_AR') ? x.slice(0, -3) : x), ...cleanUpgrades.map(x => 'auto' + x.charAt(0).toUpperCase() + x.slice(1))]
+}
+
+removeUpgrades('director', 3, ['bigCheese'])
+removeUpgrades('healer', 3, ['ambulance', 'surgeon', 'paramedic'])
+removeUpgrades('trapper', 3, ['barricade'])
+removeUpgrades('twin', 3, ['bulwark'])
+
+addUpgrades('basic', [])
+    addUpgrades('basic', [])
+        addUpgrades('basic', [])
+
+        addUpgrades('smasher', ['banger', 'drifter'], preset.ARsuffix)
+            addUpgrades('megaSmasher', [], preset.ARsuffix)
+            addUpgrades('spike', [], preset.ARsuffix)
+            addUpgrades('autoSmasher', [], preset.ARsuffix)
+            addUpgrades('landmine', [], preset.ARsuffix)
+            addUpgrades('bonker', [], preset.ARsuffix)
+            addUpgrades('banger_AR', [], preset.ARsuffix)
+            addUpgrades('drifter_AR', [], preset.ARsuffix)
+
+        addUpgrades('healer', ['scientist', 'nurse', 'triHealer', 'analyzer', 'psychiatrist', 'soother', 'recalibrator'], preset.ARsuffix)
+            addUpgrades('healer', ['renovater', 'physician'], preset.ARsuffix)
+            addUpgrades('medic', ['intern', 'ointment', 'injection', 'actuary'], preset.ARsuffix)
+            addUpgrades('scientist_AR', ['surgeon', 'professor_AR', 'chemist_AR'])
+            addUpgrades('nurse_AR', ['paramedic', 'therapist_AR', 'clinician_AR'])
+            addUpgrades('triHealer_AR', ['ambulance', 'healer3_AR', 'hexaHealer_AR', 'chemist_AR'])
+            addUpgrades('analyzer_AR', ['accountant', 'clerk', 'guru'], preset.ARsuffix)
+            addUpgrades('psychiatrist_AR', ['therapist', 'guru', 'actuary'], preset.ARsuffix)
+            addUpgrades('soother_AR', ['doctor', 'antidote', 'medicare'], preset.ARsuffix)
+            addUpgrades('recalibrator_AR', [], preset.ARsuffix)
+
+    addUpgrades('twin', ['wark'], preset.ARsuffix)
+        addUpgrades('twin', [])
+            addUpgrades('twin', ['duo'], preset.ARsuffix)
+            //addUpgrades('dual', [/*'threefold', 'doubleDual', 'ravisher', 'vulture', 'nimrod', 'autoDual', 'bifold', 'dyadic'*/], preset.ARsuffix)
+            //addUpgrades('musket', [/*'doubleMusket', 'flintlock', 'arbalest', 'matchlock', 'autoMusket', 'duelist', 'bifold'*/], preset.ARsuffix)
+
+        addUpgrades('doubleTwin', ['doubleFlankTwin', 'doubleGunner', 'doubleHelix', 'warkwark'], preset.ARsuffix)
+            addUpgrades('doubleTwin', ['doubleDual', 'doubleMusket', 'overdoubleTwin', 'underdoubleTwin'], preset.ARsuffix)
+            addUpgrades('tripleTwin', ['quadTwin', 'autoTriple', 'bentTriple', 'hewnTriple', 'tripleFlankTwin', 'tripleGunner', 'tripleHelix', 'warkwarkwark'], preset.ARsuffix)
+            addUpgrades('hewnDouble', ['hewnTriple', 'autoHewnDouble', 'cleft', 'skewnDouble', 'hewnFlankDouble', 'hewnGunner', 'hewnHelix', 'warkwawarkrk'], preset.ARsuffix)
+            addUpgrades('autoDouble', ['megaAutoDouble', 'tripleAutoDouble', 'autoTriple', 'autoHewnDouble', 'autoBentDouble', 'autoDoubleFlank', 'autoDoubleGunner', 'autoDoubleHelix', 'autoWarkwark'], preset.ARsuffix)
+            addUpgrades('bentDouble', ['bentTriple', 'flexedDouble', 'autoBentDouble', 'doubleTriplet', 'doubleTriplex', 'cleft', 'doubleSpreadshot', 'bentFlankDouble', 'bentDoubleGunner', 'bentDoubleMinigun', 'splitDouble', 'waarrkwaarrk'], preset.ARsuffix)
+            addUpgrades('doubleFlankTwin_AR', ['quadTwin', 'tripleFlankTwin', 'hewnFlankDouble', 'autoDoubleFlank', 'bentFlankDouble', 'doubleFlankGunner', 'doubleFlankHelix', 'hipwatch', 'scuffler', 'warkwawawark'], preset.ARsuffix)
+            addUpgrades('doubleGunner_AR', ['tripleGunner', 'hewnGunner', 'autoDoubleGunner', 'bentDoubleGunner', 'doubleFlankGunner', 'doubleNailgun', 'doubleMachineGunner', 'overdoubleGunner', 'underdoubleGunner', 'doubleBattery', 'doubleRimfire', 'doubleVolley', 'doubleEqualizer'], preset.ARsuffix)
+            addUpgrades('doubleHelix_AR', ['tripleHelix', 'hewnHelix', 'autoDoubleHelix', 'doubleTriplex', 'doubleFlankHelix', 'doubleCoil', 'doubleDuplicator'], preset.ARsuffix)
+            addUpgrades('warkwark_AR', ['warkwarkwark', 'warkwawarkrk', 'autoWarkwark', 'waarrkwaarrk', 'warkwawawark', 'doubleEqualizer', 'guardrail', 'sealer', 'setup'], preset.ARsuffix)
+
+        addUpgrades('tripleShot', ['splitShot', 'autoTripleShot', 'bentGunner', 'bentMinigun', 'defect', 'waarrk'], preset.ARsuffix)
+            //addUpgrades('tripleShot', [/*'threefold', 'flintlock'*/], preset.ARsuffix)
+            //addUpgrades('pentaShot', ['heptaShot', 'flexedDouble', 'flexedHybrid', 'quintuplet', 'crackshot', 'autoPentaShot', 'flexedGunner', 'flexedMinigun', 'deficiency', 'waarararrk'], preset.ARsuffix)
+            //addUpgrades('spreadshot', ['doubleSpreadshot', 'smearer', 'autoSpreadshot', 'dauber', 'ballista', 'bozo', 'fungus'], preset.ARsuffix)
+            //addUpgrades('bentHybrid', ['overshot'/*, 'bentSynthesis'*/, 'undershot'/*, 'hatcher', 'bentHybriddrive', 'bentCrossbreed'*/, 'flexedHybrid', 'smearer', 'splitHybrid', 'autoBentHybrid', 'spambrid', 'junker', 'triprid', 'triprix', 'bentCatcher'], preset.ARsuffix)
+            //addUpgrades('bentDouble', [], preset.ARsuffix)
+            //addUpgrades('triplet', [], preset.ARsuffix)
+            //addUpgrades('triplex', ['triprix', 'doubleTriplex', 'autoTriplex', 'nerd'], preset.ARsuffix)
+            //addUpgrades('splitShot_AR', [], preset.ARsuffix)
+            //addUpgrades('bentGunner_AR', [], preset.ARsuffix)
+            //addUpgrades('bentMinigun_AR', [], preset.ARsuffix)
+            //addUpgrades('defect_AR', ['deficiency', 'bozo', 'nitwit', 'nerd', 'dork', 'donkey'/*, 'mangle', 'loon', 'klutz', 'jerker'*/, 'fault', 'autoDefect'], preset.ARsuffix)
+            //addUpgrades('waarrk_AR', [], preset.ARsuffix)
+
+        addUpgrades('gunner', ['rimfire', 'volley', 'doubleGunner', 'bentGunner', 'equalizer', 'undergunner'], preset.ARsuffix)
+            //addUpgrades('gunner', [/*'dam'*/], preset.ARsuffix)
+            //addUpgrades('nailgun', [], preset.ARsuffix)
+            //addUpgrades('auto4', [], preset.ARsuffix)
+            //addUpgrades('machineGunner', [], preset.ARsuffix)
+            //addUpgrades('gunnerTrapper', [], preset.ARsuffix)
+            //addUpgrades('cyclone', ['autoCyclone'], preset.ARsuffix)
+            //addUpgrades('overgunner', [], preset.ARsuffix)
+            //addUpgrades('battery', [], preset.ARsuffix)
+            //addUpgrades('buttbuttin', [], preset.ARsuffix)
+            //addUpgrades('blower', [], preset.ARsuffix)
+            //addUpgrades('rimfire_AR', [], preset.ARsuffix)
+            //addUpgrades('volley_AR', [], preset.ARsuffix)
+            //addUpgrades('doubleGunner_AR', [], preset.ARsuffix)
+            //addUpgrades('bentGunner_AR', [], preset.ARsuffix)
+            //addUpgrades('equalizer_AR', [], preset.ARsuffix)
+
+        addUpgrades('hexaTank', ['autoHexaTank', 'mingler', 'combo'], preset.ARsuffix)
+            //addUpgrades('hexaTank', [/*'tripleFlankTwin'*/], preset.ARsuffix)
+            //addUpgrades('octoTank', ['autoOctoTank'], preset.ARsuffix)
+            //addUpgrades('cyclone', [], preset.ARsuffix)
+            //addUpgrades('hexaTrapper', ['autoHexaTrapper'], preset.ARsuffix)
+            //addUpgrades('deathStar', ['autoDeathStar'], preset.ARsuffix)
+            //addUpgrades('mingler_AR', ['autoMingler'], preset.ARsuffix)
+            //addUpgrades('combo_AR', ['autoCombo'], preset.ARsuffix)
+
+        addUpgrades('helix', ['coil', 'twindertow_AR', 'duplicator', 'doubleHelix_AR', 'hybrix_AR', 'autoHelix_AR'])
+            //addUpgrades('triplex', [], preset.ARsuffix)
+            //addUpgrades('quadruplex', ['autoQuadruplex'], preset.ARsuffix)
+            //addUpgrades('coil', ['doubleCoil', 'autoCoil'], preset.ARsuffix)
+            //addUpgrades('duplicator', ['doubleDuplicator', 'autoDuplicator'], preset.ARsuffix)
+            //addUpgrades('doubleHelix_AR', [], preset.ARsuffix)
+
+        addUpgrades('wark_AR', ['warkwark_AR', 'waarrk_AR', 'equalizer_AR', 'hexaTrapper', 'hutch_AR', 'cog_AR', 'expeller_AR', 'bulwark', 'coalesce_AR', 'autoWark_AR'])
+            addUpgrades('wark_AR', [/*'megaWark'*/], preset.ARsuffix)
+            //addUpgrades('warkwark_AR', [], preset.ARsuffix)
+            //addUpgrades('waarrk_AR', [], preset.ARsuffix)
+            //addUpgrades('equalizer_AR', [], preset.ARsuffix)
+            //addUpgrades('hexaTrapper', [], preset.ARsuffix)
+            //addUpgrades('hutch_AR', [], preset.ARsuffix)
+            //addUpgrades('cog_AR', [], preset.ARsuffix)
+            //addUpgrades('expeller_AR', [], preset.ARsuffix)
+            //addUpgrades('bulwark', [/*'parapet', 'partition', 'thrasher', 'dam', 'striker', 'bentBulwark', 'autoBulwark', 'stockade', 'fencer', 'impeder', 'quadwark'*/], preset.ARsuffix)
+            //addUpgrades('coalesce_AR', [], preset.ARsuffix)
+
+    addUpgrades('sniper', [])
+        addUpgrades('sniper', ['railgun'], preset.ARsuffix)
+            addUpgrades('sniper', ['sharpshooter'], preset.ARsuffix)
+            addUpgrades('railgun_AR', [], preset.ARsuffix)
+            //addUpgrades('bushwhacker', ['executor'/*, 'anchor'*/, 'butcher', 'tommy', 'ransacker'/*, 'raider', 'molder', 'thrasher'*/, 'autoBushwhacker'/*, 'blowgun', 'lockup', 'watchman', 'triBushwhacker'*/], preset.ARsuffix)
+
+        addUpgrades('assassin', ['hitman', 'sniper3', 'enforcer', 'courser'], preset.ARsuffix)
+            //addUpgrades('assassin', ['executor'/*, 'finger'*/], preset.ARsuffix)
+            //addUpgrades('ranger', [], preset.ARsuffix)
+            //addUpgrades('falcon', [], preset.ARsuffix)
+            //addUpgrades('stalker', [], preset.ARsuffix)
+            //addUpgrades('single', ['duo', 'sharpshooter', 'gadgetGun', 'ternion', 'coordinator', 'bruiser', 'tricker'/*, 'vinculum'*/, 'mono', 'avian', 'spy', 'autoSingle', 'cyclops', 'orifice', 'assistant'/*, 'basic3'*/, 'pistol', 'subduer'], preset.ARsuffix)
+            //addUpgrades('deadeye', [], preset.ARsuffix)
+            //addUpgrades('buttbuttin', [], preset.ARsuffix)
+            //addUpgrades('hitman_AR', [], preset.ARsuffix)
+            //addUpgrades('sniper3_AR', [], preset.ARsuffix)
+            //addUpgrades('enforcer_AR', [], preset.ARsuffix)
+            //addUpgrades('courser_AR', [], preset.ARsuffix)
+
+        addUpgrades('hunter', ['autoHunter', 'megaHunter', 'prober', 'courser'], preset.ARsuffix)
+
+        addUpgrades('minigun', ['zipper', 'bentMinigun', 'autoMinigun', 'widget', 'piercer'], preset.ARsuffix)
+
+        addUpgrades('rifle', ['autoRifle', 'enforcer', 'prober'], preset.ARsuffix)
+
+        addUpgrades('marksman', ['piercer', 'beadle', 'autoMarksman'], preset.ARsuffix)
+
+    addUpgrades('machineGun', ['diesel', 'machineTrapper'], preset.ARsuffix)
+        addUpgrades('machineGun', [])
+            addUpgrades('machineGun', ['gadgetGun'], preset.ARsuffix)
+
+        addUpgrades('artillery', ['queller', 'forger', 'force', 'autoArtillery', 'foctillery', 'discharger'], preset.ARsuffix)
+
+        //addUpgrades('minigun', [], preset.ARsuffix)
+
+        //addUpgrades('gunner', [], preset.ARsuffix)
+
+        addUpgrades('sprayer', ['frother', 'foamer', 'faucet', 'shower', 'autoSprayer', 'springer'], preset.ARsuffix)
+
+        addUpgrades('diesel_AR', ['jalopy_AR', 'machineGunner', 'dieselTrapper_AR', 'polluter_AR', 'autoDiesel_AR'])
+
+        addUpgrades('machineTrapper_AR', ['dieselTrapper_AR', 'barricade', 'equalizer_AR', 'frother_AR', 'machineGuard_AR', 'encircler_AR', 'machineMech_AR', 'triMachine_AR', 'expeller_AR', 'autoMachineTrapper_AR', 'deviation_AR'])
+
+    addUpgrades('flankGuard', [])
+        addUpgrades('flankGuard', [])
+            addUpgrades('flankGuard', ['ternion'], preset.ARsuffix)
+
+        //addUpgrades('hexaTank', [], preset.ARsuffix)
+
+        addUpgrades('triAngle', ['cockatiel', 'integrator', 'defect', 'quadAngle'], preset.ARsuffix)
+            //addUpgrades('triAngle', ['raven', 'shoebill'], preset.ARsuffix)
+            //addUpgrades('booster', ['rocket'], preset.ARsuffix)
+
+        addUpgrades('auto3', ['sniper3', 'crowbar', 'autoAuto3', 'combo'], preset.ARsuffix)
+            //addUpgrades('auto5', ['autoAuto5'], preset.ARsuffix)
+            //addUpgrades('mega3', ['autoMega3'], preset.ARsuffix)
+            //addUpgrades('auto4', ['autoAuto4'], preset.ARsuffix)
+            //addUpgrades('banshee', ['autoBanshee'], preset.ARsuffix)
+            //addUpgrades('sniper3_AR', ['autoSniper3'], preset.ARsuffix)
+            //addUpgrades('crowbar_AR', ['autoCrowbar'], preset.ARsuffix)
+            //addUpgrades('autoAuto3_AR', makeAutoBranch('auto3', 3, ['auto5', 'auto4']), preset.ARsuffix)
+            //addUpgrades('combo_AR', ['autoCombo'], preset.ARsuffix)
+
+        addUpgrades('trapGuard', ['peashooter', 'incarcerator', 'mechGuard', 'autoTrapGuard', 'machineGuard', 'triTrapGuard'], preset.ARsuffix)
+            //addUpgrades('autoTrapGuard_AR', [...makeAutoBranch('trapGuard', 3, [], ['triTrapGuard']), 'hexaTrapGuard'], preset.ARsuffix)
+
+        addUpgrades('triTrapper', ['triPen_AR', 'triMech_AR', 'triMachine_AR', 'triTrapGuard_AR', 'prodigy'])
+            //addUpgrades('triTrapper', ['triMegaTrapper', 'warkwarkwark'], preset.ARsuffix)
+
+    addUpgrades('director', ['directordrive', 'honcho', 'doper'], preset.ARsuffix)
+        addUpgrades('director', [])
+            addUpgrades('director', ['coordinator'], preset.ARsuffix)
+            addUpgrades('manager', [], preset.ARsuffix)
+
+        addUpgrades('overseer', ['captain', 'foreman', 'dopeseer'], preset.ARsuffix)
+            addUpgrades('overseer', ['inspector', 'overdoubleTwin'], preset.ARsuffix)
+
+        addUpgrades('cruiser', ['productionist', 'cruiserdrive', 'hangar', 'zipper', 'faucet', 'baltimore', 'mosey'], preset.ARsuffix)
+
+        addUpgrades('underseer', ['angleseer_AR', 'pentaseer_AR', 'hexaseer_AR', 'undertrapper_AR', 'undergunner_AR', 'mummifier_AR', 'prodigy', 'autoUnderseer_AR', 'underdrive_AR', 'dealer_AR'])
+
+        addUpgrades('spawner', ['megaSpawner', 'productionist', 'spawnerdrive', 'captain', 'hangar', 'laborer', 'foundry', 'issuer'], preset.ARsuffix)
+
+        addUpgrades('directordrive_AR', ['directorstorm_AR', 'overdrive', 'cruiserdrive_AR', 'underdrive_AR', 'spawnerdrive_AR', 'autoDirectordrive_AR', 'honchodrive_AR', 'doperdrive_AR'])
+
+        addUpgrades('honcho_AR', ['foreman_AR', 'baltimore_AR', 'mummifier_AR', 'foundry_AR', 'bigCheese', 'autoHoncho_AR', 'honchodrive_AR', 'junkie_AR'])
+
+        addUpgrades('doper_AR', ['brisker', 'dopeseer', 'mosey', 'dealer', 'issuer', 'junkie', 'doperdrive', 'autoDoper'], preset.ARsuffix)
+
+    addUpgrades('pounder', [])
+        addUpgrades('pounder', [])
+            addUpgrades('pounder', ['bruiser'], preset.ARsuffix)
+
+        addUpgrades('destroyer', ['megaTrapper', 'queller', 'autoDestroyer', 'hurler', 'slinker'], preset.ARsuffix)
+
+        addUpgrades('builder', ['forger', 'stall', 'fashioner', 'charger'], preset.ARsuffix)
+
+        //addUpgrades('artillery', [], preset.ARsuffix)
+
+        addUpgrades('launcher', ['rocketeer', 'pitcher_AR', 'cluster_AR', 'projector_AR', 'heaver_AR', 'autoLauncher_AR', 'hurler_AR', 'inception_AR'])
+
+    addUpgrades('trapper', ['pen', 'mech', 'machineTrapper', 'wark'], preset.ARsuffix)
+        addUpgrades('trapper', ['undertrapper', 'megaTrapper'], preset.ARsuffix)
+            addUpgrades('trapper', ['tricker'], preset.ARsuffix)
+
+    addUpgrades('desmos', ['volute'], {start: 0})
+    addUpgrades('desmos', ['spiral', 'undertow', 'repeater'])
+        addUpgrades('desmos', [])
+            addUpgrades('desmos', [], preset.ARsuffix)
+
+        //addUpgrades('helix', [])
+
+        addUpgrades('undertow', ['twindertow'], preset.ARsuffix)
+
+if (Config.retrograde) {
+    addUpgrades('twin', [])
+
+        addUpgrades('tripleShot', [])
+            //addUpgrades('pentaShot', ['pentaBlaster'], {start: 1, ...preset.ARsuffix})
+            //addUpgrades('bentHybrid', ['twistedHybrid'], {start: 1, ...preset.ARsuffix})
+            //addUpgrades('bentDouble', ['twistedDouble'], preset.ARsuffix)
+            //addUpgrades('triplet', ['twistlet'], preset.ARsuffix)
+            //addUpgrades('triBlaster', ['pentaBlaster', 'twistedHybrid', 'twistedDouble', 'twistlet', 'autoTriBlaster', 'bentSubverter'], preset.ARsuffix)
+
+        addUpgrades('gunner', [], preset.ARsuffix)
+
+    addUpgrades('machineGun', [])
+
+        addUpgrades('artillery', ['doubleArtillery'], preset.ARsuffix)
+
+        addUpgrades('minigun', ['doubleMinigun'], preset.ARsuffix)
+
+        //addUpgrades('gunner', [], preset.ARsuffix)
+
+        addUpgrades('sprayer', ['doubleSprayer'], preset.ARsuffix)
+            //addUpgrades('autoSprayer_AR', ['autoDoubleSprayer'], preset.ARsuffix)
+            //addUpgrades('doubleSprayer_AR', [], preset.ARsuffix)
+
+        addUpgrades('blaster', ['volley', 'blasterTrapper', 'doubleBlaster', 'ripoff', 'autoBlaster'], preset.ARsuffix)
+
+        addUpgrades('gatlingGun', ['gatlingTrapper', 'doubleGatling', 'gator', 'autoGatlingGun'], preset.ARsuffix)
+
+        addUpgrades('doubleMachine', ['doubleArtillery', 'doubleMinigun', 'doubleGunner', 'doubleSprayer', 'doubleBlaster', 'doubleGatling', 'doubleDiesel', 'triMachine', 'autoDoubleMachine'], preset.ARsuffix)
+            //addUpgrades('tripleMachine', ['tripleSprayer', 'autoTripleMachine'], preset.ARsuffix)
+            //addUpgrades('doubleSprayer_AR', ['tripleSprayer', 'autoDoubleSprayer'], preset.ARsuffix)
+            //addUpgrades('autoDoubleMachine_AR', makeAutoBranch('doubleMachine', 3), preset.ARsuffix)
+
+        addUpgrades('diesel_AR', ['doubleDiesel'], preset.ARsuffix)
+
+        addUpgrades('machineTrapper_AR', ['blasterTrapper', 'gatlingTrapper'], preset.ARsuffix)
+}
+
+// Autos
+addUpgrades('autoArtillery_AR', makeAutoBranch('artillery', 3), preset.ARsuffix)
+addUpgrades('autoAssassin', makeAutoBranch('assassin', 3), preset.ARsuffix)
+addUpgrades('autoBlaster_AR', makeAutoBranch('blaster', 3), preset.ARsuffix)
+addUpgrades('autoGatlingGun_AR', makeAutoBranch('gatlingGun', 3), preset.ARsuffix)
+addUpgrades('autoGunner', makeAutoBranch('gunner', 3, ['auto4']), preset.ARsuffix)
+addUpgrades('autoHelix_AR', makeAutoBranch('helix', 3), preset.ARsuffix)
+addUpgrades('autoHexaTank_AR', makeAutoBranch('hexaTank', 3, []/*, ['hexaTrapper']*/), preset.ARsuffix)
+addUpgrades('autoHunter_AR', makeAutoBranch('hunter', 3), preset.ARsuffix)
+addUpgrades('autoMarksman_AR', makeAutoBranch('marksman', 3), preset.ARsuffix)
+addUpgrades('autoMinigun_AR', makeAutoBranch('minigun', 3), preset.ARsuffix)
+addUpgrades('autoRifle_AR', makeAutoBranch('rifle', 3), preset.ARsuffix)
+addUpgrades('autoSprayer_AR', makeAutoBranch('sprayer', 3), preset.ARsuffix)
+addUpgrades('autoTripleShot_AR', makeAutoBranch('tripleShot', 3), preset.ARsuffix)
+addUpgrades('autoWark_AR', makeAutoBranch('wark_AR', 3), preset.ARsuffix)
+
+/*
+if (use_original_tree) {
+removeUpgrades('basic', 1, ['desmos'])
+    removeUpgrades('basic', 2, [])
+        addUpgrades('basic', ['single'])
+            removeUpgrades('single', tier4, Class.single[`UPGRADES_TIER_${tier4}`])
+            addUpgrades('single', ['duo', 'sharpshooter', 'gadgetGun', 'ternion', 'coordinator', 'bruiser', 'tricker', 'mono', 'avian', 'custodian', 'assistant', 'autoSingle'], preset.ARsuffix)
+        removeUpgrades('healer', 3, ['recalibrator_AR'])
+
+    removeUpgrades('twin', 2, ['helix'])
+        removeUpgrades('doubleTwin', 3, ['doubleHelix_AR'])
+            removeUpgrades('tripleTwin', tier4, ['tripleHelix_AR'])
+            removeUpgrades('autoDouble', tier4, ['autoDoubleHelix_AR'])
+        removeUpgrades('tripleShot', 3, ['triplex'])
+
+    removeUpgrades('sniper', 2, ['marksman'])
+        removeUpgrades('assassin', 3, ['single', 'deadeye'])
+        removeUpgrades('hunter', 3, ['xHunter', 'nimrod'])
+        removeUpgrades('rifle', 3, ['revolver'])
+
+    removeUpgrades('machineGun', 2, ['sprayer'])
+        addUpgrades('machineGun', ['sprayer'])
+            addUpgrades('sprayer', ['duster_AR', 'frother_AR', 'scatterer_AR', 'foamer_AR', 'shower_AR', 'autoSprayer_AR', 'phoenix'])
+
+        removeUpgrades('sprayer', 3, Class.sprayer.UPGRADES_TIER_3)
+
+    //removeUpgrades('flankGuard', 2, [])
+        removeUpgrades('flankGuard', 3, ['quadruplex'])
+        removeUpgrades('triAngle', 3, ['phoenix', 'vulture'])
+
+    //removeUpgrades('director', 2, [])
+        removeUpgrades('overseer', 3, ['overtrapper', 'overgunner'])
+        removeUpgrades('underseer', 3, ['infestor'])
+
+    //removeUpgrades('pounder', 2, [])
+        removeUpgrades('pounder', 3, ['deathStar'])
+        removeUpgrades('builder', 3, ['assembler'])
+} else {
+*/
+addUpgrades('menu_unused', ['4', '5'].map(x => 'menu_unused_T' + x + '_AR'))
+Class.menu_unused_T4_AR = makeMenu("Unused (Tier 4)", {upgrades: ["duster_AR"/*, "jimmy_AR", "jumpSmasher"*/], boxLabel: "Tier 4 (Lv.60)"})
+Class.menu_unused_T5_AR = makeMenu("Unused (Tier 5)", {upgrades: ["custodian_AR"], boxLabel: "Tier 5 (Lv.75)"})
+//}
+
