@@ -5471,7 +5471,7 @@ Class.worstTank = {
 };
 
 // Class Tree
-addUpgrades('basic', ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos', 'flail', 'healer', 'single']);
+addUpgrades('basic', ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos', 'flail', 'single', 'healer']);
 addUpgrades('basic', ['smasher']);
 addUpgrades('smasher', ['megaSmasher', 'spike', 'autoSmasher', 'landmine']);
 addUpgrades('healer', ['medic', 'ambulance', 'surgeon', 'paramedic']);

@@ -1502,11 +1502,39 @@ exports.makePolychoron = function (info) {
 // tgs
 exports.addUpgrades = (type, tier, upgrades = [], options = {}) => {
     const target = ensureIsClass(type);
+    if (!target) return;
     if (typeof tier !== 'number') {
         options = upgrades || {};
         upgrades = tier || [];
         const existingKey = Object.keys(target).find(k => k.startsWith('UPGRADES_TIER_') && Array.isArray(target[k]));
-        tier = existingKey ? parseInt(existingKey.replace('UPGRADES_TIER_', '')) : 3;
+        if (existingKey) {
+            tier = parseInt(existingKey.replace('UPGRADES_TIER_', ''));
+        } else if (type === 'basic' || target === Class.basic) {
+            tier = 1;
+        } else {
+            let inferredTier = null;
+            if (typeof Class !== 'undefined') {
+                for (const key in Class) {
+                    const parent = Class[key];
+                    if (!parent || typeof parent !== 'object') continue;
+                    for (const prop in parent) {
+                        if (prop.startsWith('UPGRADES_TIER_') && Array.isArray(parent[prop])) {
+                            if (parent[prop].includes(type)) {
+                                inferredTier = parseInt(prop.replace('UPGRADES_TIER_', '')) + 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (inferredTier !== null) break;
+                }
+            }
+            if (inferredTier === null && typeof target.DANGER === 'number') {
+                if (target.DANGER <= 4) inferredTier = 2;
+                else if (target.DANGER === 6) inferredTier = 3;
+                else if (target.DANGER >= 7) inferredTier = 4;
+            }
+            tier = inferredTier ?? 3;
+        }
     }
     const upgradeList = upgrades.map(x => x + (options.suffix ?? ''));
     const startValue = options.start ?? -1;
@@ -1524,8 +1552,36 @@ exports.removeUpgrades = (type, tier, upgrades = []) => {
     if (typeof tier !== 'number') {
         upgrades = tier || [];
         target = ensureIsClass(type);
-        const existingKey = target ? Object.keys(target).find(k => k.startsWith('UPGRADES_TIER_') && Array.isArray(target[k])) : null;
-        tier = existingKey ? parseInt(existingKey.replace('UPGRADES_TIER_', '')) : 3;
+        if (!target) return;
+        const existingKey = Object.keys(target).find(k => k.startsWith('UPGRADES_TIER_') && Array.isArray(target[k]));
+        if (existingKey) {
+            tier = parseInt(existingKey.replace('UPGRADES_TIER_', ''));
+        } else if (type === 'basic' || target === Class.basic) {
+            tier = 1;
+        } else {
+            let inferredTier = null;
+            if (typeof Class !== 'undefined') {
+                for (const key in Class) {
+                    const parent = Class[key];
+                    if (!parent || typeof parent !== 'object') continue;
+                    for (const prop in parent) {
+                        if (prop.startsWith('UPGRADES_TIER_') && Array.isArray(parent[prop])) {
+                            if (parent[prop].includes(type)) {
+                                inferredTier = parseInt(prop.replace('UPGRADES_TIER_', '')) + 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (inferredTier !== null) break;
+                }
+            }
+            if (inferredTier === null && typeof target.DANGER === 'number') {
+                if (target.DANGER <= 4) inferredTier = 2;
+                else if (target.DANGER === 6) inferredTier = 3;
+                else if (target.DANGER >= 7) inferredTier = 4;
+            }
+            tier = inferredTier ?? 3;
+        }
     } else {
         target = ensureIsClass(type);
     }
