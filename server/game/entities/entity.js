@@ -359,6 +359,12 @@ class Entity extends EventEmitter {
                 });
             }
         }
+        let seenIndexes = new Set();
+        this.upgrades = this.upgrades.filter(u => {
+            if (seenIndexes.has(u.index)) return false;
+            seenIndexes.add(u.index);
+            return true;
+        });
         if (set.SIZE != null) {
             this.SIZE = set.SIZE * this.squiggle;
             if (this.coreSize == null) this.coreSize = this.SIZE;
@@ -840,15 +846,33 @@ class Entity extends EventEmitter {
             if (!this.inBase() && now - lastAction < Config.upgrade_delay) {
                 let tankLabel = "Unknown";
 
-                let upgrade = this.upgrades[number];
-                let list = Array.isArray(upgrade.class) ? upgrade.class : [upgrade.class]
-                for (let entry of list) {
-                    let tank = Array.isArray(entry) ? ensureIsClass(...entry) : ensureIsClass(entry);
-                    let label = tank.LABEL;
-                    if (label) { 
-                        tankLabel = label; 
-                        break;
-                     }
+                let realIndexForLabel = -1;
+                if (branchId !== undefined) {
+                    let unlockedIndex = 0;
+                    for (let i = 0; i < this.upgrades.length; i++) {
+                        if (this.skill.level >= this.upgrades[i].level) {
+                            if (unlockedIndex === number) {
+                                realIndexForLabel = i;
+                                break;
+                            }
+                            unlockedIndex++;
+                        }
+                    }
+                } else {
+                    realIndexForLabel = number;
+                }
+
+                if (realIndexForLabel !== -1 && realIndexForLabel < this.upgrades.length) {
+                    let upgrade = this.upgrades[realIndexForLabel];
+                    let list = Array.isArray(upgrade.class) ? upgrade.class : [upgrade.class]
+                    for (let entry of list) {
+                        let tank = Array.isArray(entry) ? ensureIsClass(...entry) : ensureIsClass(entry);
+                        let label = tank.LABEL;
+                        if (label) { 
+                            tankLabel = label; 
+                            break;
+                        }
+                    }
                 }
                 this.upgradePending = {
                     number,
@@ -874,10 +898,25 @@ class Entity extends EventEmitter {
                 } else this.sendMessage("You must watch an ad before you can upgrade.");
             }
         } else {
-            for (let i = 0; i < branchId; i++) { number += this.skippedUpgrades[i] ?? 0; };
-            if (number < this.upgrades.length && this.skill.level >= this.upgrades[number].level) {
+            let realIndex = -1;
+            if (branchId !== undefined) {
+                let unlockedIndex = 0;
+                for (let i = 0; i < this.upgrades.length; i++) {
+                    if (this.skill.level >= this.upgrades[i].level) {
+                        if (unlockedIndex === number) {
+                            realIndex = i;
+                            break;
+                        }
+                        unlockedIndex++;
+                    }
+                }
+            } else {
+                realIndex = number;
+            }
+
+            if (realIndex !== -1 && realIndex < this.upgrades.length && this.skill.level >= this.upgrades[realIndex].level) {
                 upgraded = true;
-                let upgrade = this.upgrades[number], upgradeClass = upgrade.class, upgradeBranch = upgrade.branch, redefineAll = upgrade.redefineAll;
+                let upgrade = this.upgrades[realIndex], upgradeClass = upgrade.class, upgradeBranch = upgrade.branch, redefineAll = upgrade.redefineAll;
                 if (redefineAll) {
                     for (let i = 0; i < upgradeClass.length; i++) upgradeClass[i] = ensureIsClass(...upgradeClass[i]);
                     this.upgrades = [];
