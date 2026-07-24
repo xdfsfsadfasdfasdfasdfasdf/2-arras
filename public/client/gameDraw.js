@@ -126,10 +126,10 @@ var gameDraw = {
         // Get HSL values
         let baseColor = gameDraw.rgbToHsl(gameDraw.getColor(colorDetails[0]) ?? colorDetails[0]);
 
-        // Get color config
-        let hueShift = parseFloat(colorDetails[1]) / 360,
-            saturationShift = parseFloat(colorDetails[2]),
-            brightnessShift = parseFloat(colorDetails[3]) / 100,
+        // Get color config with safe defaults if single color string is provided
+        let hueShift = (colorDetails[1] != null ? parseFloat(colorDetails[1]) : 0) / 360,
+            saturationShift = colorDetails[2] != null ? parseFloat(colorDetails[2]) : 1,
+            brightnessShift = (colorDetails[3] != null ? parseFloat(colorDetails[3]) : 0) / 100,
             allowBrightnessInvert = colorDetails[4] == 'true';
 
         // Apply config

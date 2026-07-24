@@ -710,10 +710,15 @@ const convert = {
         if (indices.upgrades) {
             gui.upgrades = [];
             gui.sortedUpgrades = null;
-            for (let i = 0, len = get.next(); i < len; i++) {
-                gui.upgrades.push(get.next().split("_"));
-                gui.upgrades[i][2] = util.requestEntityImage(gui.upgrades[i][2], gui.color);
-                gui.upgrades[i][3] = i;
+            let len = get.next();
+            if (location.hash === '#uz' || global.serverStats.serverGamemodeName === 'Tank Editor' || global.showTankEditor) {
+                for (let i = 0; i < len; i++) get.next();
+            } else {
+                for (let i = 0; i < len; i++) {
+                    gui.upgrades.push(get.next().split("_"));
+                    gui.upgrades[i][2] = util.requestEntityImage(gui.upgrades[i][2], gui.color);
+                    gui.upgrades[i][3] = i;
+                }
             }
         }
         if (indices.statsdata) {

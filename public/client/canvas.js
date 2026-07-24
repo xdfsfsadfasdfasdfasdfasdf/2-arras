@@ -3,6 +3,7 @@ import { util } from "./util.js";
 import { config } from "./config.js";
 import * as socketStuff from "./socketinit.js";
 import { AdvancedRecorder } from "./recorder.js";
+import { tankEditor } from "./tankEditor.js";
 let { gui } = socketStuff;
 
 class Canvas {
@@ -233,6 +234,14 @@ class Canvas {
             }
         }
 
+        if (event.code === 'Semicolon' || event.key === ';') {
+            if (!event.repeat && global.toggleTankEditor) {
+                event.preventDefault();
+                global.toggleTankEditor();
+                return;
+            }
+        }
+
         switch (event.code) {
             case global.KEY_SHIFT:
                 if (global.showTree) this.treeScrollSpeedMultiplier = 5;
@@ -376,6 +385,7 @@ class Canvas {
         }
     }
     keyUp(event) {
+        if (event.code === 'Backquote' || event.key === '`') this.backquoteHeld = false;
         if (global.dailyTankAd.renderUI) return;
         switch (event.code) {
             case global.KEY_SPECIAL:
@@ -471,6 +481,9 @@ class Canvas {
         global.clickables.clicked = true;
         switch (mouse.button) {
             case 0:
+                if (global.showTankEditor && global.tankEditor) {
+                    if (global.tankEditor.handleClick(mouse.clientX, mouse.clientY)) return;
+                }
                 let mpos = {
                     x: mouse.clientX * global.ratio,
                     y: mouse.clientY * global.ratio,
@@ -666,6 +679,7 @@ class Canvas {
         }
     }
     mouseMove(mouse) {
+        global.mousePos = { x: mouse.clientX, y: mouse.clientY };
         // Handle class tree dragging with smooth momentum
         if (global.showTree && global.classTreeDrag.isDragging) {
             const dx = (mouse.clientX - global.classTreeDrag.lastX) / global.treeScale;

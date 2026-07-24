@@ -540,7 +540,7 @@ class Entity extends EventEmitter {
             this.settings.necroDefineGuns = {};
             for (let shape of this.settings.necroTypes) {
                 // Pick the first gun with the right necroType to use for stats and use its defineBullet function
-                this.settings.necroDefineGuns[shape] = this.gunsArrayed.filter((gun) => gun.bulletType.NECRO && (gun.bulletType.NECRO === shape || (gun.bulletType.NECRO === true && gun.bulletType.SHAPE === this.shape) || gun.bulletType.NECRO.includes(shape)))[0];
+                this.settings.necroDefineGuns[shape] = this.gunsArrayed.filter((gun) => gun.bulletType && gun.bulletType.NECRO && (gun.bulletType.NECRO === shape || (gun.bulletType.NECRO === true && gun.bulletType.SHAPE === this.shape) || gun.bulletType.NECRO.includes(shape)))[0];
             }
 
             this.necro = (host) => {

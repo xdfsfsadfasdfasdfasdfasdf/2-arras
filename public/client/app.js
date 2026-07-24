@@ -749,6 +749,11 @@ import * as socketStuff from "./socketinit.js";
     // Prepare the player
     global.player = global.initPlayer();
     function calculateTarget() {
+        if (global.showTankEditor) {
+            global.target.x = 1000;
+            global.target.y = 0;
+            return global.target;
+        }
         if (!global.canvas.mouseMoved) return;
         global.target.x = global.mouse.x - (global.player.screenx / global.screenWidth * global.canvas.width + global.canvas.width / 2);
         global.target.y = global.mouse.y - (global.player.screeny / global.screenHeight * global.canvas.height + global.canvas.height / 2);
@@ -2134,7 +2139,7 @@ import * as socketStuff from "./socketinit.js";
             const indexStr = instance.index;
             const indexes = indexStr.split("-");
             const mockupIndex = +indexes[0];
-            const m = global.mockups[mockupIndex] || global.missingno[0];
+            const m = (global.showTankEditor && instance.id === gui.playerid && global.tankEditorMockup) ? global.tankEditorMockup : (global.mockups[mockupIndex] || global.missingno[0]);
             const source = turretInfo === false ? instance : turretInfo;
             
             // --- Size calculations with cached values ---
@@ -2157,11 +2162,12 @@ import * as socketStuff from "./socketinit.js";
             if (m.props) turrets.sort((a, b) => a.layer - b.layer);
 
             // --- Gun positions with single update ---
-            source.guns.update();
+            if (source.guns && typeof source.guns.update === 'function') source.guns.update();
         
             // --- Fancy canvas with reduced state setup ---
             let xx = x, yy = y;
-            const useFancyCanvas = DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
+            const gunCount = source.guns ? source.guns.length : 0;
+            const useFancyCanvas = DEAIC(assignedContext, alphaFade, m.shape, m.glow, gunCount, turrets.length);
         
             if (useFancyCanvas) {
                 context = ctx2;
@@ -2225,12 +2231,13 @@ import * as socketStuff from "./socketinit.js";
             }
         
             // --- Gun positions/config with minimal property access ---
-            const positions = source.guns.getPositions();
-            const gunConfig = source.guns.getConfig();
+            const sourceGuns = (global.showTankEditor && instance.id === gui.playerid && source === instance && global.tankEditorMockup && global.tankEditorMockup.gunsObj) ? global.tankEditorMockup.gunsObj : source.guns;
+            if (!sourceGuns) return;
+            const positions = sourceGuns.getPositions ? sourceGuns.getPositions() : [];
+            const gunConfig = sourceGuns.getConfig ? sourceGuns.getConfig() : [];
             const statusColor = render.status.getColor();
             const blend = render.status.getBlend();
             
-            const sourceGuns = source.guns;
             const gunLength = sourceGuns.length;
             
             for (let drawAbove = 0; drawAbove < 2; ++drawAbove) {
@@ -2246,13 +2253,14 @@ import * as socketStuff from "./socketinit.js";
                     context.lineWidth = initStrokeWidth;
                     
                     // Cache angle calculations
-                    const gAngle = g.angle + rot;
-                    const gunAngle = g.direction + gAngle;
+                    const gAngle = (g.angle || 0) + rot;
+                    const gunAngle = (g.direction || 0) + gAngle;
                     const cosGunAngle = Math.cos(gunAngle);
                     const sinGunAngle = Math.sin(gunAngle);
                     
-                    const gx = g.offset * cosGunAngle;
-                    const gy = g.offset * sinGunAngle;
+                    const gOffset = g.offset || 0;
+                    const gx = gOffset * cosGunAngle;
+                    const gy = gOffset * sinGunAngle;
                     
                     // Minimize color calculations
                     let gunColor = g.color == null ? color.grey : gameDraw.modifyColor(g.color, baseColor);
@@ -2261,40 +2269,42 @@ import * as socketStuff from "./socketinit.js";
                     global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((mixedColor = gameDraw.mixColors(gunColor, gameDraw.getColor(6), 0.3)));
                     gameDraw.setColor(context, mixedColor);
                     
+                    const gPos = (positions && positions[i] != null) ? positions[i] : 0;
                     // Draw gun with precalculated values
                     drawGun(
                         context,
                         xx + drawSize * gx,
                         yy + drawSize * gy,
-                        drawSize * g.length / 2,
-                        drawSize * g.width / 2,
-                        g.aspect,
+                        drawSize * (g.length || 18) / 2,
+                        drawSize * (g.width || 8) / 2,
+                        g.aspect || 0,
                         gAngle,
-                        g.borderless,
-                        g.drawFill,
+                        g.borderless || false,
+                        g.drawFill !== false,
                         gunAlpha,
-                        g.strokeWidth,
-                        drawSize * positions[i]
+                        g.strokeWidth || 1,
+                        drawSize * gPos
                     );
                 }
         
                 // Draw body between gun layers
                 if (drawAbove === 0) {
                     context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
-                    context.lineWidth = initStrokeWidth * m.strokeWidth;
+                    context.lineWidth = initStrokeWidth * (m.strokeWidth || 1);
                     
                     // Precalculate body color
+                    let targetColor = (global.showTankEditor && instance.id === gui.playerid && global.tankEditorMockup) ? global.tankEditorMockup.color : instance.color;
                     let bodyColor = gameDraw.mixColors(
-                        gameDraw.modifyColor(instance.color, baseColor),
+                        gameDraw.modifyColor(targetColor, baseColor),
                         statusColor,
                         blend
                     );
-                    global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((bodyColor = gameDraw.mixColors(gameDraw.modifyColor(instance.color, baseColor), gameDraw.getColor(6), 0.3)));
+                    global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((bodyColor = gameDraw.mixColors(gameDraw.modifyColor(targetColor, baseColor), gameDraw.getColor(6), 0.3)));
                     gameDraw.setColor(context, bodyColor);
         
                     // Optimized glow effect
                     const glow = m.glow;
-                    const glowRadius = glow.radius;
+                    const glowRadius = (glow && glow.radius) ? glow.radius : 0;
                     
                     if (glowRadius > 0) {
                         // Calculate glow color once
@@ -2600,12 +2610,18 @@ import * as socketStuff from "./socketinit.js";
                 motion.predictFacing(instance.render.lastf, instance.facing) :
                 instance.render.faceAnim.get(tick, 1 !== rst);
 
-            instance.id === gui.playerid &&
+            if (instance.id === gui.playerid && global.showTankEditor && global.tankEditor) {
+                global.tankEditor.syncPlayerEntity(instance);
+                instance.render.f = 0;
+            } else if (
+                instance.id === gui.playerid &&
                 !global.autoSpin &&
                 !global.syncingWithTank &&
                 !instance.twiggle &&
-                !global.died ?
-                instance.render.f = Math.atan2(global.target.y * global.reverseTank, global.target.x * global.reverseTank) : 0
+                !global.died
+            ) {
+                instance.render.f = Math.atan2(global.target.y * global.reverseTank, global.target.x * global.reverseTank);
+            }
 
             let x = ratio * instance.render.x - px,
                 y = ratio * instance.render.y - py,
@@ -3715,6 +3731,11 @@ import * as socketStuff from "./socketinit.js";
 
     function drawAvailableUpgrades(spacing, alcoveSize) {
         // Draw upgrade menu
+        if (location.hash === '#uz' || (global.serverStats && global.serverStats.serverGamemodeName === 'Tank Editor') || global.showTankEditor) {
+            gui.upgrades = [];
+            gui.sortedUpgrades = null;
+            return;
+        }
         if (global.optionsMenu_Anim.isOpened) global.clickables.upgrade.hide();
         if (gui.upgrades.length > 0) {
             let internalSpacing = 15;
@@ -5333,8 +5354,13 @@ import * as socketStuff from "./socketinit.js";
         if (global.GUIStatus.fullHDMode) ctx[2].translate(0.5, 0.5);
         let p = performance.now();
         try {
+            if (global.showTankEditor) {
+                global.target.x = 1000;
+                global.target.y = 0;
+                if (global.socket && global.socket.cmd) global.socket.cmd.reactNow();
+            }
             drawGameplay(tick, ratio);
-            drawGUI(tick, util.getScreenRatio());
+            if (!global.showTankEditor) drawGUI(tick, util.getScreenRatio());
             if (global.gameConnecting && !global.disconnected) {
                 drawConnectingScreen();
             };
@@ -5346,6 +5372,7 @@ import * as socketStuff from "./socketinit.js";
                 drawDisconnectedScreen();
             }
             if (global.dailyTankAd.renderUI) drawAdScreen();
+            if (global.tankEditor) global.tankEditor.render(ctx[2], window.innerWidth, window.innerHeight);
             if (global.GUIStatus.renderIngameOptions) drawOptionsMenu(tick, 20, util.getScreenRatio());
             if (global.GUIStatus.fullHDMode) ctx[2].translate(-0.5, -0.5);
 

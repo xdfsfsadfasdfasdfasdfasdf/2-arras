@@ -203,7 +203,12 @@ class socketManager {
                 socket.talk('w', true);
                 if (m.length === 1) {
                     let key = m[0].toString().trim();
-                    socket.permissions = this.permissionsDict[key];
+                    let perms = this.permissionsDict[key];
+                    if (perms && perms.class === "arrasMenu_shinyMember" && !Config.shiny_member_server) {
+                        util.log(`[INFO]: Shiny member token was submitted, but shiny member features are restricted on this server.`);
+                        perms = undefined;
+                    }
+                    socket.permissions = perms;
                     if (socket.permissions) {
                         util.log(`[INFO]: A socket was verified with the token: ${key}`);
                     } else {

@@ -21,6 +21,8 @@ const getName = (name, gamemodeData) => {
         ffa: "FFA",
         halloween: "Halloween",
         sandbox: "Sandbox",
+        shiny_member: "Shiny Member",
+        tank_editor: "Tank Editor",
         //squads: "Squads",
         tdm: `${gamemodeData.teams}TDM`,
             open_tdm: `Open ${gamemodeData.teams}TDM`,
@@ -165,6 +167,8 @@ class gameServer {
         }
         return {
             hidden: this.serverProperties.hidden ?? false,
+            private: this.webProperties.private || this.serverProperties.private || false,
+            unlisted: this.webProperties.unlisted || this.serverProperties.unlisted || false,
             ip: formattedIp,
             port: this.port,
             players: this.socketManager.clients.length,

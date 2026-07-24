@@ -135,6 +135,8 @@ server = http.createServer((req, res) => {
                     region: server.region,
                     gameMode: server.gameMode,
                     wsPath: server.proxyClientServer ? `/ws/${encodeURIComponent(server.id)}` : "",
+                    private: server.private || false,
+                    unlisted: server.unlisted || false,
                 };
             }));
         } break;
@@ -330,11 +332,15 @@ server.on("listening", () => {
     let hostDomain = (Config.host && Config.host.split(":")[0]) || "localhost";
     Config.host = `${hostDomain}:${boundPort}`;
 
-    Config.servers.forEach(s => {
+    Config.servers.forEach((s, idx) => {
         if (s.share_client_server) {
             s.port = boundPort;
             let sDomain = (s.host && s.host.split(":")[0]) || "localhost";
             s.host = `${sDomain}:${boundPort}`;
+        } else {
+            s.port = boundPort + idx;
+            let sDomain = (s.host && s.host.split(":")[0]) || "localhost";
+            s.host = `${sDomain}:${s.port}`;
         }
         // Load all of the servers.
         loadGameServer(
@@ -347,6 +353,8 @@ server.on("listening", () => {
                 id: s.id,
                 maxPlayers: s.player_cap,
                 proxyClientServer: s.proxy_client_server ?? false,
+                private: s.private ?? false,
+                unlisted: s.unlisted ?? false,
             },
             s.properties,
             s.featured

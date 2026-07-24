@@ -18,9 +18,13 @@ global.loadServerSelector = (serverData, text) => {
     }
     document.getElementById("startButton").disabled = false;
     servers = serverData;
-    let id = location.hash.slice(1);
+    let hashId = location.hash.slice(1);
+    let id = hashId;
     if (!servers.some(server => server.id === id)) id = localStorage.getItem("lastServer");
-    if (!servers.some(server => server.id === id)) id = servers[0].id;
+    if (!servers.some(server => server.id === id && (!server.private && !server.unlisted || server.id === hashId))) {
+        let defaultServer = servers.find(server => !server.private && !server.unlisted) || servers[0];
+        id = defaultServer ? defaultServer.id : "";
+    }
     let serverSelector = document.getElementById("serverSelector");
       tbody = document.createElement("tbody");
       serversDocs = document.createElement("center");
@@ -70,11 +74,13 @@ global.loadServerSelector = (serverData, text) => {
                     global.serverAdd = global.serverAdd + ":" + server.port;
                 }
             };
-            serversDocs.appendChild(tr);
+            if (!server.private && !server.unlisted) {
+                serversDocs.appendChild(tr);
+                availableServers.push({ element: tr, region: server.region, gameMode: server.gameMode, id: server.id });
+            }
             serverMap[server.id] = tr;
             global.serverMap[server.ip] = tr;
             if (id === server.id) myServer = tr;
-            availableServers.push({ element: tr, region: server.region, gameMode: server.gameMode, id: server.id });
         } catch (e) {
             console.log(e);
         }
@@ -139,6 +145,7 @@ let initializeFilter = () => {
     tbody.appendChild(noServerMatches);
 
     for (let s of servers) {
+        if (s.private || s.unlisted) continue;
         // Regions
         global.filters.regions.all.push(s);
 
@@ -176,7 +183,7 @@ let initializeFilter = () => {
         if (s.gameMode.includes("TDM")) global.filters.gamemodeFilters.tdm.push(s);
 
         // Sandbox
-        if (s.gameMode.includes("Sandbox")) global.filters.gamemodeFilters.sandbox.push(s);
+        if (s.gameMode.includes("Sandbox") || s.gameMode.includes("Tank Editor")) global.filters.gamemodeFilters.sandbox.push(s);
 
         // Minigames
         if (
